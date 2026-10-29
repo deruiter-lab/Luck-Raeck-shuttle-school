@@ -342,10 +342,13 @@ const synth=window.speechSynthesis;
 let voices=[];
 const FEMALE=/claire|fenna|colette|ellen|hanna|femke|lotte|laura|anna|sanne|nl-nl-standard-a|nl-nl-standard-d|nl-nl-standard-e|nl-nl-wavenet-a|nl-nl-wavenet-d|nl-nl-wavenet-e|female|vrouw|google nederlands/i;
 const MALE=/xander|maarten|frank|willem|arnaud|bram|male\b|\bman\b|standard-b|standard-c|wavenet-b|wavenet-c/i;
-function loadVoices(){ if(!synth) return; try{voices=synth.getVoices().filter(v=>/^nl/i.test(v.lang));}catch(e){voices=[];} }
+let allVoices=[];
+function loadVoices(){ if(!synth) return; try{allVoices=synth.getVoices().slice();voices=allVoices.filter(v=>/^nl/i.test(v.lang));}catch(e){voices=[];allVoices=[];} }
 function rankVoice(v){ let s=0; if(/nl[-_]NL/i.test(v.lang)) s+=10; if(FEMALE.test(v.name)) s+=6; if(MALE.test(v.name)) s-=20; if(/natural|neural|premium|enhanced|verbeterd|online/i.test(v.name)) s+=3; return s; }
-function pickVoice(){ loadVoices(); if(S.voice){const f=voices.find(v=>v.name===S.voice); if(f) return f;} return voices.slice().sort((a,b)=>rankVoice(b)-rankVoice(a))[0]||null; }
-if(synth){ loadVoices(); synth.onvoiceschanged=()=>{loadVoices(); if(cur.view==='settings') render();}; }
+function pickVoice(){ loadVoices(); if(S.voice){const f=allVoices.find(v=>v.name===S.voice); if(f) return f;} return voices.slice().sort((a,b)=>rankVoice(b)-rankVoice(a))[0]||null; }
+if(synth){ loadVoices(); synth.onvoiceschanged=()=>{loadVoices(); if(cur.view==='settings') render();};
+  /* iPhone/iPad geven stemmen vaak pas later door: een paar keer opnieuw vragen */
+  let tries=0, last=-1; const poll=setInterval(()=>{loadVoices(); if(allVoices.length!==last){last=allVoices.length; if(typeof cur!=='undefined'&&cur.view==='settings') render();} if(++tries>20) clearInterval(poll);},500); }
 let speakingBtn=null;
 function spoken(text){
   return text.replace(/<[^>]+>/g,'').replace(/(\d+)\s*[–-]\s*(\d+)/g,'$1 $2').replace(/1,15 m\b/g,'1 meter 15').replace(/1,55 m\b/g,'1 meter 55').replace(/1,524 m\b/g,'1 meter 52')
@@ -1496,17 +1499,20 @@ function svgToPng(svg,w,h){return new Promise((res,rej)=>{const img=new Image();
 /* ---------- Instellingen ---------- */
 function settingsView(){
   loadVoices(); const chosen=pickVoice(); const p=P(); const tab=cur.tab||'spelers';
-  const opts=voices.slice().sort((a,b)=>rankVoice(b)-rankVoice(a));
+  const nlSorted=voices.slice().sort((a,b)=>rankVoice(b)-rankVoice(a));
+  const opts=S.allv?nlSorted.concat(allVoices.filter(v=>!/^nl/i.test(v.lang)).sort((a,b)=>a.lang.localeCompare(b.lang)||a.name.localeCompare(b.name))):nlSorted;
   let body='';
   if(tab==='spelers') body=`
     <p class="note">Wie speelt er? Tik op je naam.</p>
     <div class="profiles">${Object.keys(S.profiles).map(nm=>`<button class="chip ${nm===S.current?'on':''}" data-p="${esc(nm)}">${esc(nm)} · ${S.profiles[nm].shuttles}</button>`).join('')}</div>
     <form class="row" id="pf"><label for="pn" class="note">Nieuwe speler</label><input type="text" id="pn" maxlength="20" placeholder="Voornaam"><button class="btn alt small" type="submit">Toevoegen</button></form>`;
   if(tab==='stem') body=(opts.length?`
-    <label for="vs" class="note">Voorleesstem (${opts.length} op dit apparaat)</label>
-    <select id="vs">${opts.map((v,i)=>`<option value="${i}" ${chosen&&v.name===chosen.name?'selected':''}>${esc(v.name)} · ${/nl[-_]BE/i.test(v.lang)?'Vlaams':'Nederlands'}${MALE.test(v.name)?' · man':FEMALE.test(v.name)?' · vrouw':''}</option>`).join('')}</select>
+    <label for="vs" class="note">Voorleesstem</label>
+    <select id="vs">${opts.map((v,i)=>`<option value="${i}" ${chosen&&v.name===chosen.name?'selected':''}>${esc(v.name)} · ${/^nl/i.test(v.lang)?(/nl[-_]BE/i.test(v.lang)?'Vlaams':'Nederlands'):esc(v.lang)}${MALE.test(v.name)?' · man':FEMALE.test(v.name)?' · vrouw':''}</option>`).join('')}</select>
     <div class="row"><button class="btn go small" id="hear">${I.speaker} Luister</button><button class="btn alt small" id="rescan">Opnieuw zoeken</button></div>`
     :`<div class="warn">Geen Nederlandse stem gevonden. iPad/iPhone: Instellingen › Toegankelijkheid › Gesproken materiaal › Stemmen › Nederlands › Claire. Windows: Instellingen › Tijd en taal › Spraak › stem toevoegen › Nederlands.</div><div><button class="btn alt small" id="rescan">Opnieuw zoeken</button></div>`)+`
+    <p class="note">Dit apparaat geeft ${allVoices.length} ${allVoices.length===1?'stem':'stemmen'} door aan de app, waarvan ${voices.length} Nederlands. Siri-stemmen geeft Apple niet door aan websites.</p>
+    <label class="row note"><input type="checkbox" id="allv" ${S.allv?'checked':''}> Toon ook stemmen in andere talen <span class="muted">(die lezen Nederlands met een accent)</span></label>
     <label for="rt" class="note">Snelheid: <span id="rtv">${S.rate.toFixed(2)}</span></label>
     <input type="range" id="rt" min="0.6" max="1.2" step="0.05" value="${S.rate}">
     <label class="row note"><input type="checkbox" id="au" ${S.auto?'checked':''}> Automatisch voorlezen</label>
@@ -1539,9 +1545,10 @@ function settingsView(){
   const pf=document.getElementById('pf'); if(pf) pf.onsubmit=e=>{e.preventDefault();const nm=document.getElementById('pn').value.trim();if(!nm)return;S.profiles[nm]=S.profiles[nm]||newProfile();S.current=nm;save();render();};
   const vs=document.getElementById('vs'); if(vs) vs.onchange=()=>{S.voice=opts[+vs.value].name;save();speak('Hoi! Zal ik jou de spelregels van badminton uitleggen?',null,opts[+vs.value]);};
   const hb=document.getElementById('hear'); if(hb) hb.onclick=()=>speak('Hoi! Zal ik jou de spelregels van badminton uitleggen? De lijn is in!',hb,opts[+vs.value]);
-  const rs=document.getElementById('rescan'); if(rs) rs.onclick=()=>{if(synth){try{synth.cancel();synth.getVoices();}catch(e){}} setTimeout(render,400);};
+  const rs=document.getElementById('rescan'); if(rs) rs.onclick=()=>{if(synth){try{synth.cancel();speak(' ');synth.getVoices();}catch(e){}} setTimeout(render,600); setTimeout(render,1800);};
   const rt=document.getElementById('rt'); if(rt) rt.oninput=()=>{S.rate=+rt.value;document.getElementById('rtv').textContent=S.rate.toFixed(2);save();};
   const au=document.getElementById('au'); if(au) au.onchange=e=>{S.auto=e.target.checked;save();};
+  const av=document.getElementById('allv'); if(av) av.onchange=e=>{S.allv=e.target.checked;save();render();};
   const bg=document.getElementById('bg'); if(bg) bg.onchange=e=>{S.big=e.target.checked;save();render();};
   const tf=document.getElementById('tf'); if(tf) tf.onsubmit=e=>{e.preventDefault();
     if(document.getElementById('tc').value.trim().toLowerCase()!==TRAINER_CODE){document.getElementById('tmsg').textContent='Die code klopt niet.';return;} trainerOk=true;render();};
