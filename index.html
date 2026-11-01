@@ -320,6 +320,14 @@ body.onsplash .bar{display:none}
 .conn svg{width:40px;height:28px;fill:var(--arrow);stroke:none}
 .conn.lit svg{fill:var(--arrow-lit)}
 .stage .art>div[style*="width:110px"]{width:110px!important;height:110px!important;max-height:none}
+
+.fb{flex-wrap:wrap;font-size:clamp(15px,2.35vh,20px);line-height:1.4;gap:8px 10px}
+.fb .fbt{flex:1 1 calc(100% - 40px)}
+.fb .btn{margin-left:auto}
+body.bigtext .fb{font-size:clamp(18px,2.9vh,24px)}
+.conn{height:26px}
+.conn svg{width:36px;height:22px;stroke:var(--arrow);stroke-width:4}
+.conn.lit svg{stroke:var(--arrow-lit)}
 </style>
 
 <header class="bar"><div class="bar-in">
@@ -488,10 +496,13 @@ function scene(o){
   const racketR=(x2,y2)=>`<line x1="258" y1="112" x2="${x2}" y2="${y2}" stroke="#123" stroke-width="3"/><ellipse cx="${x2}" cy="${y2}" rx="8" ry="11" fill="none" stroke="#123" stroke-width="3"/>`;
   const k=o.k;
   /* vlucht: van (sx,sy) via controlepunt naar (ex,ey); eindhoek er (null = vlieghoek) */
-  const flight=(sx,sy,cx,cy,ex,ey,er,col)=>{
-    const ta=Math.atan2(ey-cy,ex-cx)*180/Math.PI-90, fa=(er==null?ta:er);
-    return `<path class="ftrail" d="M${sx} ${sy} Q${cx} ${cy} ${ex} ${ey}" fill="none" stroke="${col||'#f07f1a'}" stroke-width="3" stroke-dasharray="6 6"/>`+
-      `<g class="flight" data-p="${[sx,sy,cx,cy,ex,ey,er==null?'':er].join(',')}" transform="translate(${ex} ${ey}) rotate(${fa.toFixed(1)}) scale(1.3) translate(-16 -16)">${SHUTTLE_INNER}</g>`;};
+  /* vlucht in één of meer delen: [sx,sy,cx,cy,ex,ey] per deel; eindhoek er (null = vlieghoek) */
+  const flightN=(segs,er,col)=>{
+    const L=segs[segs.length-1], ta=Math.atan2(L[5]-L[3],L[4]-L[2])*180/Math.PI-90, fa=(er==null?ta:er);
+    const d=segs.map((q,i)=>(i?'':`M${q[0]} ${q[1]} `)+`Q${q[2]} ${q[3]} ${q[4]} ${q[5]}`).join(' ');
+    return `<path class="ftrail" d="${d}" fill="none" stroke="${col||'#f07f1a'}" stroke-width="3" stroke-dasharray="6 6"/>`+
+      `<g class="flight" data-p="${segs.map(q=>q.join(',')).join(';')}" data-er="${er==null?'':er}" transform="translate(${L[4]} ${L[5]}) rotate(${fa.toFixed(1)}) scale(1.3) translate(-16 -16)">${SHUTTLE_INNER}</g>`;};
+  const flight=(sx,sy,cx,cy,ex,ey,er,col)=>flightN([[sx,sy,cx,cy,ex,ey]],er,col);
   /* racket dat naar een plek beweegt (bijv. tegen het net) */
   const rkMove=(px,py,fx,fy,tx,ty)=>`<g class="rk" data-p="${[px,py,fx,fy,tx,ty].join(',')}"><line x1="${px}" y1="${py}" x2="${tx}" y2="${ty}" stroke="#123" stroke-width="3"/><ellipse cx="${tx}" cy="${ty}" rx="8" ry="11" fill="none" stroke="#123" stroke-width="3"/></g>`;
   const endMark=(x,y)=>`<circle class="endonly" cx="${x}" cy="${y}" r="14" fill="none" stroke="#c23b2b" stroke-width="3"/>`;
@@ -508,7 +519,7 @@ function scene(o){
   if(k==='bodyL')   g+=RL+RR+flight(240,92,150,30,62,114,null);
   if(k==='bodyR')   g+=RL+RR+flight(96,96,190,30,278,114,null);
   if(k==='underL')  g+=racketL(98,134)+RR+flight(98,134,150,150,205,146,null,'#c23b2b');
-  if(k==='rally')   g+=RL+RR+flight(96,96,170,-20,240,92,null);
+  if(k==='rally')   g+=RL+RR+flightN([[96,96,170,-20,240,92],[240,92,205,36,169,37]],null);
   if(k==='svchoog'||k==='svcgoed'||k==='svcvoet'){
     const bad=k!=='svcgoed';
     g+=`<line x1="20" y1="108" x2="160" y2="108" stroke="#f07f1a" stroke-width="2.5" stroke-dasharray="7 5"/><text x="24" y="102" font-family="Fredoka" font-weight="700" font-size="13" fill="var(--fg)">1,15 m</text>`;
@@ -1273,7 +1284,7 @@ function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','
 
 function homeView(){
   const p=P(); const ns=nextStep(); const due=bakDue().length;
-  const conn=(lit)=>`<div class="conn ${lit?'lit':''}" aria-hidden="true"><svg viewBox="0 0 40 28"><path d="M13 0h14v13h9L20 28 4 13h9z" stroke-linejoin="round"/></svg></div>`;
+  const conn=(lit)=>`<div class="conn ${lit?'lit':''}" aria-hidden="true"><svg viewBox="0 0 40 24"><path d="M5 3h30L20 21z" stroke-linejoin="round"/></svg></div>`;
   app.innerHTML=`
   <div class="hero"><span class="heroic">${I.shuttle}</span><div style="min-width:0;flex:1">
     <div class="namerow" id="namerow"><h1>Hoi ${esc(S.current)}!</h1><button class="editbtn" id="edit" aria-label="Naam aanpassen" title="Naam aanpassen">${I.pencil}</button></div>
@@ -1455,16 +1466,18 @@ function landAnim(done){
   });
   /* zijaanzicht: shuttle vliegt langs een boog, dopje voorop, en komt op het eind tot rust */
   fl.forEach(g=>{
-    const v=g.dataset.p.split(','), P=v.slice(0,6).map(Number), er=v[6]===''?null:+v[6];
-    const [sx,sy,cx,cy,ex,ey]=P, tr=g.previousElementSibling, D=1100, t0=performance.now();
-    const ang=t=>{const dx=2*(1-t)*(cx-sx)+2*t*(ex-cx), dy=2*(1-t)*(cy-sy)+2*t*(ey-cy); return Math.atan2(dy,dx)*180/Math.PI-90;};
-    (function step(now){const k=Math.min(1,(now-t0)/D), t=k;
-      const x=(1-t)*(1-t)*sx+2*(1-t)*t*cx+t*t*ex, y=(1-t)*(1-t)*sy+2*(1-t)*t*cy+t*t*ey;
-      let a=ang(Math.min(t,.999));
-      if(er!=null&&k>.88){let d=((er-a+540)%360)-180; a=a+d*((k-.88)/.12);}
+    const segs=g.dataset.p.split(';').map(x=>x.split(',').map(Number)), er=g.dataset.er===''?null:+g.dataset.er;
+    const tr=g.previousElementSibling, SEG=1000, D=SEG*segs.length, t0=performance.now();
+    const pt=(q,t)=>[(1-t)*(1-t)*q[0]+2*(1-t)*t*q[2]+t*t*q[4],(1-t)*(1-t)*q[1]+2*(1-t)*t*q[3]+t*t*q[5]];
+    const ang=(q,t)=>{const dx=2*(1-t)*(q[2]-q[0])+2*t*(q[4]-q[2]), dy=2*(1-t)*(q[3]-q[1])+2*t*(q[5]-q[3]); return Math.atan2(dy,dx)*180/Math.PI-90;};
+    (function step(now){const K=Math.min(1,(now-t0)/D), si=Math.min(segs.length-1,Math.floor(K*segs.length)), t=K>=1?1:K*segs.length-si, q=segs[si];
+      const [x,y]=pt(q,t); let a=ang(q,Math.min(t,.999));
+      if(er!=null&&si===segs.length-1&&t>.88){let d=((er-a+540)%360)-180; a=a+d*((t-.88)/.12);}
       g.setAttribute('transform',`translate(${x.toFixed(1)} ${y.toFixed(1)}) rotate(${a.toFixed(1)}) scale(1.3) translate(-16 -16)`);
-      if(tr&&tr.classList.contains('ftrail')){const qx=sx+(cx-sx)*t, qy=sy+(cy-sy)*t; tr.setAttribute('d',`M${sx} ${sy} Q${qx.toFixed(1)} ${qy.toFixed(1)} ${x.toFixed(1)} ${y.toFixed(1)}`);}
-      if(k<1) requestAnimationFrame(step); else fin();
+      if(tr&&tr.classList.contains('ftrail')){
+        let d=`M${segs[0][0]} ${segs[0][1]}`; for(let j=0;j<si;j++) d+=` Q${segs[j][2]} ${segs[j][3]} ${segs[j][4]} ${segs[j][5]}`;
+        const qx=q[0]+(q[2]-q[0])*t, qy=q[1]+(q[3]-q[1])*t; d+=` Q${qx.toFixed(1)} ${qy.toFixed(1)} ${x.toFixed(1)} ${y.toFixed(1)}`; tr.setAttribute('d',d);}
+      if(K<1) requestAnimationFrame(step); else fin();
     })(t0);
   });
   /* racket dat het net raakt */
