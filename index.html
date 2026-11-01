@@ -390,6 +390,7 @@ const I={
  serve:`<svg viewBox="0 0 48 48"><path d="M10 40 Q22 6 40 14" fill="none" stroke="#f07f1a" stroke-width="3" stroke-dasharray="5 4"/><path d="M8 44l6-12" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/><ellipse cx="15" cy="29" rx="4" ry="5.5" fill="none" stroke="currentColor" stroke-width="2.5"/>${'<g transform="translate(39 14) rotate(-66) scale(.75) translate(-16 -16)">'+SHUTTLE_INNER+'</g>'}</svg>`,
  racketd:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round"><ellipse cx="15.5" cy="8.5" rx="5" ry="6.3" transform="rotate(45 15.5 8.5)" stroke-width="2.2"/><g stroke-width="1" opacity=".55" transform="rotate(45 15.5 8.5)"><path d="M10.5 8.5h10M11 5.5h9M11 11.5h9M15.5 2.2v12.6M13 2.8v11.4M18 2.8v11.4"/></g><path d="M11.6 12.4L4 20" stroke-width="3"/></svg>',
  pencil:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><path d="M4 20l1-4L16 5l3 3L8 19z"/><path d="M14 7l3 3"/></svg>',
+ handshake:'<svg viewBox="0 0 48 48"><path d="M3 31 L14 24" stroke="#2b3bd8" stroke-width="8" stroke-linecap="round"/><path d="M45 31 L34 24" stroke="#f07f1a" stroke-width="8" stroke-linecap="round"/><path d="M12 22 Q20 16 28 19 L34 25 Q30 31 22 31 L15 29 Z" fill="#2b3bd8"/><path d="M36 22 Q28 17 21 21 L15 26 Q19 33 27 32 L33 29 Z" fill="#f07f1a"/><path d="M20 25.5 L25 30.5 M23.5 23 L28.5 28.5 M27 21.5 L31.5 26.5" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round"/><path d="M14 21 Q19 17.5 24 19.5" fill="none" stroke="#2b3bd8" stroke-width="3.2" stroke-linecap="round"/></svg>',
  bulb:'<svg viewBox="0 0 24 24"><g stroke="#f5a623" stroke-width="2" stroke-linecap="round"><path d="M12 .8v2.2M3.8 3.8l1.6 1.6M20.2 3.8l-1.6 1.6M1 10.5h2.2M20.8 10.5H23"/></g><path d="M12 5a5.6 5.6 0 0 0-3.3 10.1c.5.4.8 1 .8 1.6V18h5v-1.3c0-.6.3-1.2.8-1.6A5.6 5.6 0 0 0 12 5z" fill="#ffd34d" stroke="#c98a00" stroke-width="1.4"/><path d="M9.5 20.2h5M10.4 22.4h3.2" stroke="#7a6a3a" stroke-width="1.7" stroke-linecap="round"/></svg>',
  medal:'<svg viewBox="0 0 40 40"><path d="M12 2h6l4 12h-6z" fill="#2b3bd8"/><path d="M28 2h-6l-4 12h6z" fill="#5b67ee"/><circle cx="20" cy="25" r="12" fill="#f07f1a" stroke="#c45f08" stroke-width="2"/><circle cx="20" cy="25" r="7.5" fill="none" stroke="#fff" stroke-width="1.6"/></svg>'
 };
@@ -630,7 +631,7 @@ const LEVELS=[
   CE('Een shuttle heeft een ronde <strong>dop</strong> en <strong>veertjes</strong>. Pak hem voorzichtig vast aan de veertjes, met je vingertoppen. Net als een <strong>vieze sok</strong>!',{icon:'shuttle'}),
   CE('Elke rally begint met de <strong>service</strong>. Je slaat de shuttle <strong>onderhands</strong>: van onder naar boven, over het net.',{scene:{k:'serve'}}),
   CE('Je serveert pas als de ander <strong>klaar</strong> is.',{scene:{k:'serve'}})],
-  [{t:'mc',q:'Hoe pak je je racket vast?',opts:['Alsof je iemand een hand geeft','Met twee handen heel hard','Aan het blad'],pics:[{icon:'hand'},{icon:'fist'},{icon:'racket'}],a:0,why:'Je geeft je racket een hand. Rustig vasthouden.'},
+  [{t:'mc',q:'Hoe pak je je racket vast?',opts:['Alsof je iemand een hand geeft','Met twee handen heel hard','Aan het blad'],pics:[{icon:'handshake'},{icon:'fist'},{icon:'racket'}],a:0,why:'Je geeft je racket een hand. Rustig vasthouden.'},
    {t:'mc',q:'Hoe pak je de shuttle vast?',opts:['Voorzichtig, als een vieze sok','Met je hele vuist','Met je mond'],pics:[{icon:'sock'},{icon:'fist'},{icon:'mouth'}],a:0,why:'Met je vingertoppen, net als een vieze sok.'},
    {t:'mc',q:'Hoe sla je de service?',opts:['Onderhands, van onder naar boven','Bovenhands, keihard','Met je voet'],pics:[{icon:'serve'},{icon:'smash'},{icon:'foot'}],a:0,why:'De service sla je onderhands, van onder naar boven.'},
    {t:'wn',q:'Je serveert pas als de ander klaar is.',a:true,why:'Je wacht altijd tot de ander klaar staat.'}],
@@ -670,7 +671,7 @@ const LEVELS=[
  L_('eerlijk','eerlijk-1','Netjes spelen',[
   CE('Roep niet en zwaai niet als de ander gaat slaan. De ander <strong>afleiden</strong> is niet eerlijk. En het is fout.',{scene:{k:'rally'}}),
   CE('Je doet altijd je <strong>best</strong>, en je wacht met serveren tot de ander klaar is.',{scene:{k:'serve'}}),
-  CE('Na het spelen geef je elkaar een hand of een boks. Goed gespeeld!',{icon:'hand'})],
+  CE('Na het spelen geef je elkaar een hand of een boks. Goed gespeeld!',{icon:'handshake'})],
   [{t:'wn',q:'Je mag hard roepen als de ander gaat slaan.',a:false,why:'De ander afleiden is fout. Dat is niet eerlijk.'},
    {t:'mc',q:'De ander is nog niet klaar. Wat doe je?',opts:['Wachten','Toch serveren','Weglopen'],pics:[{icon:'clock'},{icon:'serve'},{icon:'run'}],a:0,why:'Je wacht tot de ander klaar is.'},
    {t:'wn',q:'Na het spelen geef je elkaar een hand of een boks.',a:true,why:'Zo bedank je elkaar voor het spel.'}],
@@ -747,7 +748,7 @@ const LEVELS=[
  L_('eerlijk','eerlijk-2','Sportief spelen',[
   CE('Afleiden is <strong>fout</strong>: niet roepen, niet zwaaien, geen gekke gebaren als de ander slaat.',{scene:{k:'rally'}}),
   CE('Je doet altijd je <strong>best</strong> om te winnen. Expres verliezen of een game weggeven mag niet.',{icon:'heart'}),
-  CE('Verlies je? Geef de ander dan toch een hand. Win je? Juich niet de ander uit.',{icon:'hand'})],
+  CE('Verlies je? Geef de ander dan toch een hand. Win je? Juich niet de ander uit.',{icon:'handshake'})],
   [{t:'ref',q:'Blauw roept hard "MIS!" terwijl Oranje gaat slaan.',a:'Fout',why:'De tegenstander opzettelijk afleiden is fout. Fout van Blauw.'},
    {t:'wn',q:'Je mag een game expres weggeven zonder te spelen.',a:false,why:'Een game wordt altijd gespeeld, met serveren en ontvangen.'},
    {t:'wn',q:'Ook als je verliest, geef je de ander een hand.',a:true,why:'Sportief zijn hoort er altijd bij.'}],
