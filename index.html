@@ -400,6 +400,85 @@ body.bigtext .fb{font-size:clamp(18px,2.9vh,24px)}
 /* =========================================================
    ICONEN
    ========================================================= */
+const {P:ICP,G:ICG}=(()=>{
+// Shuttle-school iconenset v2 — één stijl
+// Plaatjes (P): 48×48, navy omlijning 2, wit/huidskleur vulling, oranje accent.
+// Kleine iconen (G): 24×24, één kleur (currentColor), lijn 2, ronde uiteinden.
+const N='#1d1d55',W='#ffffff',B='#2b3bd8',O='#f07f1a',GR='#2f7d5b',SK='#f6c9a3',SK2='#c98a5c',RD='#c23b2b';
+const SW=2;
+const svg48=b=>`<svg viewBox="0 0 48 48" fill="none" stroke-linecap="round" stroke-linejoin="round">${b}</svg>`;
+// shuttle: (x,y) = midden dopje; rot 0 = dopje omlaag
+function sh(x,y,r=0,s=1){const w=(SW/s).toFixed(2),t=(1/s).toFixed(2);
+ return `<g transform="translate(${x} ${y}) rotate(${r}) scale(${s})"><path d="M-7 -17.5 L7 -17.5 L3.3 -3 L-3.3 -3 Z" fill="${W}" stroke="${N}" stroke-width="${w}"/><path d="M-3.4 -17.2 L-1.6 -3.2 M0 -17.5 V-3.2 M3.4 -17.2 L1.6 -3.2 M-5.4 -11.5 H5.4" stroke="${N}" stroke-width="${t}"/><path d="M-4 -3 H4 V-.6 A4 4 0 0 1 -4 -.6 Z" fill="${O}" stroke="${N}" stroke-width="${w}"/></g>`;}
+// racket: (x,y) = midden blad; rot 0 = handvat omlaag
+function rk(x,y,r=0,s=1){const w=(SW/s).toFixed(2),t=(.9/s).toFixed(2);
+ return `<g transform="translate(${x} ${y}) rotate(${r}) scale(${s})"><path d="M0 8.5 V19" stroke="${N}" stroke-width="${(2.6/s).toFixed(2)}"/><rect x="-2.1" y="18.5" width="4.2" height="9.5" rx="2.1" fill="${O}" stroke="${N}" stroke-width="${w}"/><ellipse cx="0" cy="0" rx="6.5" ry="8.5" fill="${W}" stroke="${N}" stroke-width="${(2.4/s).toFixed(2)}"/><path d="M-3 -7.5 V7.5 M0 -8.4 V8.4 M3 -7.5 V7.5 M-5.7 -4 H5.7 M-6.4 0 H6.4 M-5.7 4 H5.7" stroke="${N}" stroke-width="${t}" opacity=".45"/></g>`;}
+const floor=(y=40)=>`<rect x="3" y="${y}" width="42" height="5" rx="2.5" fill="${GR}"/>`;
+const net=(x=24,top=20,bot=40)=>`<path d="M${x} ${top} V${bot}" stroke="${N}" stroke-width="2.6"/><rect x="${x-4}" y="${top}" width="8" height="11" fill="${W}" stroke="${N}" stroke-width="1.6"/><path d="M${x-4} ${top+3.7}h8M${x-4} ${top+7.3}h8M${x} ${top}v11" stroke="${N}" stroke-width=".8"/>`;
+const net2=(x1,x2,top,bot)=>`<rect x="${x1}" y="${top+1}" width="${x2-x1}" height="9" fill="${W}" stroke="${N}" stroke-width="1.4"/><path d="${Array.from({length:Math.floor((x2-x1)/3)},(_,i)=>`M${x1+3*(i+1)} ${top+1}v9`).join('')}M${x1} ${top+4}H${x2}M${x1} ${top+7}H${x2}" stroke="${N}" stroke-width=".7"/><path d="M${x1} ${top+1}H${x2}" stroke="${N}" stroke-width="2.2"/><path d="M${x1} ${top}V${bot}M${x2} ${top}V${bot}" stroke="${N}" stroke-width="2.6"/>`;
+function kid(x,c,s=1){return `<g transform="translate(${x} 0) scale(${s} 1)"><path d="M-7 44 V33 a7 7 0 0 1 14 0 V44 Z" fill="${c}" stroke="${N}" stroke-width="${SW}"/><circle cx="0" cy="17" r="6.5" fill="${SK}" stroke="${N}" stroke-width="${SW}"/></g>`;}
+
+const P={
+ shuttle: svg48(sh(24,40,0,1.75)),
+ racket: svg48(rk(26,15.5,28,1.25)),
+ racketd: svg48(rk(19,15,24,1.05)+sh(37,25,200,.85)),
+ ground: svg48(floor(40)+net2(5,18,20,40)+sh(40.5,36.3,-80.7,.88)),
+ up: svg48(`<path d="M24 45V31M17.5 37.5L24 31l6.5 6.5" stroke="${N}" stroke-width="3.2"/>`+sh(24,6.5,180,1.1)+`<path d="M13 14v8M35 14v8" stroke="${O}" stroke-width="2.2" stroke-dasharray="2.5 3"/>`),
+ run: svg48(`<path d="M3 17h8M1 24h8M4 31h7" stroke="${O}" stroke-width="2.4"/><path d="M27 18l-3 11 7 5-1 9M24 29l-6 6-7-1M27 19l7 4 5-4M27 19l-7 2-3 5" stroke="${N}" stroke-width="6"/><path d="M27 18l-3 11 7 5-1 9M24 29l-6 6-7-1M27 19l7 4 5-4M27 19l-7 2-3 5" stroke="${B}" stroke-width="3.2"/><circle cx="31" cy="9.5" r="5" fill="${SK}" stroke="${N}" stroke-width="${SW}"/>`),
+ netover: svg48(floor(42)+net2(14,30,22,42)+`<path d="M5 38 Q22 -6 40 27" stroke="${O}" stroke-width="2.4" stroke-dasharray="4 3.5"/>`+sh(43,35.5,-27,.7)),
+ drop: svg48(floor(41)+`<path d="M24 3v4M24 10v4" stroke="${N}" stroke-width="2.2"/>`+sh(24,33,0,1.05)+`<path d="M14 18v8M34 18v8" stroke="${O}" stroke-width="2.2" stroke-dasharray="2.5 3"/>`),
+ hand: svg48(`<path d="M15 44V35c-3-2-6-6-7-10-.6-2 1.8-3.2 3.2-1.7L15 27V12.5a2.4 2.4 0 0 1 4.8 0V24V9.5a2.4 2.4 0 0 1 4.8 0V24V11a2.4 2.4 0 0 1 4.8 0v13V14.5a2.4 2.4 0 0 1 4.8 0V32c0 5-3 8-6 9.5V44" fill="${SK}" stroke="${N}" stroke-width="${SW}"/><rect x="13.5" y="42" width="18" height="6" fill="${B}" stroke="${N}" stroke-width="${SW}"/>`+sh(38.5,13,40,.58)),
+ handshake: svg48(`<g transform="translate(24 25) scale(1.12) translate(-24 -27.5)"><path d="M12 20.5 L12.5 34.5 L3 41.5 L-1 28 Z" fill="${B}" stroke=${N} stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><path d="M36 21 L35.5 33.5 L45 40.5 L49 27.5 Z" fill="${O}" stroke=${N} stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><path d="M36.5 21.5 L23 17.5 Q18.5 16.8 17.5 20.5 L17.5 30 L36 33 Z" fill="${SK2}" stroke=${N} stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><path d="M15 33 Q14 37.5 16.6 38 Q18.6 38.2 19 35.5 Q19.4 38.8 21.8 38.6 Q23.8 38.3 23.6 35.6" fill="${SK2}" stroke=${N} stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><path d="M12 21 L23 19.5 Q35.5 19.5 35.5 22.6 Q35.5 24.6 33 24.6 Q36.3 24.8 36.2 27 Q36 29 33.6 28.8 Q35.6 29.3 35.2 31.3 Q34.7 33 32.4 32.7 Q33.6 33.6 33 35 Q32.3 36.2 30.4 36 L22 35.8 Q16 35.8 12.5 33.5 Z" fill="${SK}" stroke=${N} stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/><path d="M24 24.6 H33 M24.5 28.8 H33.6 M24.5 32.7 H32.4" stroke=${N} stroke-width="1.5" stroke-linecap="round"/><path d="M35 19.5 Q28 14.5 21.5 17 Q19 18.6 20.6 20.3 Q26 19 31.5 22.3" fill="${SK2}" stroke=${N} stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/></g>`),
+ fist: svg48(`<path d="M6 18l3 2M5 26h4M42 18l-3 2M43 26h-4" stroke="${O}" stroke-width="2.2"/><rect x="16" y="35" width="16" height="11" fill="${B}" stroke="${N}" stroke-width="${SW}"/><path d="M12 14a3.3 3.3 0 0 1 6.6 0a3.3 3.3 0 0 1 6.6 0a3.3 3.3 0 0 1 6.6 0a3.3 3.3 0 0 1 4.6 3V29c0 4-3 7-7 7H18c-4 0-6-3-6-7z" fill="${SK}" stroke="${N}" stroke-width="${SW}"/><path d="M18.6 14v6M25.2 14v6M31.8 14v6" stroke="${N}" stroke-width="1.5"/><path d="M12 24h13a3.2 3.2 0 0 1 0 6.4H15" fill="${SK}" stroke="${N}" stroke-width="${SW}"/>`),
+ sock: svg48(`<path d="M5 14c2-2 0-4 2-6M10 20c2-2 0-4 2-6M5 27c2-2 0-4 2-6" stroke="#5f9e45" stroke-width="2"/><path d="M17 4h13v20l9 6a6.5 6.5 0 0 1-5.5 11.5L20 36a7 7 0 0 1-3-6z" fill="${W}" stroke="${N}" stroke-width="${SW}"/><path d="M17 8.5h13M17 12.5h13" stroke="${B}" stroke-width="2.2"/><path d="M39 30a6.5 6.5 0 0 1-5.5 11.5L31.5 40.5q4-3 7.5-10.5z" fill="${O}" stroke="${N}" stroke-width="1.6"/>`),
+ mouth: svg48(`<circle cx="21" cy="24" r="17" fill="${SK}" stroke="${N}" stroke-width="${SW}"/><circle cx="15" cy="19" r="2" fill="${N}"/><circle cx="26" cy="19" r="2" fill="${N}"/><ellipse cx="21" cy="31" rx="5" ry="4.2" fill="${RD}" stroke="${N}" stroke-width="${SW}"/>`+sh(25,31,-90,.85)),
+ serve: svg48(rk(13,23,-38,.9)+`<path d="M19 17 Q25 8 33 8" stroke="${O}" stroke-width="2.4" stroke-dasharray="4 3.5"/>`+sh(37,8,236,.85)),
+ smash: svg48(rk(33,13,40,1)+`<path d="M23 20l-4 7M28 24l-4 7M19 15l-4 7" stroke="${O}" stroke-width="2.4"/>`+sh(12,40,30,.9)),
+ foot: svg48(`<path d="M6 37V22a4 4 0 0 1 4-4h7l4 7c7 0 13 2 18 4.5 4 2 5 5 5 7.5z" fill="${W}" stroke="${N}" stroke-width="${SW}"/><path d="M5 36h40v2.5a3.5 3.5 0 0 1-3.5 3.5H8.5A3.5 3.5 0 0 1 5 38.5z" fill="${O}" stroke="${N}" stroke-width="${SW}"/><path d="M17 25l3-1.5M20 28.5l3-1.5M23.5 31.5l3-1.5" stroke="${N}" stroke-width="1.6"/><path d="M8 30h12" stroke="${B}" stroke-width="3"/>`),
+ clock: svg48(`<circle cx="24" cy="25" r="18" fill="${W}" stroke="${N}" stroke-width="2.4"/><path d="M24 25V7A18 18 0 0 1 39.6 16Z" fill="${O}" opacity=".35"/><path d="M24 10v3M24 37v3M9 25h3M36 25h3" stroke="${N}" stroke-width="2"/><path d="M24 25V14M24 25l7 4" stroke="${N}" stroke-width="2.8"/><circle cx="24" cy="25" r="2.2" fill="${O}" stroke="${N}" stroke-width="1.4"/><path d="M18 3h12" stroke="${N}" stroke-width="3"/>`),
+ redo: svg48(`<path d="M38 26a14 14 0 1 1-5.6-11.2" stroke="${N}" stroke-width="7"/><path d="M38 26a14 14 0 1 1-5.6-11.2" stroke="${B}" stroke-width="3.6"/><path d="M38.6 20.6L28.6 19.4L36.6 9.8Z" fill="${B}" stroke="${N}" stroke-width="${SW}"/>`+sh(24,31,0,.6)),
+ home: svg48(`<path d="M10 22v20h28V22" fill="${W}" stroke="${N}" stroke-width="${SW}"/><path d="M5 24L24 7l19 17" fill="${O}" stroke="${N}" stroke-width="${SW}"/><rect x="20" y="30" width="8" height="12" fill="${B}" stroke="${N}" stroke-width="${SW}"/><rect x="31" y="26" width="5" height="5" fill="${W}" stroke="${N}" stroke-width="1.6"/>`),
+ heart: svg48(`<path d="M24 42S6 31 6 18.5C6 12 10.5 8 15.5 8c3.7 0 6.6 2 8.5 5.2C25.9 10 28.8 8 32.5 8 37.5 8 42 12 42 18.5 42 31 24 42 24 42z" fill="${O}" stroke="${N}" stroke-width="${SW}"/><path d="M13 16.5c.5-2.2 2-3.5 4-3.8" stroke="${W}" stroke-width="2.4"/>`),
+ whistle: svg48(`<path d="M30 9l3-4M35 12l5-2M28 7l-1-4" stroke="${O}" stroke-width="2.2"/><path d="M8 20a3 3 0 1 1 3 3" stroke="${O}" stroke-width="2.2"/><path d="M18 21h22a3 3 0 0 1 3 3v3a3 3 0 0 1-3 3H33a12 12 0 1 1-15-9z" fill="${W}" stroke="${N}" stroke-width="${SW}"/><circle cx="20" cy="32" r="3.2" fill="${N}"/><path d="M27 21v4" stroke="${N}" stroke-width="2"/>`),
+ people: svg48(kid(15,B)+kid(33,O)),
+};
+// kinderen voor "met hoeveel spelers" (vervangt de oude bolletjes)
+P.kids=n=>`<svg viewBox="0 0 ${n*18+4} 48" fill="none" stroke-linecap="round" stroke-linejoin="round">${Array.from({length:n},(_,i)=>kid(11+i*18,i<2?B:O,.95)).join('')}</svg>`;
+
+// ---- kleine iconen, 24×24, currentColor, lijn 2
+const g=(b,extra='')=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"${extra}>${b}</svg>`;
+const F='fill="currentColor" fill-opacity=".2"';
+const G={
+ back: g('<path d="M15 5l-7 7 7 7"/>',' stroke-width="2.6"'),
+ next: g('<path d="M9 5l7 7-7 7"/>',' stroke-width="2.6"'),
+ check: g('<path d="M5 12.5l4.5 4.5L19 7"/>',' stroke-width="2.8"'),
+ cross: g('<path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/>',' stroke-width="2.8"'),
+ play: g('<path d="M8 5.5v13l10.5-6.5z" fill="currentColor"/>'),
+ lock: g(`<rect x="5" y="10.5" width="14" height="10" rx="2.5" ${F}/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5"/><path d="M12 14.5v2"/>`),
+ speaker: g('<path d="M4 9.5h3l5-4v13l-5-4H4z" fill="currentColor"/><path d="M15.5 9a4 4 0 0 1 0 6M18.5 6.5a8 8 0 0 1 0 11"/>'),
+ gear: g(`<path d="M10.3 3h3.4l.5 2.4 1.7.9 2.3-.9 1.7 2.9-1.8 1.7v1.9l1.8 1.7-1.7 2.9-2.3-.9-1.7.9-.5 2.4h-3.4l-.5-2.4-1.7-.9-2.3.9-1.7-2.9 1.8-1.7v-1.9L3.8 8.3l1.7-2.9 2.3.9 1.7-.9z" ${F}/><circle cx="12" cy="12" r="3"/>`),
+ book: g(`<path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H19v15H6.5A2.5 2.5 0 0 0 4 20.5z" ${F}/><path d="M4 20.5A2.5 2.5 0 0 1 6.5 18H19v3H6.5A2.5 2.5 0 0 1 4 20.5zM8.5 7.5h6"/>`),
+ pencil: g(`<path d="M4 20l1.2-4.4L15.8 5a2.1 2.1 0 0 1 3 3L8.4 18.8z" ${F}/><path d="M14 6.8l3.2 3.2"/>`),
+ home: g(`<path d="M4 11l8-7 8 7v9a1 1 0 0 1-1 1h-4.5v-6h-5v6H5a1 1 0 0 1-1-1z" ${F}/>`),
+ redo: g('<path d="M19.5 12.5a7.5 7.5 0 1 1-2.4-5.7"/><path d="M19.5 3.5v4.5H15"/>',' stroke-width="2.4"'),
+ flag: g(`<path d="M5.5 21V4"/><path d="M5.5 4.5h12l-2.5 4 2.5 4h-12" ${F}/>`),
+ // onderwerpen & spellen
+ racketd: g(`<ellipse cx="9.5" cy="9.5" rx="4.6" ry="5.8" transform="rotate(-40 9.5 9.5)" ${F}/><path d="M12.8 13.2L19.5 20" stroke-width="2.6"/><path d="M17.3 7.4l4-1.6-2.4-2.4z" ${F}/><circle cx="16.6" cy="8.1" r="1.6" fill="currentColor" stroke="none"/>`),
+ target: g(`<rect x="5" y="3" width="14" height="18" rx="1.5" ${F}/><path d="M5 12h14M12 3v6.5M12 14.5V21"/>`),
+ cannon: g('<path d="M5.5 19c1.5-7 5.5-12 13-13"/><path d="M14.5 4.8l4 1.2-1.6 3.8"/><circle cx="5" cy="19.5" r="1.8" fill="currentColor" stroke="none"/>'),
+ board: g(`<rect x="3" y="5" width="18" height="14" rx="2.5" ${F}/><path d="M12 5v14M7.5 9.5v5M15 9.5h2.5v5H15z"/>`),
+ people: g(`<circle cx="8" cy="8" r="3" ${F}/><circle cx="16.5" cy="8" r="3" ${F}/><path d="M2.5 20a5.5 5.5 0 0 1 11 0M11 20a5.5 5.5 0 0 1 11 0"/>`),
+ heart: g(`<path d="M12 20s-7.5-4.6-8.8-9.5C2.4 7.3 4.6 4.5 7.6 4.5c1.9 0 3.4 1 4.4 2.6 1-1.6 2.5-2.6 4.4-2.6 3 0 5.2 2.8 4.4 6C19.5 15.4 12 20 12 20z" ${F}/>`),
+ whistle: g(`<path d="M9.5 10H20v3.5h-4.2A6 6 0 1 1 9.5 10z" ${F}/><circle cx="10" cy="16" r="1.4" fill="currentColor" stroke="none"/><path d="M15 5.5l1-2M18.5 7l2-1"/>`),
+ eye: g(`<path d="M2.5 12S6 6 12 6s9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6z" ${F}/><circle cx="12" cy="12" r="2.8" fill="currentColor"/>`),
+ gap: g(`<rect x="5" y="3" width="14" height="18" rx="1.5" ${F}/><circle cx="9" cy="8" r="1.6" fill="currentColor"/><circle cx="15" cy="8" r="1.6" fill="currentColor"/><circle cx="9" cy="14" r="1.6" fill="currentColor"/><circle cx="15" cy="15.5" r="3.2" stroke-dasharray="2.2 1.8"/>`),
+ smash: g(`<ellipse cx="16.5" cy="6.5" rx="3.6" ry="4.6" transform="rotate(40 16.5 6.5)" ${F}/><path d="M13.8 9.4L9 14.5" stroke-width="2.4"/><path d="M8 13l-3.5 6.5M11.5 15.5l-2.5 4.5" stroke-dasharray="2 2"/><circle cx="4.5" cy="20" r="1.5" fill="currentColor" stroke="none"/>`),
+ bulb: '<svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1.5v2M4.6 4.6l1.4 1.4M19.4 4.6L18 6M1.8 11h2M20.2 11h2" stroke="#f07f1a" stroke-width="2"/><path d="M12 5.5a5.5 5.5 0 0 0-3.2 10c.5.4.7.9.7 1.5V18h5v-1c0-.6.2-1.1.7-1.5A5.5 5.5 0 0 0 12 5.5z" fill="#ffd34d" stroke="#1d1d55" stroke-width="1.8"/><path d="M9.8 20.5h4.4" stroke="#1d1d55" stroke-width="1.8"/></svg>',
+ medal: '<svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M7 2h4l2.5 7.5h-4z" fill="#2b3bd8" stroke="#1d1d55" stroke-width="1.4"/><path d="M17 2h-4l-2.5 7.5h4z" fill="#5b67ee" stroke="#1d1d55" stroke-width="1.4"/><circle cx="12" cy="15.5" r="6.5" fill="#f07f1a" stroke="#1d1d55" stroke-width="1.8"/><path d="M12 12.5l.9 1.9 2 .2-1.5 1.4.4 2-1.8-1-1.8 1 .4-2-1.5-1.4 2-.2z" fill="#fff"/></svg>',
+};
+return {P,G};
+
+})();
 const SHUTTLE_INNER='<path d="M9 4 L23 4 L19.5 19 L12.5 19 Z" fill="#fff" stroke="#2b3bd8" stroke-width="1.6" stroke-linejoin="round"/><path d="M12.6 4.4 L14.3 19 M16 4 L16 19 M19.4 4.4 L17.7 19" stroke="#2b3bd8" stroke-width="1"/><path d="M10.5 10.5h11" stroke="#2b3bd8" stroke-width="1"/><path d="M12 19 h8 v3.2 a4 4 0 0 1 -8 0 Z" fill="#f07f1a" stroke="#2b3bd8" stroke-width="1.4"/>';
 const I={
  shuttle:'<svg viewBox="0 0 32 32">'+SHUTTLE_INNER+'</svg>',
@@ -443,6 +522,7 @@ const I={
  bulb:'<svg viewBox="0 0 24 24"><g stroke="#f5a623" stroke-width="2" stroke-linecap="round"><path d="M12 .8v2.2M3.8 3.8l1.6 1.6M20.2 3.8l-1.6 1.6M1 10.5h2.2M20.8 10.5H23"/></g><path d="M12 5a5.6 5.6 0 0 0-3.3 10.1c.5.4.8 1 .8 1.6V18h5v-1.3c0-.6.3-1.2.8-1.6A5.6 5.6 0 0 0 12 5z" fill="#ffd34d" stroke="#c98a00" stroke-width="1.4"/><path d="M9.5 20.2h5M10.4 22.4h3.2" stroke="#7a6a3a" stroke-width="1.7" stroke-linecap="round"/></svg>',
  medal:'<svg viewBox="0 0 40 40"><path d="M12 2h6l4 12h-6z" fill="#2b3bd8"/><path d="M28 2h-6l-4 12h6z" fill="#5b67ee"/><circle cx="20" cy="25" r="12" fill="#f07f1a" stroke="#c45f08" stroke-width="2"/><circle cx="20" cy="25" r="7.5" fill="none" stroke="#fff" stroke-width="1.6"/></svg>'
 };
+Object.assign(I,ICG);
 document.getElementById('potico').innerHTML=I.shuttle;
 document.getElementById('set-btn').innerHTML=I.gear;
 const ic=(n,w)=>I[n].replace('<svg',`<svg width="${w||22}" height="${w||22}"`);
@@ -623,12 +703,12 @@ function scene(o){
   return g+'</svg>';
 }
 function bigArt(t,sub){return `<div style="text-align:center"><div class="big">${t}</div>${sub?`<div class="label" style="margin-top:6px">${sub}</div>`:''}</div>`;}
-function iconArt(name){return `<div style="width:110px;height:110px">${I[name]||''}</div>`;}
+function iconArt(name){return `<div style="width:110px;height:110px">${ICP[name]||I[name]||''}</div>`;}
 function picArt(p){
-  if(p.scene) return I[{groundR:'ground',groundL:'drop',rally:'netover',serve:'serve'}[p.scene]]||'';
-  if(p.icon) return I[p.icon]||'';
+  if(p.scene) return ICP[{groundR:'ground',groundL:'drop',rally:'netover',serve:'serve'}[p.scene]]||'';
+  if(p.icon) return ICP[p.icon]||I[p.icon]||'';
   if(p.txt) return `<svg viewBox="0 0 60 40"><text x="30" y="30" text-anchor="middle" font-family="Fredoka,sans-serif" font-weight="700" font-size="28" fill="currentColor">${p.txt}</text></svg>`;
-  if(p.kids){let g='<svg viewBox="0 0 '+(p.kids*18+4)+' 34">';for(let i=0;i<p.kids;i++){const x=11+i*18,c=i<2?'#2b3bd8':'#f07f1a';g+=`<circle cx="${x}" cy="8" r="5" fill="${c}"/><rect x="${x-6}" y="14" width="12" height="16" rx="5" fill="${c}"/>`;}return g+'</svg>';}
+  if(p.kids) return ICP.kids(p.kids);
   return '';
 }
 function netArt(kind,hide){
