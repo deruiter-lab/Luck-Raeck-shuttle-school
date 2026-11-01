@@ -747,6 +747,7 @@ function scene(o){
   g+=`<rect x="167" y="70" width="6" height="88" fill="var(--fg)"/><rect x="160" y="68" width="20" height="6" rx="2" fill="#fff" stroke="var(--fg)"/>`;
   g+=`<g opacity=".35">`; for(let i=0;i<8;i++) g+=`<line x1="163" y1="${78+i*9}" x2="177" y2="${78+i*9}" stroke="var(--fg)"/>`; g+=`</g>`;
   g+=kid(70,'#2b3bd8')+kid(270,'#f07f1a');
+  if(o.zzz) g+=`<g class="zzz" aria-hidden="true" font-family="Fredoka, sans-serif" font-weight="700" fill="var(--fg)">`+[0,1,2].map(i=>`<text x="0" y="0" font-size="18" text-anchor="middle" opacity="0">z<animate attributeName="opacity" values="0;1;1;0" keyTimes="0;.15;.7;1" dur="2.7s" begin="${i*.9}s" repeatCount="indefinite"/><animateTransform attributeName="transform" type="translate" values="282 74;291 63;285 52;295 42" dur="2.7s" begin="${i*.9}s" repeatCount="indefinite"/><animateTransform attributeName="transform" type="scale" additive="sum" values=".6;1.35" dur="2.7s" begin="${i*.9}s" repeatCount="indefinite"/></text>`).join('')+`</g>`;
   g+=`<text x="70" y="182" text-anchor="middle" font-family="Fredoka, sans-serif" font-weight="700" font-size="15" fill="#fff">Blauw</text><text x="270" y="182" text-anchor="middle" font-family="Fredoka, sans-serif" font-weight="700" font-size="15" fill="#fff">Oranje</text>`;
   const racketL=(x2,y2)=>`<line x1="82" y1="112" x2="${x2}" y2="${y2}" stroke="#1d1d55" stroke-width="3"/><ellipse cx="${x2}" cy="${y2}" rx="8" ry="11" fill="none" stroke="#1d1d55" stroke-width="3"/>`;
   const racketR=(x2,y2)=>`<line x1="258" y1="112" x2="${x2}" y2="${y2}" stroke="#1d1d55" stroke-width="3"/><ellipse cx="${x2}" cy="${y2}" rx="8" ry="11" fill="none" stroke="#1d1d55" stroke-width="3"/>`;
@@ -902,7 +903,7 @@ const LEVELS=[
   CE('Pak je racket vast alsof je iemand een <strong>hand</strong> geeft. Niet te hard knijpen.',{icon:'racket'}),
   CE('Een shuttle heeft een ronde <strong>dop</strong> en <strong>veertjes</strong>. Pak hem voorzichtig vast aan de veertjes, met je vingertoppen. Net als een <strong>vieze sok</strong>!',{icon:'shuttle'}),
   CE('Elke rally begint met de <strong>service</strong>. Je slaat de shuttle <strong>onderhands</strong>: van onder naar boven, over het net.',{scene:{k:'serve'}}),
-  CE('Je serveert pas als de ander <strong>klaar</strong> is.',{scene:{k:'serve'}})],
+  CE('Je serveert pas als de ander <strong>klaar</strong> is.',{scene:{k:'serve',zzz:true}})],
   [{t:'mc',q:'Hoe pak je je racket vast?',opts:['Alsof je iemand een hand geeft','Met twee handen heel hard','Aan het blad'],pics:[{icon:'handshake'},{icon:'fist'},{icon:'racket'}],a:0,why:'Je geeft je racket een hand. Rustig vasthouden.'},
    {t:'mc',q:'Hoe pak je de shuttle vast?',opts:['Voorzichtig, als een vieze sok','Met je hele vuist','Met je mond'],pics:[{icon:'sock'},{icon:'fist'},{icon:'mouth'}],a:0,why:'Met je vingertoppen, net als een vieze sok.'},
    {t:'mc',q:'Hoe sla je de service?',opts:['Onderhands, van onder naar boven','Bovenhands, keihard','Met je voet'],pics:[{icon:'serve'},{icon:'smash'},{icon:'foot'}],a:0,why:'De service sla je onderhands, van onder naar boven.'},
