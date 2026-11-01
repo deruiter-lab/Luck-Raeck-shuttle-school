@@ -304,6 +304,22 @@ body.onsplash .bar{display:none}
 .tile.now{border-color:var(--blue);box-shadow:0 0 0 3px var(--blue-soft)}
 .catch{flex:none;max-width:24ch;margin:0;font-family:var(--display);font-weight:600;font-size:clamp(19px,3vh,24px);line-height:1.3;color:var(--fg);text-wrap:balance}
 .catch strong{color:var(--orange)}
+
+/* plaatjes bovenaan in het witte blok, met herhaalknop */
+.stage .art{flex:0 1 auto;align-items:flex-start;justify-content:center;position:relative}
+.stage .art>svg{width:auto;height:auto;max-width:100%;max-height:44vh}
+.lesson-stage .art>svg{max-height:48vh}
+.replay{position:absolute;top:6px;right:6px;width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:var(--surface);color:var(--blue);display:grid;place-items:center;padding:0;box-shadow:0 1px 3px rgba(0,0,0,.12);z-index:2}
+.replay svg{width:18px;height:18px}
+.endonly{transition:opacity .25s}
+/* dikke pijlen tussen de niveaus */
+:root{--arrow:#c7cfe2;--arrow-lit:#ffc48e}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--arrow:#3a4c78;--arrow-lit:#b8723a}}
+:root[data-theme="dark"]{--arrow:#3a4c78;--arrow-lit:#b8723a}
+.conn{height:30px;width:100%;margin:2px 0;display:grid;place-items:center}
+.conn svg{width:40px;height:28px;fill:var(--arrow);stroke:none}
+.conn.lit svg{fill:var(--arrow-lit)}
+.stage .art>div[style*="width:110px"]{width:110px!important;height:110px!important;max-height:none}
 </style>
 
 <header class="bar"><div class="bar-in">
@@ -471,27 +487,36 @@ function scene(o){
   const racketL=(x2,y2)=>`<line x1="82" y1="112" x2="${x2}" y2="${y2}" stroke="#123" stroke-width="3"/><ellipse cx="${x2}" cy="${y2}" rx="8" ry="11" fill="none" stroke="#123" stroke-width="3"/>`;
   const racketR=(x2,y2)=>`<line x1="258" y1="112" x2="${x2}" y2="${y2}" stroke="#123" stroke-width="3"/><ellipse cx="${x2}" cy="${y2}" rx="8" ry="11" fill="none" stroke="#123" stroke-width="3"/>`;
   const k=o.k;
-  if(k==='groundL') g+=racketL(96,96)+racketR(240,92)+sh(120,151.5,80.7);
-  if(k==='groundR') g+=racketL(96,96)+racketR(240,92)+sh(220,151.5,-80.7);
-  if(k==='outR') g+=racketL(96,96)+racketR(240,92)+sh(325,151.5,-80.7)+`<path d="M90 90 Q210 0 334 146" fill="none" stroke="#f07f1a" stroke-width="3" stroke-dasharray="6 6"/>`;
-  if(k==='outL') g+=racketL(96,96)+racketR(240,92)+sh(15,151.5,80.7)+`<path d="M250 90 Q130 0 6 146" fill="none" stroke="#f07f1a" stroke-width="3" stroke-dasharray="6 6"/>`;
-  if(k==='lineR') g+=racketL(96,96)+racketR(240,92)+sh(290,151.5,-80.7)+``;
-  if(k==='netL') g+=racketL(96,96)+racketR(240,92)+sh(158,118,-50)+`<path d="M90 95 Q130 70 158 112" fill="none" stroke="#f07f1a" stroke-width="3" stroke-dasharray="6 6"/>`;
-  if(k==='netR') g+=racketL(96,96)+racketR(240,92)+sh(182,118,50)+`<path d="M250 95 Q210 70 182 112" fill="none" stroke="#f07f1a" stroke-width="3" stroke-dasharray="6 6"/>`;
-  if(k==='touchL') g+=racketL(160,76)+racketR(240,92)+sh(110,40,-90)+`<circle cx="164" cy="74" r="14" fill="none" stroke="#c23b2b" stroke-width="3"/>`;
-  if(k==='touchR') g+=racketL(96,96)+racketR(180,76)+sh(230,40,90)+`<circle cx="176" cy="74" r="14" fill="none" stroke="#c23b2b" stroke-width="3"/>`;
-  if(k==='bodyL') g+=racketL(96,96)+racketR(240,92)+sh(60,116,63)+`<path d="M240 90 Q150 30 64 112" fill="none" stroke="#f07f1a" stroke-width="3" stroke-dasharray="6 6"/>`;
-  if(k==='bodyR') g+=racketL(96,96)+racketR(240,92)+sh(280,116,-63)+`<path d="M100 90 Q190 30 276 112" fill="none" stroke="#f07f1a" stroke-width="3" stroke-dasharray="6 6"/>`;
-  if(k==='underL') g+=racketL(96,96)+racketR(240,92)+sh(205,146,-90)+`<path d="M95 140 L200 150" fill="none" stroke="#c23b2b" stroke-width="3" stroke-dasharray="6 6"/>`;
-  if(k==='rally') g+=racketL(96,96)+racketR(240,92)+sh(170,26,-90)+`<path d="M96 90 Q170 0 244 88" fill="none" stroke="#f07f1a" stroke-width="3" stroke-dasharray="6 6"/>`;
+  /* vlucht: van (sx,sy) via controlepunt naar (ex,ey); eindhoek er (null = vlieghoek) */
+  const flight=(sx,sy,cx,cy,ex,ey,er,col)=>{
+    const ta=Math.atan2(ey-cy,ex-cx)*180/Math.PI-90, fa=(er==null?ta:er);
+    return `<path class="ftrail" d="M${sx} ${sy} Q${cx} ${cy} ${ex} ${ey}" fill="none" stroke="${col||'#f07f1a'}" stroke-width="3" stroke-dasharray="6 6"/>`+
+      `<g class="flight" data-p="${[sx,sy,cx,cy,ex,ey,er==null?'':er].join(',')}" transform="translate(${ex} ${ey}) rotate(${fa.toFixed(1)}) scale(1.3) translate(-16 -16)">${SHUTTLE_INNER}</g>`;};
+  /* racket dat naar een plek beweegt (bijv. tegen het net) */
+  const rkMove=(px,py,fx,fy,tx,ty)=>`<g class="rk" data-p="${[px,py,fx,fy,tx,ty].join(',')}"><line x1="${px}" y1="${py}" x2="${tx}" y2="${ty}" stroke="#123" stroke-width="3"/><ellipse cx="${tx}" cy="${ty}" rx="8" ry="11" fill="none" stroke="#123" stroke-width="3"/></g>`;
+  const endMark=(x,y)=>`<circle class="endonly" cx="${x}" cy="${y}" r="14" fill="none" stroke="#c23b2b" stroke-width="3"/>`;
+  const RL=racketL(96,96), RR=racketR(240,92), LY=80.7;
+  if(k==='groundL') g+=RL+RR+flight(240,92,170,0,120,151.5,LY);
+  if(k==='groundR') g+=RL+RR+flight(96,96,170,0,220,151.5,-LY);
+  if(k==='outR')    g+=RL+RR+flight(96,96,215,-10,325,151.5,-LY);
+  if(k==='outL')    g+=RL+RR+flight(240,92,125,-10,15,151.5,LY);
+  if(k==='lineR')   g+=RL+RR+flight(96,96,200,-10,290,151.5,-LY);
+  if(k==='netL')    g+=RL+RR+flight(96,96,135,60,158,118,null);
+  if(k==='netR')    g+=RL+RR+flight(240,92,205,60,182,118,null);
+  if(k==='touchL')  g+=rkMove(82,112,96,96,160,76)+RR+flight(240,92,175,10,110,40,null)+endMark(164,74);
+  if(k==='touchR')  g+=RL+rkMove(258,112,240,92,180,76)+flight(96,96,165,10,230,40,null)+endMark(176,74);
+  if(k==='bodyL')   g+=RL+RR+flight(240,92,150,30,62,114,null);
+  if(k==='bodyR')   g+=RL+RR+flight(96,96,190,30,278,114,null);
+  if(k==='underL')  g+=racketL(98,134)+RR+flight(98,134,150,150,205,146,null,'#c23b2b');
+  if(k==='rally')   g+=RL+RR+flight(96,96,170,-20,240,92,null);
   if(k==='svchoog'||k==='svcgoed'||k==='svcvoet'){
     const bad=k!=='svcgoed';
     g+=`<line x1="20" y1="108" x2="160" y2="108" stroke="#f07f1a" stroke-width="2.5" stroke-dasharray="7 5"/><text x="24" y="102" font-family="Fredoka" font-weight="700" font-size="13" fill="var(--fg)">1,15 m</text>`;
-    if(k==='svchoog') g+=`<g><animateTransform attributeName="transform" type="rotate" values="70 82 112;0 82 112;70 82 112" dur="1.8s" repeatCount="indefinite"/><line x1="82" y1="112" x2="104" y2="76" stroke="#123" stroke-width="3"/><ellipse cx="104" cy="76" rx="8" ry="11" fill="none" stroke="#123" stroke-width="3"/></g>`+sh(114,72,0,1)+`<text x="250" y="40" text-anchor="middle" font-family="Fredoka" font-weight="700" font-size="18" fill="#c23b2b">te hoog: fout</text>`;
-    if(k==='svcgoed') g+=`<g><animateTransform attributeName="transform" type="rotate" values="-60 82 112;0 82 112;-60 82 112" dur="1.8s" repeatCount="indefinite"/><line x1="82" y1="112" x2="98" y2="132" stroke="#123" stroke-width="3"/><ellipse cx="98" cy="132" rx="8" ry="11" fill="none" stroke="#123" stroke-width="3"/></g><g><animateMotion dur="1.8s" repeatCount="indefinite" keyPoints="0;0;1" keyTimes="0;0.5;1" calcMode="linear" rotate="auto" path="M108 124 Q198 -6 298 146"/><g transform="rotate(-90) translate(-16 -26)">${SHUTTLE_INNER}</g></g><text x="250" y="40" text-anchor="middle" font-family="Fredoka" font-weight="700" font-size="18" fill="var(--good)">onder 1,15 m: goed</text>`;
-    if(k==='svcvoet') g+=racketL(98,128)+sh(108,122,0,1)+`<rect x="72" y="140" width="7" height="18" rx="3" fill="#c23b2b"><animate attributeName="x" values="72;90;72" dur="1.6s" repeatCount="indefinite"/></rect><text x="250" y="40" text-anchor="middle" font-family="Fredoka" font-weight="700" font-size="18" fill="#c23b2b">voet schuift: fout</text>`;
+    if(k==='svchoog') g+=`<g><animateTransform attributeName="transform" type="rotate" values="70 82 112;0 82 112;70 82 112" dur="1.8s" repeatCount="1" fill="freeze"/><line x1="82" y1="112" x2="104" y2="76" stroke="#123" stroke-width="3"/><ellipse cx="104" cy="76" rx="8" ry="11" fill="none" stroke="#123" stroke-width="3"/></g>`+sh(114,72,0,1)+`<text x="250" y="40" text-anchor="middle" font-family="Fredoka" font-weight="700" font-size="18" fill="#c23b2b">te hoog: fout</text>`;
+    if(k==='svcgoed') g+=`<g><animateTransform attributeName="transform" type="rotate" values="-60 82 112;0 82 112;-60 82 112" dur="1.8s" repeatCount="1" fill="freeze"/><line x1="82" y1="112" x2="98" y2="132" stroke="#123" stroke-width="3"/><ellipse cx="98" cy="132" rx="8" ry="11" fill="none" stroke="#123" stroke-width="3"/></g><g><animateMotion dur="1.8s" repeatCount="1" fill="freeze" keyPoints="0;0;1" keyTimes="0;0.5;1" calcMode="linear" rotate="auto" path="M108 124 Q198 -6 298 146"/><g transform="rotate(-90) translate(-16 -22.5)">${SHUTTLE_INNER}</g></g><text x="250" y="40" text-anchor="middle" font-family="Fredoka" font-weight="700" font-size="18" fill="var(--good)">onder 1,15 m: goed</text>`;
+    if(k==='svcvoet') g+=racketL(98,128)+sh(108,122,0,1)+`<rect x="72" y="140" width="7" height="18" rx="3" fill="#c23b2b"><animate attributeName="x" values="72;90" dur="1.2s" repeatCount="1" fill="freeze"/></rect><text x="250" y="40" text-anchor="middle" font-family="Fredoka" font-weight="700" font-size="18" fill="#c23b2b">voet schuift: fout</text>`;
   }
-  if(k==='serve') g+=racketL(98,128)+racketR(240,92)+sh(112,120,0,1.1)+`<path d="M112 120 Q190 10 290 150" fill="none" stroke="#f07f1a" stroke-width="3" stroke-dasharray="6 6"/>`;
+  if(k==='serve') g+=racketL(98,128)+racketR(240,92)+flight(112,120,195,0,290,151.5,-80.7);
   return g+'</svg>';
 }
 function bigArt(t,sub){return `<div style="text-align:center"><div class="big">${t}</div>${sub?`<div class="label" style="margin-top:6px">${sub}</div>`:''}</div>`;}
@@ -1247,13 +1272,13 @@ function render(){
 function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
 
 function homeView(){
-  const p=P(); const kokers=Math.floor(p.shuttles/12), los=p.shuttles%12; const ns=nextStep(); const due=bakDue().length;
-  const conn=(lit)=>`<div class="conn ${lit?'lit':''}" aria-hidden="true"><svg viewBox="0 0 24 26"><path d="M12 0v15" stroke-width="3" stroke-dasharray="3 4" stroke-linecap="round"/><path d="M6 13l6 7 6-7" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>`;
+  const p=P(); const ns=nextStep(); const due=bakDue().length;
+  const conn=(lit)=>`<div class="conn ${lit?'lit':''}" aria-hidden="true"><svg viewBox="0 0 40 28"><path d="M13 0h14v13h9L20 28 4 13h9z" stroke-linejoin="round"/></svg></div>`;
   app.innerHTML=`
   <div class="hero"><span class="heroic">${I.shuttle}</span><div style="min-width:0;flex:1">
     <div class="namerow" id="namerow"><h1>Hoi ${esc(S.current)}!</h1><button class="editbtn" id="edit" aria-label="Naam aanpassen" title="Naam aanpassen">${I.pencil}</button></div>
     <form class="namerow" id="nameform" hidden><label for="nm" class="sr">Je naam</label><input type="text" id="nm" maxlength="20" value="${esc(S.current)}"><button class="btn go small" type="submit">${I.check}</button></form>
-    <p class="muted small" id="nmsg">${kokers} ${kokers===1?'koker':'kokers'} + ${los} los</p></div></div>
+    <p class="muted small" id="nmsg">Je hebt ${p.shuttles} ${p.shuttles===1?'shuttle':'shuttles'} gespaard</p></div></div>
   ${ns?`<button class="bigbtn" id="next"><span class="bb1">Verder leren</span><span class="bb2">${esc(ns.label)}</span>${I.play}</button>`:`<div class="card"><b>Alle niveaus gehaald!</b> <span class="muted">Speel de spelletjes om scherp te blijven.</span></div>`}
   ${due?`<button class="item bak" id="bak"><span class="ic">${I.redo}</span><span class="t"><b>Foutenbak</b><span>${due} ${due===1?'vraag':'vragen'} om te herhalen</span></span>${ic('next')}</button>`:''}
   <div class="path">${LEVELS.map((l,ix)=>{const open=levelOpen(l.n), pass=!!p.passed[l.n], d=lessonsDone(l), t=l.lessons.length;
@@ -1285,7 +1310,7 @@ function levelView(n){
   <div class="row" style="justify-content:space-between"><h1>${l.name}</h1>${pass?`<button class="btn alt small" id="dipl">${ic('medal',18)} Diploma</button>`:''}</div>
   ${pass&&n<5?`<button class="btn go small" id="gonext">Gehaald! Door naar niveau ${n+1} ${I.next}</button>`:''}
   ${tab==='les'?stepBar(l):''}
-  <div class="tabs" role="tablist"><button role="tab" class="tab ${tab==='les'?'on':''}" data-tab="les" aria-selected="${tab==='les'}">Lessen ${lessonsDone(l)}/${l.lessons.length}</button><button role="tab" class="tab ${tab==='spel'?'on':''}" data-tab="spel" aria-selected="${tab==='spel'}">Spelletjes</button></div>
+  <div class="tabs" role="tablist"><button role="tab" class="tab ${tab==='les'?'on':''}" data-tab="les" aria-selected="${tab==='les'}">Lessen</button><button role="tab" class="tab ${tab==='spel'?'on':''}" data-tab="spel" aria-selected="${tab==='spel'}">Spelletjes</button></div>
   ${tab==='les'?`
   <div class="tiles">
     ${of?`<button class="tile opf" id="opf"><span class="tn">${I.redo}</span><span class="tt">Opfrissen<small>5 vragen van eerder</small></span></button>`:''}
@@ -1320,7 +1345,7 @@ function lessonView(){
   app.innerHTML=`
   <div class="topline"><button class="back" id="bk">${I.back} Niveau ${n}</button><div class="dots">${le.slides.map((_,k)=>`<i class="${k<=i?'on':''}"></i>`).join('')}</div></div>
   <div class="ltitle"><span class="tic">${I[TOPICS[le.topic].icon]}</span><h2>${le.title}</h2></div>
-  <div class="stage">
+  <div class="stage lesson-stage">
     <div class="art" id="art">${art(sl.art)}</div>
     <div class="qrow"><button class="speak" id="sp" aria-label="Lees voor">${I.speaker}</button><p class="say">${sl.say}</p></div>
   </div>
@@ -1394,16 +1419,28 @@ function quizView(){
     if(q.land) landAnim(()=>{app.querySelectorAll('.opt').forEach(b=>b.disabled=false); if(q.timer) startTimer(q.timer);});
     else { landAnim(); if(q.timer) startTimer(q.timer); }
   } else {
-    if(q.tap) landAnim();
+    if(q.tap) landAnim(); else ensureReplay();
     document.getElementById('nx').onclick=()=>{ if(c.k===c.qs.length-1) finish(); else {c.k++;c.answered=null;hush();render();} };
     if(S.auto) speak((ok?'Goed zo! ':ans===-1?'Te laat! ':'Bijna! ')+(q.tap?q.result[1]:q.why),sp);
   }
 }
+function ensureReplay(){
+  const a=document.getElementById('art'); if(!a||a.querySelector('.replay')) return;
+  if(!a.querySelector('.landing,.flight,.rk,animate,animateTransform,animateMotion')) return;
+  const b=document.createElement('button'); b.className='replay'; b.type='button'; b.setAttribute('aria-label','Animatie opnieuw afspelen'); b.title='Opnieuw afspelen'; b.innerHTML=I.redo;
+  b.onclick=e=>{e.stopPropagation(); landAnim();}; a.appendChild(b);
+}
 function landAnim(done){
   done=done||function(){};
-  const gs=document.querySelectorAll('#art .landing'); if(!gs.length){done();return;}
+  ensureReplay();
+  const root=document.getElementById('art'); if(!root){done();return;}
+  const gs=root.querySelectorAll('.landing'), fl=root.querySelectorAll('.flight'), rks=root.querySelectorAll('.rk'), ends=root.querySelectorAll('.endonly');
+  root.querySelectorAll('svg').forEach(sv=>{ if(sv.querySelector('animate,animateTransform,animateMotion')&&sv.setCurrentTime){ try{sv.setCurrentTime(0);sv.unpauseAnimations();}catch(e){} } });
   if(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches){done();return;}
-  let left=gs.length;
+  let left=gs.length+fl.length+rks.length; if(!left){done();return;}
+  const fin=()=>{ if(--left===0){ ends.forEach(m=>m.style.opacity=1); done(); } };
+  ends.forEach(m=>m.style.opacity=0);
+  /* bovenaanzicht van de baan */
   gs.forEach(g=>{
     const sh=g.querySelector('.shut'), tr=g.querySelector('.trail'), mk=g.querySelectorAll('.mark');
     const tx=+g.dataset.tx,ty=+g.dataset.ty,sx=+g.dataset.sx,sy=+g.dataset.sy,a=+g.dataset.a,k0=+g.dataset.k;
@@ -1413,7 +1450,29 @@ function landAnim(done){
       const x=sx+(tx-sx)*e, y=sy+(ty-sy)*e-lift*Math.min(40,dist*.18);
       sh.setAttribute('transform',`translate(${x.toFixed(1)} ${y.toFixed(1)}) rotate(${a.toFixed(1)}) scale(${(k0*(1+lift*.7)).toFixed(2)}) translate(-16 -22.5)`);
       tr.setAttribute('x2',x.toFixed(1)); tr.setAttribute('y2',(sy+(ty-sy)*e).toFixed(1));
-      if(k<1) requestAnimationFrame(step); else {mk.forEach(m=>m.style.opacity=1); if(--left===0) done();}
+      if(k<1) requestAnimationFrame(step); else {mk.forEach(m=>m.style.opacity=1); fin();}
+    })(t0);
+  });
+  /* zijaanzicht: shuttle vliegt langs een boog, dopje voorop, en komt op het eind tot rust */
+  fl.forEach(g=>{
+    const v=g.dataset.p.split(','), P=v.slice(0,6).map(Number), er=v[6]===''?null:+v[6];
+    const [sx,sy,cx,cy,ex,ey]=P, tr=g.previousElementSibling, D=1100, t0=performance.now();
+    const ang=t=>{const dx=2*(1-t)*(cx-sx)+2*t*(ex-cx), dy=2*(1-t)*(cy-sy)+2*t*(ey-cy); return Math.atan2(dy,dx)*180/Math.PI-90;};
+    (function step(now){const k=Math.min(1,(now-t0)/D), t=k;
+      const x=(1-t)*(1-t)*sx+2*(1-t)*t*cx+t*t*ex, y=(1-t)*(1-t)*sy+2*(1-t)*t*cy+t*t*ey;
+      let a=ang(Math.min(t,.999));
+      if(er!=null&&k>.88){let d=((er-a+540)%360)-180; a=a+d*((k-.88)/.12);}
+      g.setAttribute('transform',`translate(${x.toFixed(1)} ${y.toFixed(1)}) rotate(${a.toFixed(1)}) scale(1.3) translate(-16 -16)`);
+      if(tr&&tr.classList.contains('ftrail')){const qx=sx+(cx-sx)*t, qy=sy+(cy-sy)*t; tr.setAttribute('d',`M${sx} ${sy} Q${qx.toFixed(1)} ${qy.toFixed(1)} ${x.toFixed(1)} ${y.toFixed(1)}`);}
+      if(k<1) requestAnimationFrame(step); else fin();
+    })(t0);
+  });
+  /* racket dat het net raakt */
+  rks.forEach(g=>{
+    const [px,py,fx,fy,tx,ty]=g.dataset.p.split(',').map(Number), ln=g.querySelector('line'), el=g.querySelector('ellipse'), t0=performance.now(), D=1100;
+    (function step(now){const k=Math.min(1,(now-t0)/D), e=k<.55?0:Math.min(1,(k-.55)/.3);
+      const x=fx+(tx-fx)*e, y=fy+(ty-fy)*e; ln.setAttribute('x2',x.toFixed(1)); ln.setAttribute('y2',y.toFixed(1)); el.setAttribute('cx',x.toFixed(1)); el.setAttribute('cy',y.toFixed(1));
+      if(k<1) requestAnimationFrame(step); else fin();
     })(t0);
   });
 }
