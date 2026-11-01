@@ -29,17 +29,17 @@
   --line:#cfdaec; --lock:#9aa8c0; --on-accent:#ffffff;
   --display:"Fredoka","Baloo 2","Trebuchet MS",system-ui,sans-serif;
   --body:"Atkinson Hyperlegible",Verdana,system-ui,sans-serif;
-}
+ --picbg:transparent;}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
   --bg:#0c1730; --surface:#14244a; --fg:#eaf0fb; --muted:#9fb0cf;
   --blue:#9aa4ff; --blue-soft:#1e3463; --orange:#ff9a3d; --orange-soft:#4a2e14;
   --court:#256b4d; --court-line:#f4f7fb; --good:#5fd08f; --good-soft:#173d2a; --bad:#ff7b6b; --bad-soft:#4a1f1a;
-  --line:#2a3e6b; --lock:#5b6d93; --on-accent:#0c1730; color-scheme:dark }}
+  --line:#2a3e6b; --lock:#5b6d93; --on-accent:#0c1730; --picbg:#e8eefb; color-scheme:dark }}
 :root[data-theme="dark"]{
   --bg:#0c1730; --surface:#14244a; --fg:#eaf0fb; --muted:#9fb0cf;
   --blue:#9aa4ff; --blue-soft:#1e3463; --orange:#ff9a3d; --orange-soft:#4a2e14;
   --court:#256b4d; --court-line:#f4f7fb; --good:#5fd08f; --good-soft:#173d2a; --bad:#ff7b6b; --bad-soft:#4a1f1a;
-  --line:#2a3e6b; --lock:#5b6d93; --on-accent:#0c1730; color-scheme:dark }
+  --line:#2a3e6b; --lock:#5b6d93; --on-accent:#0c1730; --picbg:#e8eefb; color-scheme:dark }
 *{box-sizing:border-box}
 body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:17px;line-height:1.5}
 body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:#1d1d55}
@@ -386,6 +386,23 @@ body.bigtext .fb{font-size:clamp(18px,2.9vh,24px)}
 @media (prefers-reduced-motion:reduce){#app.enter,.resic.pop{animation:none}}
 .tiles>.tile:last-child:nth-child(odd){grid-column:2}
 .opts.pics .opt .onum{display:block;width:100%;text-align:center;font-family:var(--display);font-weight:700;font-size:clamp(30px,5vh,44px);color:var(--blue);line-height:1.1}
+
+/* plaatjes: lichte ondergrond in donkere modus */
+.opic,.art>div[style*="width:110px"]{background:var(--picbg);border-radius:14px}
+.opic{padding:3px;box-sizing:border-box}
+/* vragen met plaatjes vullen het scherm */
+.stage.noart .opts.pics{flex:1 1 auto;min-height:0;grid-auto-rows:minmax(0,1fr);max-height:560px}
+.stage.noart .opts.pics .opt{min-height:0;overflow:hidden;font-size:clamp(18px,2.7vh,23px)}
+.stage.noart .opts.pics .opic{width:clamp(52px,10vh,92px);height:clamp(52px,10vh,92px)}
+.stage.noart.answered .opts.pics .opic{width:clamp(40px,6.5vh,64px);height:clamp(40px,6.5vh,64px)}
+/* kleur per onderwerp */
+.tile[style*="--tc"]:not(.done) .tn,.tb[style*="--tc"] .tbi,.tic[style*="--tc"]{color:var(--tc)}
+.tile[style*="--tc"]:not(.done) .tn,.tic[style*="--tc"]{background:var(--blue-soft);background:color-mix(in srgb,var(--tc) 15%,var(--surface))}
+.tb[style*="--tc"]{border-color:color-mix(in srgb,var(--tc) 35%,var(--line))}
+.tile.now[style*="--tc"]{border-color:var(--tc);box-shadow:0 0 0 3px color-mix(in srgb,var(--tc) 22%,transparent)}
+/* shuttleteller licht op */
+.pot.bump{animation:bump .5s,potglow 1s}
+@keyframes potglow{0%{box-shadow:0 0 0 0 rgba(255,196,64,0)}25%{box-shadow:0 0 0 5px rgba(255,196,64,.7),0 0 22px 8px rgba(255,196,64,.65)}100%{box-shadow:0 0 0 0 rgba(255,196,64,0)}}
 </style>
 
 <header class="bar"><div class="bar-in">
@@ -767,16 +784,18 @@ const svcCourt=(dub,extra)=>Object.assign({full:true,areas:[dub?{x0:0,x1:W/2,y0:
 const FAR_E={x0:SI,x1:W-SI,y0:-L,y1:0}, FAR_D={x0:0,x1:W,y0:-L,y1:0};
 const FOUR=[[4.6,4.2,'#2b3bd8','Sam',1],[1.5,4.2,'#2b3bd8','Noor'],[1.5,-4.2,'#f07f1a','Mo'],[4.6,-4.2,'#f07f1a','Lisa']];
 const TOPICS={
-  spel:{name:'Het spel',icon:'racketd'},
-  lijnen:{name:'Baan en lijnen',icon:'target'},
-  service:{name:'Service',icon:'cannon'},
-  telling:{name:'Telling',icon:'board'},
-  fouten:{name:'Fouten',icon:'cross'},
-  let:{name:'Let',icon:'redo'},
-  dubbel:{name:'Dubbelspel',icon:'people'},
-  eerlijk:{name:'Eerlijk spelen',icon:'heart'},
-  slagen:{name:'Slagen',icon:'smash'}
+  spel:{name:'Het spel',icon:'racketd',c:'#2b3bd8'},
+  lijnen:{name:'Baan en lijnen',icon:'target',c:'#2f7d5b'},
+  service:{name:'Service',icon:'cannon',c:'#e06a00'},
+  telling:{name:'Telling',icon:'board',c:'#7b4bc4'},
+  fouten:{name:'Fouten',icon:'cross',c:'#c23b2b'},
+  let:{name:'Let',icon:'redo',c:'#0b8aa3'},
+  dubbel:{name:'Dubbelspel',icon:'people',c:'#c13a7c'},
+  eerlijk:{name:'Eerlijk spelen',icon:'heart',c:'#a77400'},
+  slagen:{name:'Slagen',icon:'smash',c:'#1d1d55'}
 };
+const tcol=t=>{const c=TOPICS[t]&&TOPICS[t].c;if(!c)return '';let dk=false;try{const th=document.documentElement.dataset.theme;dk=th==='dark'||(th!=='light'&&matchMedia('(prefers-color-scheme: dark)').matches);}catch(e){}return ` style="--tc:${dk?lighten(c):c}"`;};
+function lighten(h){const n=parseInt(h.slice(1),16);const f=v=>Math.round(v+(255-v)*.55);return '#'+[n>>16,(n>>8)&255,n&255].map(f).map(v=>v.toString(16).padStart(2,'0')).join('');}
 const TOPIC_ORDER=['spel','lijnen','service','telling','fouten','let','dubbel','eerlijk','slagen'];
 const L_=(topic,id,title,slides,quiz,hint)=>({id,topic,title,slides,quiz,hint});
 
@@ -1542,7 +1561,7 @@ function homeView(){
       <span class="num">${open?l.n:I.lock}</span>
       <span class="txt"><b>${l.name}</b><span class="sub">${open?(pass?'foutloos gehaald':`${d} van ${t} lessen`):`eerst niveau ${l.n-1} foutloos`}</span>${open?`<span class="progress"><i style="width:${(d+(pass?1:0))/(t+1)*100}%"></i></span>`:''}</span>
       ${pass?`<span class="medal">${I.medal}</span>`:''}</button>`;}).join('')}</div>
-  <div class="topics" aria-label="Onderwerp-badges">${TOPIC_ORDER.map(t=>{const s=topicStars(t);return `<span class="tb ${s?'':'off'}" title="${TOPICS[t].name}: ${s} van 5 sterren"><span class="tbi">${I[TOPICS[t].icon]}</span><span class="tbs">${'★'.repeat(s)}${'☆'.repeat(5-s)}</span></span>`;}).join('')}</div>
+  <div class="topics" aria-label="Onderwerp-badges">${TOPIC_ORDER.map(t=>{const s=topicStars(t);return `<span class="tb ${s?'':'off'}"${tcol(t)} title="${TOPICS[t].name}: ${s} van 5 sterren"><span class="tbi">${I[TOPICS[t].icon]}</span><span class="tbs">${'★'.repeat(s)}${'☆'.repeat(5-s)}</span></span>`;}).join('')}</div>
   ${voiceWarn()}`;
   const nb=document.getElementById('next'); if(nb) nb.onclick=()=>doStep(ns);
   const bb=document.getElementById('bak'); if(bb) bb.onclick=()=>startQuiz({n:1,title:'Foutenbak',kind:'bak',src:()=>bakDue().slice(0,8).map(b=>b.r)});
@@ -1571,7 +1590,7 @@ function levelView(n){
   <div class="tiles">
     ${of?`<button class="tile opf" id="opf"><span class="tn">${I.redo}</span><span class="tt">Opfrissen<small>5 vragen van eerder</small></span></button>`:''}
     ${l.lessons.map((x,i)=>{const open=lessonOpen(l,i), done=!!p.lessons[x.id];
-    return `<button class="tile ${done?'done':''} ${open&&!done?'now':''}" data-l="${i}" ${open?'':'disabled'}><span class="tn">${!open?I.lock:done?I.check:I[TOPICS[x.topic].icon]}</span><span class="tt">${i+1}. ${x.title}<small>${TOPICS[x.topic].name}</small></span></button>`;}).join('')}</div>
+    return `<button class="tile ${done?'done':''} ${open&&!done?'now':''}"${tcol(x.topic)} data-l="${i}" ${open?'':'disabled'}><span class="tn">${!open?I.lock:done?I.check:I[TOPICS[x.topic].icon]}</span><span class="tt">${i+1}. ${x.title}<small>${TOPICS[x.topic].name}</small></span></button>`;}).join('')}</div>
   <button class="item exam" id="exam" ${eo?'':'disabled'}><span class="ic">${eo?ic('medal',26):I.lock}</span><span class="t"><b>Eindtoets niveau ${n}</b><span>${eo?'12 vragen, alles goed = niveau gehaald':'eerst alle lessen foutloos'}</span></span>${pass?`<span class="medal">${I.medal}</span>`:''}</button>`
   :`<div class="tiles">${gamesFor(n).map(g=>`<button class="tile game" data-g="${g.id}"><span class="tn">${I[g.icon]}</span><span class="tt">${g.title}<small>${p.best[g.id]!=null?'beste '+p.best[g.id]:g.desc}</small></span></button>`).join('')}</div>
   <p class="note">Oefenen en shuttles sparen, zo vaak als je wilt.</p>`}`;
@@ -1600,7 +1619,7 @@ function lessonView(){
   const testOpen=levelOpen(n)&&lessonOpen(lv,li);
   app.innerHTML=`
   <div class="topline"><button class="back" id="bk">${I.back} Niveau ${n}</button><div class="dots">${le.slides.map((_,k)=>`<i class="${k<=i?'on':''}"></i>`).join('')}</div></div>
-  <div class="ltitle"><span class="tic">${I[TOPICS[le.topic].icon]}</span><h2>${le.title}</h2></div>
+  <div class="ltitle"><span class="tic"${tcol(le.topic)}>${I[TOPICS[le.topic].icon]}</span><h2>${le.title}</h2></div>
   <div class="stage lesson-stage">
     <div class="art" id="art">${art(sl.art)}</div>
     <div class="qrow"><button class="speak" id="sp" aria-label="Lees voor">${I.speaker}</button><p class="say" id="say">${sentSpans(sl.say)}</p></div>
@@ -1648,7 +1667,7 @@ function quizView(){
   app.innerHTML=`
   <div class="topline"><button class="back" id="bk">${I.back} Stoppen</button><span class="label">${esc(c.title)} · ${c.k+1}/${c.qs.length}</span></div>
   <div class="qdots" aria-label="Voortgang: vraag ${c.k+1} van ${c.qs.length}">${c.qs.map((_,i)=>`<i class="${c.res&&c.res[i]===true?'ok':c.res&&c.res[i]===false?'no':i===c.k?'cur':''}"></i>`).join('')}</div>
-  <div class="stage">
+  <div class="stage${artHtml?'':' noart'}${ans!=null?' answered':''}">
     <div class="qrow"><button class="speak" id="sp" aria-label="Lees de vraag voor">${I.speaker}</button><p class="say">${q.pre?`<span class="label" style="display:block">${q.pre}</span>`:''}<span id="qtext">${sentSpans(q.q)}</span></p>${H?`<button class="hintbtn" id="hb" aria-label="Hint bekijken" title="Hint">${I.bulb}</button>`:''}</div>
     ${artHtml?`<div class="art" id="art">${artHtml}</div>`:''}
     ${H?`<div class="hintpanel" id="hp" hidden><div class="hph"><span class="hlab">${I.bulb} Hint</span><button class="btn alt small" id="hpx">Terug naar de vraag</button></div>${H.art?`<div class="art hart">${art(H.art)}</div>`:''}<div class="qrow"><button class="speak" id="hsp" aria-label="Lees de hint voor">${I.speaker}</button><p class="say">${H.text}</p></div></div>`:''}
@@ -1765,12 +1784,20 @@ function answer(i,el){
   }
   render();
 }
+let actx=null;
+function audioCtx(){try{if(!actx){const A=window.AudioContext||window.webkitAudioContext;if(!A)return null;actx=new A();}if(actx.state==='suspended')actx.resume();return actx;}catch(e){return null;}}
+function kaching(vol){if(S.nosound)return;const a=audioCtx();if(!a)return;try{const t=a.currentTime+.01,out=a.createGain();out.gain.value=.32*(vol||1);out.connect(a.destination);
+ const len=Math.floor(a.sampleRate*.06),buf=a.createBuffer(1,len,a.sampleRate),d=buf.getChannelData(0);for(let i=0;i<len;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/len,4);
+ const ns=a.createBufferSource();ns.buffer=buf;const bp=a.createBiquadFilter();bp.type='bandpass';bp.frequency.value=1800;bp.Q.value=1.2;const ng=a.createGain();ng.gain.value=1.1;ns.connect(bp);bp.connect(ng);ng.connect(out);ns.start(t);
+ [[0.075,1],[0.16,.75]].forEach(([dt,amp],k)=>{const t2=t+dt;[[2093,1],[2637,.55],[3136,.42],[4186,.22],[5588,.12]].forEach(([f,g])=>{const o=a.createOscillator();o.type='sine';o.frequency.value=f*(k?1.122:1);const e=a.createGain();e.gain.setValueAtTime(0,t2);e.gain.linearRampToValueAtTime(g*.45*amp,t2+.004);e.gain.exponentialRampToValueAtTime(.0004,t2+(k?1.1:.6));o.connect(e);e.connect(out);o.start(t2);o.stop(t2+1.2);});});
+}catch(e){}}
 function award(n,el){
+  audioCtx();
   const p=P(); p.shuttles+=n; save();
   const pot=document.getElementById('pot'); const r=el.getBoundingClientRect(); const t=pot.getBoundingClientRect();
   for(let k=0;k<n;k++){const f=document.createElement('div');f.className='fly';f.innerHTML=I.shuttle;f.style.left=(r.left+r.width/2-17)+'px';f.style.top=(r.top+r.height/2-17)+'px';document.body.appendChild(f);
     setTimeout(()=>{f.style.transform=`translate(${t.left-r.left-r.width/2+30}px,${t.top-r.top-r.height/2+20}px) scale(.6) rotate(${180+k*40}deg)`;f.style.opacity='.2';},30+k*120);
-    setTimeout(()=>{f.remove();pot.classList.remove('bump');void pot.offsetWidth;pot.classList.add('bump');setPot();},900+k*120);}
+    setTimeout(()=>{f.remove();pot.classList.remove('bump');void pot.offsetWidth;pot.classList.add('bump');setPot();kaching(k?.7:1);},900+k*120);}
 }
 function finish(){
   const c=cur, p=P(); const perfect=c.good===c.qs.length; let bonus=0;
@@ -1923,7 +1950,8 @@ function settingsView(){
     <input type="range" id="rt" min="0.6" max="1.2" step="0.05" value="${S.rate}">
     <label class="row note"><input type="checkbox" id="au" ${S.auto?'checked':''}> Automatisch voorlezen</label>
     <label class="row note"><input type="checkbox" id="bg" ${S.big?'checked':''}> Grotere letters</label>
-    <div class="row"><label class="row note"><input type="checkbox" id="sps" ${S.nosplash?'':'checked'}> Openingsscherm tonen bij het starten</label><button class="btn alt small" id="spv">Bekijk</button></div>`;
+    <div class="row"><label class="row note"><input type="checkbox" id="sps" ${S.nosplash?'':'checked'}> Openingsscherm tonen bij het starten</label><button class="btn alt small" id="spv">Bekijk</button></div>
+    <label class="row note"><input type="checkbox" id="snd" ${S.nosound?'':'checked'}> Kassageluid bij shuttles sparen</label>`;
   if(tab==='ouders') body=`
     <h3>Voor ouders</h3>
     <p class="small">Shuttle-school leert de spelregels van badminton, stap voor stap, in 5 niveaus. Op elk niveau komen dezelfde 8 onderwerpen terug, steeds een beetje dieper.</p>
@@ -1958,6 +1986,7 @@ function settingsView(){
   const au=document.getElementById('au'); if(au) au.onchange=e=>{S.auto=e.target.checked;save();};
   const av=document.getElementById('allv'); if(av) av.onchange=e=>{S.allv=e.target.checked;save();render();};
   const sps=document.getElementById('sps'); if(sps) sps.onchange=e=>{S.nosplash=!e.target.checked;save();};
+  const snd=document.getElementById('snd'); if(snd) snd.onchange=e=>{S.nosound=!e.target.checked;save();if(!S.nosound)kaching();};
   const spv=document.getElementById('spv'); if(spv) spv.onclick=()=>go({view:'splash'});
   const bg=document.getElementById('bg'); if(bg) bg.onchange=e=>{S.big=e.target.checked;save();render();};
   const tf=document.getElementById('tf'); if(tf) tf.onsubmit=e=>{e.preventDefault();
