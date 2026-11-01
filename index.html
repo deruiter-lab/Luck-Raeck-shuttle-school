@@ -436,6 +436,11 @@ body.bigtext .fb{font-size:clamp(18px,2.9vh,24px)}
 .opt.wrong{animation:shake .45s}
 @keyframes shake{20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
 @media (prefers-reduced-motion: reduce){.opt.wrong,.stop .me,.toast{animation:none}}
+
+.avphoto{display:flex;flex-wrap:wrap;align-items:center;gap:8px;width:100%;margin-top:4px}
+.avphoto .btn{display:inline-flex;align-items:center;gap:6px;cursor:pointer}.avphoto .btn svg{width:18px;height:18px}
+.avphoto input:focus-visible+.btn,.avphoto .btn:focus-within{outline:3px solid var(--blue);outline-offset:2px}
+#avmsg:empty{display:none}
 </style>
 
 <header class="bar"><div class="bar-in">
@@ -573,6 +578,8 @@ const I={
  medal:'<svg viewBox="0 0 40 40"><path d="M12 2h6l4 12h-6z" fill="#2b3bd8"/><path d="M28 2h-6l-4 12h6z" fill="#5b67ee"/><circle cx="20" cy="25" r="12" fill="#f07f1a" stroke="#c45f08" stroke-width="2"/><circle cx="20" cy="25" r="7.5" fill="none" stroke="#fff" stroke-width="1.6"/></svg>'
 };
 Object.assign(I,ICG);
+I.camera='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8.5A1.5 1.5 0 0 1 5.5 7h2.3l1.5-2.5h5.4L16.2 7h2.3A1.5 1.5 0 0 1 20 8.5v9a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 17.5z" fill="currentColor" fill-opacity=".2"/><circle cx="12" cy="12.8" r="3.4"/></svg>';
+I.image='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5" fill="currentColor" fill-opacity=".2"/><circle cx="9" cy="10" r="1.8"/><path d="M4 17l5-4.5 4 3.5 2.5-2 4.5 3.5"/></svg>';
 document.getElementById('potico').innerHTML=I.shuttle;
 document.getElementById('set-btn').innerHTML=I.gear;
 const ic=(n,w)=>I[n].replace('<svg',`<svg width="${w||22}" height="${w||22}"`);
@@ -602,8 +609,23 @@ const AVG=['<path d="M12 3.2l2.7 5.5 6 .9-4.35 4.25 1 6L12 17l-5.35 2.85 1-6L3.3
 '<circle cx="12" cy="12" r="8.5" fill="none" stroke="#fff" stroke-width="2.2"/><circle cx="9" cy="10" r="1.4" fill="#fff"/><circle cx="15" cy="10" r="1.4" fill="#fff"/><path d="M8.3 14.2a4.4 4.4 0 0 0 7.4 0" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/>',
 '<path d="M6.5 3.5h11L15 14H9z" fill="#fff"/><path d="M9.2 4l1.2 9.6M12 3.5V14M14.8 4l-1.2 9.6M7.4 8h9.2" stroke="currentColor" stroke-width=".9"/><path d="M8.6 14h6.8v2.4a3.4 3.4 0 0 1-6.8 0z" fill="#fff"/>'];
 function avIndex(nm){const p=S.profiles[nm];if(p&&p.av!=null)return p.av;let h=0;for(const ch of (nm||''))h=(h*31+ch.charCodeAt(0))>>>0;return h%8;}
+let avUid=0;
+function setPhoto(file){
+  const msg=document.getElementById('avmsg'); if(msg) msg.textContent='Foto wordt klaargezet…';
+  const url=URL.createObjectURL(file); const img=new Image();
+  img.onload=()=>{try{const n=Math.min(img.naturalWidth,img.naturalHeight),z=192,cv=document.createElement('canvas');cv.width=z;cv.height=z;
+      const g=cv.getContext('2d');g.imageSmoothingQuality='high';g.drawImage(img,(img.naturalWidth-n)/2,(img.naturalHeight-n)/3,n,n,0,0,z,z);
+      const data=cv.toDataURL('image/jpeg',.82); URL.revokeObjectURL(url);
+      const q=P(), old=q.photo; q.photo=data;
+      try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){ if(old) q.photo=old; else delete q.photo; if(msg) msg.textContent='Er is geen ruimte meer om de foto te bewaren op dit apparaat.'; return; }
+      setPot(); render();
+    }catch(e){ if(msg) msg.textContent='Deze foto lukt niet. Probeer een andere foto.'; }};
+  img.onerror=()=>{URL.revokeObjectURL(url); if(msg) msg.textContent='Deze foto kan de app niet openen. Probeer een andere foto.';};
+  img.src=url;
+}
+function avatarFor(nm){const p=S.profiles[nm];if(p&&p.photo){const id='avp'+(++avUid);return `<svg viewBox="0 0 24 24" role="img" aria-label="Foto van ${esc(nm)}"><defs><clipPath id="${id}"><circle cx="12" cy="12" r="12"/></clipPath></defs><image href="${p.photo}" x="0" y="0" width="24" height="24" preserveAspectRatio="xMidYMid slice" clip-path="url(#${id})"/></svg>`;}return avatar(avIndex(nm));}
 function avatar(i){return `<svg viewBox="0 0 24 24" role="img" aria-label="${AVN[i]}" style="color:${AVC[i]}"><circle cx="12" cy="12" r="12" fill="${AVC[i]}"/><g transform="translate(3.6 3.6) scale(.7)">${AVG[i]}</g></svg>`;}
-function setPot(){document.getElementById('potn').textContent=P().shuttles;const h=document.getElementById('hav');if(h)h.innerHTML=avatar(avIndex(S.current));}
+function setPot(){document.getElementById('potn').textContent=P().shuttles;const h=document.getElementById('hav');if(h)h.innerHTML=avatarFor(S.current);}
 
 /* =========================================================
    STEM: alleen Nederlandse stemmen, vrouwenstem voorkeur
@@ -1596,16 +1618,17 @@ function homeView(){
   const p=P(); const ns=nextStep(); const due=bakDue().length;
   const conn=(lit)=>`<div class="conn ${lit?'lit':''}" aria-hidden="true"><svg viewBox="0 0 40 24"><path d="M5 3h30L20 21z" stroke-linejoin="round"/></svg></div>`;
   app.innerHTML=`
-  <div class="hero"><button class="heroav" id="heroav" aria-label="Kies je figuurtje">${avatar(avIndex(S.current))}</button><div style="min-width:0;flex:1">
+  <div class="hero"><button class="heroav" id="heroav" aria-label="Kies je figuurtje">${avatarFor(S.current)}</button><div style="min-width:0;flex:1">
     <div class="namerow" id="namerow"><h1>Hoi ${esc(S.current)}!</h1><button class="editbtn" id="edit" aria-label="Naam aanpassen" title="Naam aanpassen">${I.pencil}</button></div>
     <form class="namerow" id="nameform" hidden><label for="nm" class="sr">Je naam</label><input type="text" id="nm" maxlength="20" value="${esc(S.current)}"><button class="okbtn" type="submit" aria-label="Naam opslaan">${ic('check',20)}</button></form>
-    <div class="avpick" id="avpick" hidden aria-label="Kies je figuurtje">${AVC.map((_,i)=>`<button type="button" data-av="${i}" class="${avIndex(S.current)===i?'on':''}" aria-label="${AVN[i]}">${avatar(i)}</button>`).join('')}</div>
+    <div class="avpick" id="avpick" hidden aria-label="Kies je figuurtje">${AVC.map((_,i)=>`<button type="button" data-av="${i}" class="${!P().photo&&avIndex(S.current)===i?'on':''}" aria-label="${AVN[i]}">${avatar(i)}</button>`).join('')}
+      <div class="avphoto"><label class="btn alt small" for="avlib">${I.image} Foto kiezen</label><input type="file" id="avlib" accept="image/*" class="sr"><label class="btn alt small" for="avcam">${I.camera} Selfie maken</label><input type="file" id="avcam" accept="image/*" capture="user" class="sr">${P().photo?`<button type="button" class="linkbtn" id="avdel">Foto weghalen</button>`:''}</div><p class="note" id="avmsg" role="status"></p></div>
     <p class="muted small" id="nmsg">Je hebt ${p.shuttles} ${p.shuttles===1?'shuttle':'shuttles'} gespaard</p></div></div>
   ${ns?`<button class="bigbtn" id="next"><span class="bb1">Verder leren</span><span class="bb2">${esc(ns.label)}</span>${I.play}</button>`:`<div class="card"><b>Alle niveaus gehaald!</b> <span class="muted">Speel de spelletjes om scherp te blijven.</span></div>`}
   ${due?`<button class="item bak" id="bak"><span class="ic">${I.redo}</span><span class="t"><b>Foutenbak</b><span>${due} ${due===1?'vraag':'vragen'} om te herhalen</span></span>${ic('next')}</button>`:''}
   <div class="path">${LEVELS.map((l,ix)=>{const open=levelOpen(l.n), pass=!!p.passed[l.n], d=lessonsDone(l), t=l.lessons.length;
     return (ix?conn(!!p.passed[l.n-1]):'')+`<button class="stop ${open?'':'locked'} ${pass?'passed':''}" data-n="${l.n}" aria-label="Niveau ${l.n}${open?'':', op slot'}">
-      <span class="num">${open?l.n:I.lock}${open&&!pass&&LEVELS.find(z=>levelOpen(z.n)&&!p.passed[z.n])===l?`<span class="me" aria-label="Hier ben je">${avatar(avIndex(S.current))}</span>`:''}</span>
+      <span class="num">${open?l.n:I.lock}${open&&!pass&&LEVELS.find(z=>levelOpen(z.n)&&!p.passed[z.n])===l?`<span class="me" aria-label="Hier ben je">${avatarFor(S.current)}</span>`:''}</span>
       <span class="txt"><b>${l.name}</b><span class="sub">${open?(pass?'foutloos gehaald':`${d} van ${t} lessen`):`eerst niveau ${l.n-1} foutloos`}</span>${open?`<span class="progress"><i style="width:${(d+(pass?1:0))/(t+1)*100}%"></i></span>`:''}</span>
       ${pass?`<span class="medal">${I.medal}</span>`:''}</button>`;}).join('')}</div>
   <div class="topics" aria-label="Onderwerp-badges">${TOPIC_ORDER.map(t=>{const s=topicStars(t);return `<span class="tb ${s?'':'off'}"${tcol(t)} title="${TOPICS[t].name}: ${s} van 5 sterren"><span class="tbi">${I[TOPICS[t].icon]}</span><span class="tbs">${'★'.repeat(s)}${'☆'.repeat(5-s)}</span></span>`;}).join('')}</div>
@@ -1616,7 +1639,9 @@ function homeView(){
   const nr=document.getElementById('namerow'), nf=document.getElementById('nameform'), nm=document.getElementById('nm');
   const openEdit=()=>{nr.hidden=true;nf.hidden=false;document.getElementById('avpick').hidden=false;nm.focus();nm.select();};
   document.getElementById('edit').onclick=openEdit; document.getElementById('heroav').onclick=openEdit;
-  app.querySelectorAll('[data-av]').forEach(b=>b.onclick=()=>{P().av=+b.dataset.av;save();setPot();render();});
+  app.querySelectorAll('[data-av]').forEach(b=>b.onclick=()=>{const q=P();q.av=+b.dataset.av;delete q.photo;save();setPot();render();});
+  ['avlib','avcam'].forEach(id=>{const inp=document.getElementById(id); if(inp) inp.onchange=()=>{const f=inp.files&&inp.files[0]; if(f) setPhoto(f);};});
+  const ad=document.getElementById('avdel'); if(ad) ad.onclick=()=>{delete P().photo;save();setPot();render();};
   nf.onsubmit=e=>{e.preventDefault(); const v=nm.value.trim(), old=S.current;
     if(!v||v===old){render();return;}
     if(S.profiles[v]){document.getElementById('nmsg').textContent=`De naam ${v} bestaat al op dit apparaat. Kies een andere naam.`;return;}
@@ -1990,7 +2015,7 @@ function settingsView(){
   let body='';
   if(tab==='spelers') body=`
     <p class="note">Wie speelt er? Tik op je naam.</p>
-    <div class="profiles">${Object.keys(S.profiles).map(nm=>`<button class="chip ${nm===S.current?'on':''}" data-p="${esc(nm)}"><span class="cav">${avatar(avIndex(nm))}</span>${esc(nm)} · ${S.profiles[nm].shuttles}</button>`).join('')}</div>
+    <div class="profiles">${Object.keys(S.profiles).map(nm=>`<button class="chip ${nm===S.current?'on':''}" data-p="${esc(nm)}"><span class="cav">${avatarFor(nm)}</span>${esc(nm)} · ${S.profiles[nm].shuttles}</button>`).join('')}</div>
     <form class="row" id="pf"><label for="pn" class="note">Nieuwe speler</label><input type="text" id="pn" maxlength="20" placeholder="Voornaam"><button class="btn alt small" type="submit">Toevoegen</button></form>`;
   if(tab==='algemeen') body=`
     <label class="row note"><input type="checkbox" id="au" ${S.auto?'checked':''}> Vragen en uitleg automatisch voorlezen</label>
@@ -2013,7 +2038,7 @@ function settingsView(){
     <p class="small"><b>Foutloos = verder.</b> Een les gaat pas open als de toets van de vorige les helemaal goed is. Zo blijft niets half hangen. Fout? Dan ziet je kind wat er misging en probeert het opnieuw.</p>
     <p class="small"><b>Hulp:</b> met de oranje luidspreker laat je elke tekst voorlezen (of zet automatisch voorlezen aan bij Algemeen), en het gloeilampje geeft een hint zonder het antwoord te verklappen. Foute vragen komen later terug in de foutenbak.</p>
     <p class="small"><b>Als app op je telefoon of tablet:</b> open de Shuttle-school in Safari (iPhone/iPad) of Chrome (Android). Kies <b>Deel › Zet op beginscherm</b> of <b>⋮ › App installeren</b>. Daarna start je de app met het shuttle-icoon, ook zonder internet.</p>
-    <p class="small"><b>Gegevens:</b> voortgang en shuttles staan alleen op dit apparaat, per voornaam. Er gaat niets naar de club of naar internet.</p>`;
+    <p class="small"><b>Gegevens:</b> voortgang, shuttles en een eventuele foto van je kind staan alleen op dit apparaat, per voornaam. Er gaat niets naar de club of naar internet.</p>`;
   if(tab==='trainer'){
     if(!trainerOk) body=`<form class="row" id="tf"><label for="tc" class="note">Trainerscode</label><input type="password" id="tc" autocomplete="off" style="width:150px"><button class="btn alt small" type="submit">Open</button></form><p class="note" id="tmsg" role="status"></p>`;
     else body=`
