@@ -244,7 +244,7 @@ h1{font-size:clamp(21px,3.4vh,28px)} h2{font-size:clamp(18px,2.8vh,22px)}
 .bigbtn .bb2{grid-column:1;font-size:14px;opacity:.95}
 .bigbtn svg{grid-row:1/3;grid-column:2;width:30px;height:30px}
 .item.bak{border-color:var(--orange)} .item.bak .ic{background:var(--orange-soft);color:var(--orange)}
-.topics{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.topics{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
 .tb{display:flex;flex-direction:column;align-items:center;gap:2px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:5px 2px}
 .tb.off{opacity:.5}.tbi{width:20px;height:20px;color:var(--blue)}.tbi svg{width:20px;height:20px}
 .tbs{font-size:11px;letter-spacing:1px;color:var(--orange);line-height:1}
@@ -379,7 +379,7 @@ body.bigtext .fb{font-size:clamp(18px,2.9vh,24px)}
 .qdots i.no{background:var(--bad)}
 /* 9. meelezen */
 .snt{border-radius:6px;transition:background .15s,box-shadow .15s}
-.snt.reading{background:var(--orange-soft);box-shadow:0 0 0 3px var(--orange-soft)}
+.snt.reading{background:none;box-shadow:none}
 /* 5. donkere modus: logo en lichte vlakken */
 :root[data-theme="dark"] .hero-card{box-shadow:none}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .hero-card{box-shadow:none}}
@@ -587,8 +587,8 @@ function scene(o){
   const rkMove=(px,py,fx,fy,tx,ty)=>`<g class="rk" data-p="${[px,py,fx,fy,tx,ty].join(',')}"><line x1="${px}" y1="${py}" x2="${tx}" y2="${ty}" stroke="#1d1d55" stroke-width="3"/><ellipse cx="${tx}" cy="${ty}" rx="8" ry="11" fill="none" stroke="#1d1d55" stroke-width="3"/></g>`;
   const endMark=(x,y)=>`<circle class="endonly" cx="${x}" cy="${y}" r="14" fill="none" stroke="#c23b2b" stroke-width="3"/>`;
   const RL=racketL(96,96), RR=racketR(240,92), LY=80.7;
-  if(k==='groundL') g+=RL+RR+flight(240,92,170,0,120,151.5,LY);
-  if(k==='groundR') g+=RL+RR+flight(96,96,170,0,220,151.5,-LY);
+  if(k==='groundL') g+=RL+RR+flight(240,92,170,-22,120,151.5,LY);
+  if(k==='groundR') g+=RL+RR+flight(96,96,170,-26,220,151.5,-LY);
   if(k==='outR')    g+=RL+RR+flight(96,96,215,-10,325,151.5,-LY);
   if(k==='outL')    g+=RL+RR+flight(240,92,125,-10,15,151.5,LY);
   if(k==='lineR')   g+=RL+RR+flight(96,96,200,-10,290,151.5,-LY);
@@ -596,9 +596,19 @@ function scene(o){
   if(k==='netR')    g+=RL+RR+flight(240,92,205,60,182,118,null);
   if(k==='touchL')  g+=rkMove(82,112,96,96,160,76)+RR+flight(240,92,175,10,110,40,null)+endMark(164,74);
   if(k==='touchR')  g+=RL+rkMove(258,112,240,92,180,76)+flight(96,96,165,10,230,40,null)+endMark(176,74);
-  if(k==='bodyL')   g+=RL+RR+flight(240,92,150,30,62,114,null);
-  if(k==='bodyR')   g+=RL+RR+flight(96,96,190,30,278,114,null);
-  if(k==='underL')  g+=racketL(98,134)+RR+flight(98,134,150,150,205,146,null,'#c23b2b');
+  if(k==='bodyL')   g+=RL+RR+flight(240,92,150,10,62,114,null);
+  if(k==='bodyR')   g+=RL+RR+flight(96,96,190,8,278,114,null);
+  if(k==='underL')  g+=racketL(98,134)+RR+flight(98,134,150,-78,205,146,null,'#c23b2b');
+  if(k==='onderhands') g+=racketL(98,134)+RR+flight(98,134,170,-10,240,92,null);
+  if(k==='bovenhands') g+=racketL(100,62)+RR+flight(100,62,170,-10,240,92,null);
+  if(k==='lob')     g+=racketL(98,134)+RR+flight(98,134,190,-70,278,151.5,-LY);
+  if(k==='clear')   g+=racketL(100,62)+RR+flight(100,62,200,-70,278,151.5,-LY);
+  if(k==='smash')   g+=racketL(110,36)+RR+flight(110,36,175,20,240,151.5,-LY);
+  if(k==='drop')    g+=racketL(100,62)+RR+flight(100,62,168,-56,196,151.5,-LY);
+  if(k==='drive')   g+=racketL(100,74)+racketR(240,74)+flight(100,74,170,40,240,74,null);
+  if(k==='netdrop') g+=racketL(140,116)+RR+flight(140,116,168,-54,192,151.5,-LY);
+  if(k==='svckort') g+=racketL(98,128)+RR+flight(112,120,158,-52,210,151.5,-LY);
+  if(k==='svclang') g+=racketL(98,128)+RR+flight(112,120,200,-70,278,151.5,-LY);
   if(k==='rally')   g+=RL+RR+flightN([[96,96,170,-20,240,92],[240,92,205,36,169,37]],null);
   if(k==='svchoog'||k==='svcgoed'||k==='svcvoet'){
     const bad=k!=='svcgoed';
@@ -607,7 +617,7 @@ function scene(o){
     if(k==='svcgoed') g+=`<g><animateTransform attributeName="transform" type="rotate" values="-60 82 112;0 82 112;-60 82 112" dur="1.8s" repeatCount="1" fill="freeze"/><line x1="82" y1="112" x2="98" y2="132" stroke="#1d1d55" stroke-width="3"/><ellipse cx="98" cy="132" rx="8" ry="11" fill="none" stroke="#1d1d55" stroke-width="3"/></g><g><animateMotion dur="1.8s" repeatCount="1" fill="freeze" keyPoints="0;0;1" keyTimes="0;0.5;1" calcMode="linear" rotate="auto" path="M108 124 Q198 -6 298 146"/><g transform="rotate(-90) translate(-16 -22.5)">${SHUTTLE_INNER}</g></g><text x="250" y="40" text-anchor="middle" font-family="Fredoka" font-weight="700" font-size="18" fill="var(--good)">onder 1,15 m: goed</text>`;
     if(k==='svcvoet') g+=racketL(98,128)+sh(108,122,0,1)+`<rect x="72" y="140" width="7" height="18" rx="3" fill="#c23b2b"><animate attributeName="x" values="72;90" dur="1.2s" repeatCount="1" fill="freeze"/></rect><text x="250" y="40" text-anchor="middle" font-family="Fredoka" font-weight="700" font-size="18" fill="#c23b2b">voet schuift: fout</text>`;
   }
-  if(k==='serve') g+=racketL(98,128)+racketR(240,92)+flight(112,120,195,0,290,151.5,-80.7);
+  if(k==='serve') g+=racketL(98,128)+racketR(240,92)+flight(112,120,195,-34,290,151.5,-80.7);
   return g+'</svg>';
 }
 function bigArt(t,sub){return `<div style="text-align:center"><div class="big">${t}</div>${sub?`<div class="label" style="margin-top:6px">${sub}</div>`:''}</div>`;}
@@ -669,9 +679,10 @@ const TOPICS={
   fouten:{name:'Fouten',icon:'cross'},
   let:{name:'Let',icon:'redo'},
   dubbel:{name:'Dubbelspel',icon:'people'},
-  eerlijk:{name:'Eerlijk spelen',icon:'heart'}
+  eerlijk:{name:'Eerlijk spelen',icon:'heart'},
+  slagen:{name:'Slagen',icon:'smash'}
 };
-const TOPIC_ORDER=['spel','lijnen','service','telling','fouten','let','dubbel','eerlijk'];
+const TOPIC_ORDER=['spel','lijnen','service','telling','fouten','let','dubbel','eerlijk','slagen'];
 const L_=(topic,id,title,slides,quiz,hint)=>({id,topic,title,slides,quiz,hint});
 
 const LEVELS=[
@@ -745,7 +756,16 @@ const LEVELS=[
   [{t:'wn',q:'Je mag hard roepen als de ander gaat slaan.',a:false,why:'De ander afleiden is fout. Dat is niet eerlijk.'},
    {t:'mc',q:'De ander is nog niet klaar. Wat doe je?',opts:['Wachten','Toch serveren','Weglopen'],pics:[{icon:'clock'},{icon:'serve'},{icon:'run'}],a:0,why:'Je wacht tot de ander klaar is.'},
    {t:'wn',q:'Na het spelen geef je elkaar een hand of een boks.',a:true,why:'Zo bedank je elkaar voor het spel.'}],
-  'Wat is eerlijk? Denk aan hoe jij zou willen dat de ander met jou speelt.')
+  'Wat is eerlijk? Denk aan hoe jij zou willen dat de ander met jou speelt.'),
+ L_('slagen','slagen-1','Onderhands en bovenhands',[
+  CE('Komt de shuttle <strong>laag</strong>? Dan sla je <strong>onderhands</strong>: je racket is onder de shuttle en je slaat hem omhoog.',{scene:{k:'onderhands'}}),
+  CE('Komt de shuttle <strong>hoog</strong>? Dan sla je <strong>bovenhands</strong>: je racket is boven je hoofd.',{scene:{k:'bovenhands'}}),
+  CE('Sla je aan de kant van je racket-hand? Dat heet <strong>voorhand</strong>. Aan de andere kant heet het <strong>achterhand</strong>.',{icon:'racketd'})],
+  [{t:'mc',q:'De shuttle komt laag bij je. Hoe sla je hem?',opts:['Onderhands','Bovenhands','Met je voet'],a:0,why:'Laag = onderhands: van onder naar boven.'},
+   {t:'mc',q:'De shuttle komt hoog boven je hoofd. Hoe sla je hem?',opts:['Bovenhands','Onderhands','Je laat hem vallen'],a:0,why:'Hoog = bovenhands, met je racket boven je hoofd.'},
+   {t:'wn',q:'Voorhand is de kant van je racket-hand.',a:true,why:'Klopt! De andere kant heet achterhand.'},
+   {t:'shot',k:'onderhands'}],
+  'Hoe hoog komt de shuttle: laag of boven je hoofd?'),
 ]},
 /* ---------------- NIVEAU 2 ---------------- */
 {n:2,name:'Samen rallyen',age:'6 tot 7 jaar',lessons:[
@@ -822,7 +842,14 @@ const LEVELS=[
   [{t:'ref',q:'Blauw roept hard "MIS!" terwijl Oranje gaat slaan.',a:'Fout',why:'De tegenstander opzettelijk afleiden is fout. Fout van Blauw.'},
    {t:'wn',q:'Je mag een game expres weggeven zonder te spelen.',a:false,why:'Een game wordt altijd gespeeld, met serveren en ontvangen.'},
    {t:'wn',q:'Ook als je verliest, geef je de ander een hand.',a:true,why:'Sportief zijn hoort er altijd bij.'}],
-  'Wat is eerlijk en sportief, ook als je verliest?')
+  'Wat is eerlijk en sportief, ook als je verliest?'),
+ L_('slagen','slagen-2','Lob en drop',[
+  CE('Een <strong>lob</strong> sla je van onderaf <strong>hoog en ver</strong> naar achteren. Zo krijg jij tijd om terug te lopen.',{scene:{k:'lob'}}),
+  CE('Een <strong>drop</strong> sla je zacht, zodat de shuttle <strong>net over het net</strong> naar beneden valt. Handig als de ander achterin staat.',{scene:{k:'drop'}})],
+  [{t:'shot',k:'lob'},{t:'shot',k:'drop'},
+   {t:'mc',q:'De ander staat ver achterin. Welke slag is slim?',opts:['Een drop, net over het net','Een lob, hoog naar achteren'],a:0,why:'Speel waar de ander niet staat: kort, vlak achter het net.'},
+   {t:'mc',q:'Welke slag gaat hoog en ver naar achteren?',opts:['De lob','De drop'],a:0,why:'De lob gaat hoog en ver.'}],
+  'Gaat de shuttle hoog en ver, of zacht en kort?'),
 ]},
 /* ---------------- NIVEAU 3 ---------------- */
 {n:3,name:'Enkelspel en telling',age:'7 tot 9 jaar',lessons:[
@@ -894,7 +921,14 @@ const LEVELS=[
   [{t:'ref',q:'Er is geen scheidsrechter. Blauw en Oranje zijn het niet eens of een shuttle in was. Wat doen ze?',a:'Let',why:'Bij onenigheid speel je de rally opnieuw.',pre:'Zonder scheidsrechter'},
    {t:'mc',q:'De shuttle landt aan de kant van Oranje. Wie roept in of uit?',opts:['Oranje','Blauw','De trainer altijd'],a:0,why:'Zonder scheidsrechter roept ieder de shuttles aan de eigen kant.'},
    {t:'wn',q:'Je mag de stand een beetje gunstiger zeggen als niemand het merkt.',a:false,why:'Je telt altijd eerlijk.'}],
-  'Wie kan het beste zien wat er aan zijn kant gebeurt? En wat doe je bij twijfel?')
+  'Wie kan het beste zien wat er aan zijn kant gebeurt? En wat doe je bij twijfel?'),
+ L_('slagen','slagen-3','Clear, smash en drive',[
+  CE('Een <strong>clear</strong> sla je bovenhands, <strong>hoog en ver</strong> naar de achterlijn van de ander.',{scene:{k:'clear'}}),
+  CE('Een <strong>smash</strong> sla je bovenhands, <strong>hard en steil</strong> naar beneden. Dat is de snelste slag.',{scene:{k:'smash'}}),
+  CE('Een <strong>drive</strong> sla je <strong>hard en vlak</strong>, net over het net.',{scene:{k:'drive'}})],
+  [{t:'shot',k:'clear'},{t:'shot',k:'smash'},{t:'shot',k:'drive'},
+   {t:'mc',q:'Welke slag gaat hard en steil naar beneden?',opts:['De smash','De clear','De drop'],a:0,why:'De smash is hard en steil.'}],
+  'Begint de slag hoog of laag? En vliegt de shuttle hoog, vlak of steil?'),
 ]},
 /* ---------------- NIVEAU 4 ---------------- */
 {n:4,name:'Servicefouten en dubbel',age:'9 tot 11 jaar',lessons:[
@@ -977,25 +1011,35 @@ const LEVELS=[
   [{t:'mc',q:'Hoe lang duurt de pauze tussen twee games?',opts:['120 seconden','60 seconden','10 minuten'],a:0,why:'Tussen games: maximaal 120 seconden.'},
    {t:'mc',q:'Wanneer is de pauze in de game?',opts:['Als iemand 11 punten heeft','Bij 5 punten','Er is geen pauze'],a:0,why:'Bij 11 punten mag je even pauzeren.'},
    {t:'wn',q:'Je mag midden in de rally even stoppen om advies te vragen.',a:false,why:'Coaching mag alleen als de shuttle niet in het spel is.'}],
-  'Een korte pauze in de game, een langere tussen de games. En wanneer mag de coach iets zeggen?')
+  'Een korte pauze in de game, een langere tussen de games. En wanneer mag de coach iets zeggen?'),
+ L_('slagen','slagen-4','Netspel en de service: kort of lang',[
+  CE('Bij het net speel je een <strong>netdrop</strong>: een heel klein tikje, zodat de shuttle vlak over het net valt.',{scene:{k:'netdrop'}}),
+  CE('Een <strong>korte service</strong> valt vlak achter de voorste serveerlijn. Die zie je veel in <strong>dubbel</strong>.',{scene:{k:'svckort'}}),
+  CE('Een <strong>lange service</strong> gaat hoog en ver naar achteren. Die zie je veel in <strong>enkel</strong>.',{scene:{k:'svclang'}})],
+  [{t:'shot',k:'netdrop'},
+   {t:'mc',q:'Welke service zie je het meest in dubbel?',opts:['De korte service','De lange service'],a:0,why:'In dubbel serveer je meestal kort.'},
+   {t:'mc',q:'Welke service zie je het meest in enkel?',opts:['De lange service','De korte service'],a:0,why:'In enkel serveer je vaak lang en hoog.'},
+   {t:'shot',k:'svclang'}],
+  'Kijk waar de shuttle landt: vlak achter het net of helemaal achterin?'),
 ]},
 /* ---------------- NIVEAU 5 ---------------- */
 {n:5,name:'Het hele reglement',age:'11 tot 12 jaar',lessons:[
- L_('spel','spel-5','Wie beslist er?',[
-  CE('De <strong>referee</strong> is de baas van het hele toernooi. De <strong>scheidsrechter</strong> leidt jouw partij. De <strong>servicerechter</strong> let op servicefouten. De <strong>lijnrechter</strong> roept in of uit bij zijn lijn.',{icon:'whistle'}),
-  CE('Een beslissing over wat er gebeurde staat vast. Alleen een duidelijk foute lijnbeslissing mag de scheidsrechter verbeteren. Ben je het ergens niet mee eens? Zeg het <strong>vóór de volgende service</strong>.',{scene:{k:'serve'}})],
-  [{t:'mc',q:'Wie geeft een fout als de serveerder de shuttle te hoog raakt?',opts:['De servicerechter','De lijnrechter','Het publiek'],a:0,why:'De servicerechter let op servicefouten.'},
-   {t:'mc',q:'Wanneer moet je protesteren tegen een beslissing?',opts:['Vóór de volgende service','Na de wedstrijd, thuis','Nooit'],a:0,why:'Protest gaat vóór de volgende service.'},
-   {t:'mc',q:'Wie is de baas van het hele toernooi?',opts:['De referee','De scheidsrechter','De snelste speler'],a:0,why:'De referee is eindverantwoordelijk voor het toernooi.'}],
-  'Iedere official heeft een eigen taak. En wie wil protesteren, moet dat op tijd doen.'),
- L_('lijnen','lijnen-5','Baan, net en shuttle',[
+ L_('spel','spel-5','Zelf een partij spelen',[
+  CE('Voor je begint: eerst even <strong>inspelen</strong>. Dan doe je de <strong>toss</strong>, en je spreekt af tot hoeveel je speelt.',{scene:{k:'rally'}}),
+  CE('Tijdens de partij roept de <strong>serveerder</strong> voor elke service de stand, hardop. Ieder roept in of uit aan de <strong>eigen kant</strong> van het net.',{board:[['Tim',14,1],['Fleur',12,0]]}),
+  CE('Na afloop geef je elkaar een hand en geef je de <strong>uitslag</strong> door aan de trainer, bijvoorbeeld <strong>21 – 18, 19 – 21, 21 – 15</strong>. Wie twee games won, heeft de partij gewonnen.',{icon:'handshake'})],
+  [{t:'mc',q:'Wie roept de stand voor elke service?',opts:['De serveerder','De ontvanger','Niemand'],a:0,why:'De serveerder roept voor elke service hardop de stand.'},
+   {t:'mc',q:'De uitslag is 21 – 18, 19 – 21, 21 – 15 voor Tim. Wie heeft de partij gewonnen?',opts:['Tim','Fleur','Niemand, het is gelijk'],a:0,why:'Tim won twee van de drie games.'},
+   {t:'wn',q:'Voordat de partij begint, speel je eerst even in.',a:true,why:'Inspelen hoort erbij: zo raak je warm en went je aan de shuttle.'},
+   {t:'mc',q:'De shuttle landt vlak bij de lijn aan jouw kant. Wie roept in of uit?',opts:['Jij','De ander','Het publiek'],a:0,why:'Ieder roept de shuttles aan de eigen kant.'}],
+  'Wie kan het best zien wat er aan zijn kant gebeurt? En hoe tel je games bij elkaar op?'),
+ L_('lijnen','lijnen-5','Baan en net',[
   CE('Het net hangt bij de palen op <strong>1,55 m</strong> en in het midden op <strong>1,524 m</strong>. De palen staan altijd op de zijlijnen van de dubbelbaan, ook bij enkelspel.',{net:'net'}),
-  CE('De lijnen zijn <strong>4 cm</strong> breed en horen bij het vak dat ze begrenzen. Een veren shuttle heeft <strong>16 veertjes</strong> en weegt ongeveer <strong>5 gram</strong>.',{icon:'shuttle'}),
-  CE('Een racket is maximaal <strong>68 cm</strong> lang en <strong>23 cm</strong> breed.',{icon:'racket'})],
-  [{t:'mc',q:'Hoeveel veertjes heeft een veren shuttle?',opts:['16','8','24'],a:0,why:'Een veren shuttle heeft 16 veertjes.'},
-   {t:'mc',q:'Waar is het net het laagst?',opts:['In het midden','Bij de palen','Overal even hoog'],a:0,why:'In het midden 1,524 m, bij de palen 1,55 m.'},
-   {t:'wn',q:'Bij enkelspel staan de netpalen op de enkelspellijnen.',a:false,why:'De palen staan altijd op de zijlijnen van de dubbelbaan.'}],
-  'Denk terug aan de plaatjes van het net en de shuttle in de les.'),
+  CE('De baan is <strong>13,40 m</strong> lang. Voor dubbel is hij <strong>6,10 m</strong> breed, voor enkel <strong>5,18 m</strong>. De lijnen horen bij het vak dat ze begrenzen.',{court:{full:true,areas:[FAR_D]}})],
+  [{t:'mc',q:'Waar is het net het laagst?',opts:['In het midden','Bij de palen','Overal even hoog'],a:0,why:'In het midden 1,524 m, bij de palen 1,55 m.'},
+   {t:'wn',q:'Bij enkelspel staan de netpalen op de enkelspellijnen.',a:false,why:'De palen staan altijd op de zijlijnen van de dubbelbaan.'},
+   {t:'mc',q:'Welke baan is breder?',opts:['De dubbelspelbaan, 6,10 m','De enkelspelbaan, 5,18 m','Ze zijn even breed'],a:0,why:'Dubbel is 6,10 m breed, enkel 5,18 m.'}],
+  'Denk terug aan de plaatjes van het net en de baan in de les.'),
  L_('service','service-5','Lastige servicegevallen',[
   CE('Blijft de shuttle bij de <strong>service</strong> in het net hangen, of op de netrand liggen? Dan is dat een <strong>fout</strong> van de serveerder.',{net:'innet'}),
   CE('Maken serveerder én ontvanger <strong>tegelijk</strong> een fout bij de service? Dan is het een <strong>let</strong>.',{big:'Let',sub:'Allebei fout'}),
@@ -1023,10 +1067,10 @@ const LEVELS=[
   'Ging de shuttle echt over het net? En aan welke kant werd hij geraakt?'),
  L_('let','let-5','Let voor gevorderden',[
   CE('Blijft de shuttle <strong>na de terugslag van de service</strong> boven op het net liggen of erin hangen? Dan is het een <strong>let</strong>. (Bij de service zelf is het een fout!)',{net:'innet'}),
-  CE('Ook let: een <strong>coach</strong> stoort het spel, of een lijnrechter zag het niet en de scheidsrechter kan ook niet beslissen.',{big:'Let',sub:'Over'})],
+  CE('Ook let: iemand loopt midden in de rally de baan op, of <strong>niemand</strong> kon zien waar de shuttle landde.',{big:'Let',sub:'Over'})],
   [{t:'ref',q:'Midden in de rally blijft de shuttle boven op de netrand liggen.',a:'Let',why:'Na de terugslag van de service is dat een let.'},
-   {t:'ref',q:'Een coach loopt midden in de rally de baan op.',a:'Let',why:'Een coach die het spel verstoort: let.'},
-   {t:'ref',q:'De lijnrechter zag niet waar de shuttle landde, en de scheidsrechter ook niet.',a:'Let',why:'Niemand kan beslissen: let.'}],
+   {t:'ref',q:'Een coach loopt midden in de rally de baan op.',a:'Let',why:'Iemand die het spel verstoort: let.'},
+   {t:'ref',q:'Blauw en Oranje konden allebei niet zien waar de shuttle landde.',a:'Let',why:'Niemand kan het zeggen: let.'}],
   'Gebeurde het bij de service zelf, of later in de rally?'),
  L_('dubbel','dubbel-5a','Wisselen van vak',[
   CE('Winnen jullie een punt terwijl jullie <strong>serveren</strong>? Dan wisselt de serveerder van vak met zijn partner, en serveert <strong>dezelfde speler</strong> opnieuw.',{big:'+1',sub:'Serveerder wisselt van vak'}),
@@ -1041,13 +1085,22 @@ const LEVELS=[
    {t:'wn',q:'Bij een opstellingsfout gaat de stand terug naar het begin van de game.',a:false,why:'De stand blijft staan.'},
    {t:'dub'}],
   'Wat ging er eigenlijk mis: de punten, of waar iemand stond?'),
- L_('eerlijk','eerlijk-5','Wangedrag en straffen',[
-  CE('Niet toegestaan: <strong>expres vertragen</strong>, de shuttle <strong>kapotmaken</strong> of veranderen, <strong>niet je best doen</strong>, en <strong>beledigen</strong> of ander onsportief gedrag.',{icon:'whistle'}),
-  CE('De scheidsrechter geeft eerst een <strong>waarschuwing</strong>. Bij herhaling volgt een <strong>fout</strong>: punt voor de ander. Is het heel ernstig? Dan meteen een fout. Daarna kan de <strong>referee</strong> een speler zelfs <strong>diskwalificeren</strong>.',{big:'Geel → Rood',sub:'Waarschuwing, dan fout'})],
-  [{t:'mc',q:'Een speler knakt expres de veertjes van de shuttle. Mag dat?',opts:['Nee, dat is wangedrag','Ja, als de shuttle oud is'],a:0,why:'De shuttle beschadigen of veranderen is verboden.'},
-   {t:'mc',q:'Wat geeft de scheidsrechter meestal als eerste straf?',opts:['Een waarschuwing','Meteen diskwalificatie','Een extra game'],a:0,why:'Eerst een waarschuwing, bij herhaling een fout.'},
-   {t:'mc',q:'Wie mag een speler diskwalificeren?',opts:['De referee','De lijnrechter','De tegenstander'],a:0,why:'De referee beslist over diskwalificatie.'}],
-  'Straffen worden stap voor stap zwaarder. Denk ook aan wie er boven de scheidsrechter staat.')
+ L_('eerlijk','eerlijk-5','Wangedrag',[
+  CE('Niet toegestaan: <strong>expres vertragen</strong>, de shuttle <strong>kapotmaken</strong>, <strong>niet je best doen</strong>, en <strong>schelden</strong> of ander onsportief gedrag.',{icon:'whistle'}),
+  CE('Gebeurt het toch? Dan krijg je eerst een <strong>waarschuwing</strong>. Bij herhaling krijgt de ander een <strong>punt</strong>. Ben je het niet eens met de ander? Loop dan rustig samen de stand na, of vraag de trainer.',{big:'Waarschuwing',sub:'Daarna een punt voor de ander'})],
+  [{t:'mc',q:'Een speler maakt expres de shuttle kapot. Mag dat?',opts:['Nee, dat is wangedrag','Ja, als de shuttle oud is'],a:0,why:'De shuttle expres kapotmaken is verboden.'},
+   {t:'mc',q:'Wat krijg je meestal als eerste bij onsportief gedrag?',opts:['Een waarschuwing','Meteen een verloren partij','Een extra game'],a:0,why:'Eerst een waarschuwing, bij herhaling een punt voor de ander.'},
+   {t:'mc',q:'Je denkt dat de ander de stand verkeerd telt. Wat doe je?',opts:['Rustig samen de stand nalopen of de trainer vragen','Boos weglopen','Zelf een andere stand roepen'],a:0,why:'Rustig blijven en samen nalopen, of de trainer erbij halen.'}],
+  'Straffen worden stap voor stap zwaarder. En hoe los je het netjes op als je het niet eens bent?'),
+ L_('slagen','slagen-5','Welke slag kies je?',[
+  CE('Komt de shuttle <strong>hoog voor je</strong> en sta je goed? Dan is een <strong>smash</strong> je kans om te scoren.',{scene:{k:'smash'}}),
+  CE('Sta je <strong>onder druk</strong>, diep achterin? Speel dan een <strong>lob</strong> of <strong>clear</strong>, hoog en ver. Zo win je tijd.',{scene:{k:'clear'}}),
+  CE('Staat de ander <strong>achterin</strong>? Speel dan kort met een <strong>drop</strong>. Staat hij <strong>vooraan</strong>? Speel hem dan voorbij met een lob of clear.',{scene:{k:'drop'}})],
+  [{t:'mc',q:'De shuttle komt hoog voor je en de ander staat ver weg. Wat kies je?',opts:['Een smash','Een netdrop','Een korte service'],a:0,why:'Hoog en dichtbij: je kans voor een smash.'},
+   {t:'mc',q:'Je staat diep achterin en bent te laat. Wat kies je?',opts:['Een lob of clear, hoog en ver','Een smash','Een drive'],a:0,why:'Hoog en ver geeft je tijd om terug te komen.'},
+   {t:'mc',q:'De ander staat vlak bij het net. Wat kies je?',opts:['Een lob of clear naar achteren','Een netdrop','Een drop'],a:0,why:'Speel de shuttle over hem heen, naar achteren.'},
+   {t:'shot'}],
+  'Waar staat de ander? En hoe hoog komt de shuttle bij jou?')
 ]}
 ];
 LEVELS.forEach(l=>l.lessons.forEach(le=>le.quiz.forEach(q=>{if(!q.hint) q.hint=le.hint;})));
@@ -1070,6 +1123,7 @@ function hintFor(q){
   if(q.t==='tact') return {text:'Kijk waar de tegenstander staat. Ver weg is goed: diep achterin of vlak achter het net, of de andere kant op. Maar blijf binnen de lijnen van de enkelspelbaan.',art:{court:{full:true,areas:[{x0:SI,x1:W-SI,y0:-L,y1:0,op:.35}]}}};
   if(q.t==='score'||q.sim) return {text:`Wie de rally wint, krijgt het punt én serveert. Even score = van rechts, oneven = van links. De serveerder noemt eerst zijn eigen punten. Bij een let verandert er niets. ${q.sys===15?'Telling tot 15: klaar bij 15 met 2 punten verschil, uiterlijk 21.':'Klaar bij 21 met 2 punten verschil, uiterlijk 30.'}`};
   if(q.t==='dub') return {text:'Wie won de rally: het team dat serveerde, of het team dat ontving? Denk eraan: alleen de serveerder van een serverend team dat wint, wisselt van vak.'};
+  if(q.t==='shot') return {text:'Kijk waar de slag begint, laag of boven het hoofd, en hoe de shuttle vliegt: hoog en ver, zacht en kort, hard en steil, of hard en vlak.'};
   if(q.t==='punt') return {text:'Kijk goed: bij wie viel de shuttle op de grond, of wie deed iets wat niet mag? Dan krijgt de ánder het punt.'};
   if(q.hint) return {text:q.hint};
   return null;
@@ -1093,14 +1147,15 @@ function gamesFor(n){
     snel:{id:'snel'+n,title:'Scheidsrechter-snel',desc:'Fout, let of geen fout?',icon:'whistle',make:()=>shuffle(poolFor(n,q=>q.t==='ref')).slice(0,10).map(q=>Object.assign({},q,{timer:12}))},
     vak:{id:'vak'+n,title:'Welk vak?',desc:'Even rechts, oneven links',icon:'target',make:()=>Array.from({length:8},()=>({t:'vak',dubbel:n>=3&&Math.random()<.4}))},
     sim:{id:'sim'+n,title:'Scheidsrechter van de game',desc:'Leid het einde van een game',icon:'board',make:()=>{let g;do{g=simGame(n>=5&&Math.random()<.3?15:21);}while(g.length<5);return g;}},
-    dub:{id:'dub'+n,title:'Dubbel-puzzel',desc:'Wie serveert er nu?',icon:'people',make:()=>Array.from({length:8},()=>({t:'dub'}))}
+    dub:{id:'dub'+n,title:'Dubbel-puzzel',desc:'Wie serveert er nu?',icon:'people',make:()=>Array.from({length:8},()=>({t:'dub'}))},
+    slag:{id:'slag'+n,title:'Welke slag is dit?',desc:'Kijk hoe de shuttle vliegt',icon:'smash',make:()=>Array.from({length:8},()=>({t:'shot',lv:n}))}
   };
-  const per={1:['punt'],2:['punt','lijn','gat'],3:['lijn','kanon','bord','snel','vak'],4:['lijn','kanon','snel','sim','vak'],5:['lijn','kanon','snel','sim','dub']}[n];
+  const per={1:['punt','slag'],2:['punt','lijn','gat','slag'],3:['lijn','kanon','bord','snel','slag'],4:['lijn','kanon','snel','sim','slag'],5:['kanon','snel','sim','dub','slag']}[n];
   return per.map(k=>G[k]);
 }
 function examFor(n){
   const own=[];LEVELS[n-1].lessons.forEach(le=>own.push(...le.quiz));
-  const ex={1:[{t:'punt',k:pick(PUNT_ALL)}],2:[{t:'inout',mode:'enkel'},{t:'inout',mode:'dubbelservice'},{t:'tact'}],3:[{t:'inout',mode:'enkelservice'},{t:'kanon'},{t:'score',sys:21}],4:[{t:'inout',mode:'dubbelservice'},{t:'kanon',dubbel:true},{t:'score',sys:21}],5:[{t:'dub'},{t:'score',sys:15},{t:'kanon',dubbel:true}]}[n];
+  const ex={1:[{t:'punt',k:pick(PUNT_ALL)}],2:[{t:'inout',mode:'enkel'},{t:'inout',mode:'dubbelservice'},{t:'tact'},{t:'shot',lv:2}],3:[{t:'inout',mode:'enkelservice'},{t:'kanon'},{t:'score',sys:21},{t:'shot',lv:3}],4:[{t:'inout',mode:'dubbelservice'},{t:'kanon',dubbel:true},{t:'score',sys:21},{t:'shot',lv:4}],5:[{t:'dub'},{t:'score',sys:15},{t:'kanon',dubbel:true},{t:'shot',lv:5}]}[n];
   return shuffle(shuffle(own).slice(0,12-ex.length).concat(ex));
 }
 function opfrisFor(n){return shuffle(poolFor(n,null,true)).slice(0,5);}
@@ -1168,6 +1223,12 @@ const PUNT={
   bodyL:['Oranje slaat de shuttle tegen het lichaam van Blauw.','Oranje','De shuttle raakt het lichaam van Blauw: fout van Blauw. Punt voor Oranje.'],
   bodyR:['Blauw slaat de shuttle tegen het lichaam van Oranje.','Blauw','De shuttle raakt het lichaam van Oranje: fout van Oranje. Punt voor Blauw.']
 };
+const SHOTS={onderhands:['Onderhands','Laag bij je: je slaat van onder naar boven.'],bovenhands:['Bovenhands','Hoog boven je hoofd: je racket is boven je hoofd.'],
+  lob:['Lob','Van onderaf hoog en ver naar achteren.'],drop:['Drop','Zacht, net over het net naar beneden.'],clear:['Clear','Bovenhands, hoog en ver naar de achterlijn.'],
+  smash:['Smash','Bovenhands, hard en steil naar beneden.'],drive:['Drive','Hard en vlak, net over het net.'],netdrop:['Netdrop','Een klein tikje bij het net, vlak eroverheen.'],
+  svckort:['Korte service','Vlak achter de voorste serveerlijn.'],svclang:['Lange service','Hoog en ver naar achteren.']};
+const SHOT_LEVEL={1:['onderhands','bovenhands'],2:['lob','drop'],3:['lob','drop','clear','smash','drive'],4:['lob','drop','clear','smash','drive','netdrop','svckort','svclang'],5:['lob','drop','clear','smash','drive','netdrop','svckort','svclang']};
+function shotLevelFor(k){for(const n of [1,2,3,4,5]) if(SHOT_LEVEL[n].includes(k)) return n; return 5;}
 function prep(q){
   q=Object.assign({},q);
   if(q.t==='wn'){q.opts=['Waar','Niet waar'];q.a=q.a?0:1;q.cols='two';}
@@ -1186,6 +1247,14 @@ function prep(q){
   else if(q.t==='kanon') prepKanon(q);
   else if(q.t==='score') prepScore(q);
   else if(q.t==='dub') prepDub(q);
+  else if(q.t==='shot'){
+    const lv=q.lv||shotLevelFor(q.k||'smash'); const pool=SHOT_LEVEL[Math.max(lv,q.k?shotLevelFor(q.k):lv)];
+    const k=q.k||pick(pool); q.k=k;
+    const others=shuffle(pool.filter(x=>x!==k)).slice(0,2).map(x=>SHOTS[x][0]);
+    q.q='Kijk goed hoe de shuttle vliegt. Welke slag is dit?'; q.art={scene:{k}};
+    withOpts(q,SHOTS[k][0],others); if(q.opts.length===2) q.cols='two';
+    q.why=`Dit is een ${SHOTS[k][0].toLowerCase()}: ${SHOTS[k][1].charAt(0).toLowerCase()+SHOTS[k][1].slice(1)}`;
+  }
   return q;
 }
 function prepInout(q){
@@ -1635,6 +1704,7 @@ function resultView(){
   else msg=c.good===c.tot?'Alles goed! Super gespeeld.':c.good>=c.tot/2?'Goed gespeeld! Nog een potje?':'Goed geprobeerd. Nog een keer?';
   const l=LEVELS[c.n-1];
   const prim=c.kind==='exam'&&c.perfect&&c.n<5?['tonext',`Naar niveau ${c.n+1}`]
+    :c.kind==='exam'&&c.perfect?['home','Naar alle niveaus']
     :c.kind==='lesson'&&c.perfect&&c.li<l.lessons.length-1?['nextles','Volgende les']
     :c.kind==='lesson'&&c.perfect?['toexam','Naar de eindtoets']
     :c.kind==='opfris'&&c.perfect?['firstles','Naar de eerste les']
