@@ -242,9 +242,9 @@ h1{font-size:clamp(21px,3.4vh,28px)} h2{font-size:clamp(18px,2.8vh,22px)}
 .tbs{font-size:11px;letter-spacing:1px;color:var(--orange);line-height:1}
 .tile.opf{border-color:var(--orange)}.tile.opf .tn{background:var(--orange);color:#fff}
 .ltitle{display:flex;align-items:center;gap:8px}.tic{flex:none;width:32px;height:32px;border-radius:10px;background:var(--blue-soft);color:var(--blue);display:grid;place-items:center}.tic svg{width:20px;height:20px}
-.opts.pics{grid-template-columns:repeat(3,1fr)}
-.opts.pics .opt{display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center;font-size:13px;line-height:1.2;padding:6px}
-.opic{display:block;height:clamp(40px,7vh,64px);color:var(--blue)}.opic svg{height:100%;width:auto;max-width:100%}
+.opts.pics{grid-template-columns:1fr;gap:10px}
+.opts.pics .opt{display:flex;flex-direction:row;align-items:center;gap:14px;text-align:left;font-size:19px;line-height:1.25;padding:10px 14px;min-height:64px}
+.opic{flex:none;display:grid;place-items:center;width:clamp(40px,6.5vh,52px);height:clamp(40px,6.5vh,52px);color:var(--blue)}.opic svg{width:100%;height:100%}
 .opt svg{vertical-align:-4px}
 .tbl{display:flex;flex-direction:column;border:1px solid var(--line);border-radius:12px;overflow:hidden;font-size:13px}
 .tr{display:grid;grid-template-columns:1.2fr 1fr 1fr .8fr;gap:6px;padding:6px 8px;border-top:1px solid var(--line)}
@@ -313,6 +313,11 @@ const I={
  foot:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 3c2.5 0 4 2 4 5 0 2-1 3-1 5s2 3 2 5-1.5 3-3.5 3S6 19 6 16s-1-4-1-7 1-6 3-6z"/><circle cx="15" cy="5" r="1.4"/><circle cx="17" cy="7.5" r="1.2"/><circle cx="18" cy="10.5" r="1"/></svg>',
  clock:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
  home:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1z"/></svg>',
+ ground:`<svg viewBox="0 0 48 48"><rect x="4" y="38" width="40" height="5" rx="2" fill="#2f7d5b"/>${'<g transform="translate(24 28) rotate(180) scale(1.1) translate(-16 -16)">'+SHUTTLE_INNER+'</g>'}</svg>`,
+ up:`<svg viewBox="0 0 48 48"><path d="M24 44V20" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/><path d="M15 27l9-9 9 9" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>${'<g transform="translate(24 10) scale(.85) translate(-16 -16)">'+SHUTTLE_INNER+'</g>'}</svg>`,
+ netover:`<svg viewBox="0 0 48 48"><rect x="22" y="22" width="4" height="22" fill="currentColor"/><rect x="18" y="20" width="12" height="4" rx="1" fill="currentColor"/><path d="M6 34 Q24 0 42 30" fill="none" stroke="#f07f1a" stroke-width="3" stroke-dasharray="5 4"/>${'<g transform="translate(41 32) rotate(150) scale(.75) translate(-16 -16)">'+SHUTTLE_INNER+'</g>'}</svg>`,
+ drop:`<svg viewBox="0 0 48 48"><rect x="4" y="40" width="40" height="4" rx="2" fill="#2f7d5b"/><path d="M24 6v20" stroke="currentColor" stroke-width="3" stroke-dasharray="4 4"/>${'<g transform="translate(24 32) rotate(180) scale(.9) translate(-16 -16)">'+SHUTTLE_INNER+'</g>'}</svg>`,
+ serve:`<svg viewBox="0 0 48 48"><path d="M10 40 Q22 6 40 14" fill="none" stroke="#f07f1a" stroke-width="3" stroke-dasharray="5 4"/><path d="M8 44l6-12" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/><ellipse cx="15" cy="29" rx="4" ry="5.5" fill="none" stroke="currentColor" stroke-width="2.5"/>${'<g transform="translate(40 14) rotate(120) scale(.75) translate(-16 -16)">'+SHUTTLE_INNER+'</g>'}</svg>`,
  bulb:'<svg viewBox="0 0 24 24"><g stroke="#f5a623" stroke-width="2" stroke-linecap="round"><path d="M12 .8v2.2M3.8 3.8l1.6 1.6M20.2 3.8l-1.6 1.6M1 10.5h2.2M20.8 10.5H23"/></g><path d="M12 5a5.6 5.6 0 0 0-3.3 10.1c.5.4.8 1 .8 1.6V18h5v-1.3c0-.6.3-1.2.8-1.6A5.6 5.6 0 0 0 12 5z" fill="#ffd34d" stroke="#c98a00" stroke-width="1.4"/><path d="M9.5 20.2h5M10.4 22.4h3.2" stroke="#7a6a3a" stroke-width="1.7" stroke-linecap="round"/></svg>',
  medal:'<svg viewBox="0 0 40 40"><path d="M12 2h6l4 12h-6z" fill="#2b3bd8"/><path d="M28 2h-6l-4 12h6z" fill="#5b67ee"/><circle cx="20" cy="25" r="12" fill="#f07f1a" stroke="#c45f08" stroke-width="2"/><circle cx="20" cy="25" r="7.5" fill="none" stroke="#fff" stroke-width="1.6"/></svg>'
 };
@@ -453,7 +458,7 @@ function scene(o){
 function bigArt(t,sub){return `<div style="text-align:center"><div class="big">${t}</div>${sub?`<div class="label" style="margin-top:6px">${sub}</div>`:''}</div>`;}
 function iconArt(name){return `<div style="width:110px;height:110px">${I[name]||''}</div>`;}
 function picArt(p){
-  if(p.scene) return scene({k:p.scene});
+  if(p.scene) return I[{groundR:'ground',groundL:'drop',rally:'netover',serve:'serve'}[p.scene]]||'';
   if(p.icon) return I[p.icon]||'';
   if(p.txt) return `<svg viewBox="0 0 60 40"><text x="30" y="30" text-anchor="middle" font-family="Fredoka,sans-serif" font-weight="700" font-size="28" fill="currentColor">${p.txt}</text></svg>`;
   if(p.kids){let g='<svg viewBox="0 0 '+(p.kids*18+4)+' 34">';for(let i=0;i<p.kids;i++){const x=11+i*18,c=i<2?'#2b3bd8':'#f07f1a';g+=`<circle cx="${x}" cy="8" r="5" fill="${c}"/><rect x="${x-6}" y="14" width="12" height="16" rx="5" fill="${c}"/>`;}return g+'</svg>';}
@@ -523,8 +528,8 @@ const LEVELS=[
   CE('Je krijgt ook een punt als de ander een <strong>fout</strong> maakt. Bijvoorbeeld als de ander de shuttle <strong>in het net</strong> slaat.',{scene:{k:'netR'}}),
   CE('Of als de ander de shuttle <strong>uit</strong> slaat: hij komt aan jouw kant op de grond, maar <strong>buiten de lijnen</strong>. Ook dan krijg jij het punt.',{scene:{k:'outL'}}),
   CE('De ander wil dat ook. Komt de shuttle naar jou? Sla hem dan <strong>terug</strong>, zodat hij niet aan jouw kant op de grond valt.',{scene:{k:'groundL'}})],
-  [{t:'mc',q:'Wat wil je bij badminton?',opts:['Dat de shuttle bij de ander op de grond komt','Dat de shuttle zo hoog mogelijk gaat','Zo hard mogelijk rennen'],pics:[{scene:'groundR'},{scene:'rally'},{icon:'run'}],a:0,why:'Komt de shuttle bij de ander op de grond, dan krijg jij een punt. Ook als de ander een fout maakt.'},
-   {t:'mc',q:'De ander slaat de shuttle naar jou. Wat doe je?',opts:['Terugslaan over het net','Laten vallen','Opvangen met je hand'],pics:[{scene:'rally'},{scene:'groundL'},{icon:'hand'}],a:0,why:'Je slaat hem terug, zodat hij niet aan jouw kant op de grond valt.'},
+  [{t:'mc',q:'Wat wil je bij badminton?',opts:['Dat de shuttle bij de ander op de grond komt','Dat de shuttle zo hoog mogelijk gaat','Zo hard mogelijk rennen'],pics:[{icon:'ground'},{icon:'up'},{icon:'run'}],a:0,why:'Komt de shuttle bij de ander op de grond, dan krijg jij een punt. Ook als de ander een fout maakt.'},
+   {t:'mc',q:'De ander slaat de shuttle naar jou. Wat doe je?',opts:['Terugslaan over het net','Laten vallen','Opvangen met je hand'],pics:[{icon:'netover'},{icon:'drop'},{icon:'hand'}],a:0,why:'Je slaat hem terug, zodat hij niet aan jouw kant op de grond valt.'},
    {t:'punt',k:'groundR'},{t:'punt',k:'netR'},{t:'punt',k:'outL'},
    {t:'wn',q:'Je kunt alleen een punt krijgen als de shuttle bij de ander op de grond valt.',a:false,why:'Ook als de ander een fout maakt, zoals in het net slaan of uit slaan, krijg jij het punt.'}],
   'Denk aan wat je wilt bereiken: waar moet de shuttle terechtkomen om een punt te krijgen? En wat gebeurt er als de ander een fout maakt?'),
@@ -543,7 +548,7 @@ const LEVELS=[
   CE('Je serveert pas als de ander <strong>klaar</strong> is.',{scene:{k:'serve'}})],
   [{t:'mc',q:'Hoe pak je je racket vast?',opts:['Alsof je iemand een hand geeft','Met twee handen heel hard','Aan het blad'],pics:[{icon:'hand'},{icon:'fist'},{icon:'racket'}],a:0,why:'Je geeft je racket een hand. Rustig vasthouden.'},
    {t:'mc',q:'Hoe pak je de shuttle vast?',opts:['Voorzichtig, als een vieze sok','Met je hele vuist','Met je mond'],pics:[{icon:'sock'},{icon:'fist'},{icon:'mouth'}],a:0,why:'Met je vingertoppen, net als een vieze sok.'},
-   {t:'mc',q:'Hoe sla je de service?',opts:['Onderhands, van onder naar boven','Bovenhands, keihard','Met je voet'],pics:[{scene:'serve'},{icon:'smash'},{icon:'foot'}],a:0,why:'De service sla je onderhands, van onder naar boven.'},
+   {t:'mc',q:'Hoe sla je de service?',opts:['Onderhands, van onder naar boven','Bovenhands, keihard','Met je voet'],pics:[{icon:'serve'},{icon:'smash'},{icon:'foot'}],a:0,why:'De service sla je onderhands, van onder naar boven.'},
    {t:'wn',q:'Je serveert pas als de ander klaar is.',a:true,why:'Je wacht altijd tot de ander klaar staat.'}],
   'Denk aan hoe je iemand een hand geeft. En denk aan de richting van de service: van onder naar …?'),
  L_('telling','telling-1','Punten tellen',[
@@ -583,7 +588,7 @@ const LEVELS=[
   CE('Je doet altijd je <strong>best</strong>, en je wacht met serveren tot de ander klaar is.',{scene:{k:'serve'}}),
   CE('Na het spelen geef je elkaar een hand of een boks. Goed gespeeld!',{icon:'hand'})],
   [{t:'wn',q:'Je mag hard roepen als de ander gaat slaan.',a:false,why:'De ander afleiden is fout. Dat is niet eerlijk.'},
-   {t:'mc',q:'De ander is nog niet klaar. Wat doe je?',opts:['Wachten','Toch serveren','Weglopen'],pics:[{icon:'clock'},{scene:'serve'},{icon:'run'}],a:0,why:'Je wacht tot de ander klaar is.'},
+   {t:'mc',q:'De ander is nog niet klaar. Wat doe je?',opts:['Wachten','Toch serveren','Weglopen'],pics:[{icon:'clock'},{icon:'serve'},{icon:'run'}],a:0,why:'Je wacht tot de ander klaar is.'},
    {t:'wn',q:'Na het spelen geef je elkaar een hand of een boks.',a:true,why:'Zo bedank je elkaar voor het spel.'}],
   'Wat is eerlijk? Denk aan hoe jij zou willen dat de ander met jou speelt.')
 ]},
