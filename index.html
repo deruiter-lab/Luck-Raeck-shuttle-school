@@ -403,11 +403,44 @@ body.bigtext .fb{font-size:clamp(18px,2.9vh,24px)}
 /* shuttleteller licht op */
 .pot.bump{animation:bump .5s,potglow 1s}
 @keyframes potglow{0%{box-shadow:0 0 0 0 rgba(255,196,64,0)}25%{box-shadow:0 0 0 5px rgba(255,196,64,.7),0 0 22px 8px rgba(255,196,64,.65)}100%{box-shadow:0 0 0 0 rgba(255,196,64,0)}}
+
+/* 1: dichte lessen tonen hun onderwerp */
+.tile:disabled{opacity:1}.tile:disabled .tt{opacity:.55}.tile:disabled .tn>svg{opacity:.5}
+.tile .tn{position:relative}
+.tn .lk{position:absolute;right:-6px;bottom:-6px;width:18px;height:18px;border-radius:50%;background:var(--surface);color:var(--muted);display:grid;place-items:center;box-shadow:0 0 0 1.5px var(--line)}
+.tile .tn .lk svg{width:11px;height:11px}
+/* 2: melding */
+.toast{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 124px);transform:translateX(-50%);z-index:30;display:flex;align-items:center;gap:8px;background:var(--orange);color:#fff;font-family:var(--display);font-weight:700;font-size:20px;padding:8px 20px 8px 10px;border-radius:999px;box-shadow:0 8px 24px rgba(10,20,60,.25);white-space:nowrap;animation:toastin .4s cubic-bezier(.3,1.5,.6,1);transition:opacity .4s,transform .4s;pointer-events:none}
+.toast svg{width:30px;height:30px;background:#fff;border-radius:50%;padding:3px;box-sizing:border-box}
+.toast small{font-size:15px;opacity:.9}
+.toast.plain{padding:10px 18px;font-size:16px;white-space:normal;max-width:min(88vw,360px);text-align:center;background:var(--fg);color:var(--bg)}
+.toast.out{opacity:0;transform:translateX(-50%) translateY(-12px)}
+@keyframes toastin{from{opacity:0;transform:translateX(-50%) translateY(-14px) scale(.85)}}
+/* 3: instellingen */
+.vdet{border-top:1px solid var(--line);padding-top:12px}
+.vdet>summary{cursor:pointer;font-family:var(--display);font-weight:600;font-size:17px;color:var(--blue);list-style-position:inside}
+.vdet>.stack{margin-top:10px}
+.sethead{font-family:var(--display);font-weight:600;font-size:17px;margin:0}
+/* 4: figuurtje per speler */
+.hav{flex:none;width:34px;height:34px;display:grid;place-items:center}.hav svg{width:34px;height:34px;border-radius:50%;box-shadow:0 0 0 2px #fff}
+.heroav{flex:none;width:56px;height:56px;padding:0;border:0;background:none;border-radius:50%;cursor:pointer}.heroav svg{width:56px;height:56px}
+.avpick{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.avpick button{width:44px;height:44px;padding:0;border:3px solid transparent;border-radius:50%;background:none;cursor:pointer}
+.avpick button.on{border-color:var(--fg)}
+.avpick button svg{width:100%;height:100%}
+.chip .cav{display:inline-block;width:22px;height:22px;vertical-align:-6px;margin-right:6px}.chip .cav svg{width:22px;height:22px}
+.stop .me{position:absolute;right:-10px;top:-10px;width:30px;height:30px;border-radius:50%;box-shadow:0 0 0 3px var(--bg);animation:mebob 2.4s ease-in-out infinite}
+.stop .me svg{width:30px;height:30px;display:block}
+@keyframes mebob{50%{transform:translateY(-3px)}}
+/* 5: vriendelijk fout */
+.opt.wrong{animation:shake .45s}
+@keyframes shake{20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
+@media (prefers-reduced-motion: reduce){.opt.wrong,.stop .me,.toast{animation:none}}
 </style>
 
 <header class="bar"><div class="bar-in">
   <button class="brand" id="home-btn" aria-label="Naar het begin">Shuttle-school<small>Luck Raeck jeugd</small></button>
-  <div class="pot" id="pot" aria-label="Gespaarde shuttles"><span id="potico"></span><span id="potn">0</span></div>
+  <span class="hav" id="hav" aria-hidden="true"></span><div class="pot" id="pot" aria-label="Gespaarde shuttles"><span id="potico"></span><span id="potn">0</span></div>
   <button class="iconbtn" id="set-btn" aria-label="Instellingen"></button>
 </div></header>
 <main id="app"></main>
@@ -558,7 +591,19 @@ function P(){
   if(!S.current||!S.profiles[S.current]){ S.profiles['Speler']=S.profiles['Speler']||newProfile(); S.current='Speler'; }
   const p=S.profiles[S.current]; if(!p.lessons) p.lessons={}; if(!p.passed) p.passed={}; if(!p.best) p.best={}; if(!p.unlock) p.unlock=1; if(!p.opfris) p.opfris={}; if(!p.bak) p.bak=[]; if(!p.passedAt) p.passedAt={}; return p;
 }
-function setPot(){document.getElementById('potn').textContent=P().shuttles;}
+const AVC=['#2b3bd8','#f07f1a','#2f7d5b','#7b4bc4','#c23b2b','#0b8aa3','#c13a7c','#a77400'];
+const AVN=['Ster','Hart','Bliksem','Maan','Bloem','Kroon','Smiley','Shuttle'];
+const AVG=['<path d="M12 3.2l2.7 5.5 6 .9-4.35 4.25 1 6L12 17l-5.35 2.85 1-6L3.3 9.6l6-.9z" fill="#fff"/>',
+'<path d="M12 20.5s-8-4.9-8-10.6C4 7 6.1 5 8.5 5c1.5 0 2.7.8 3.5 2 .8-1.2 2-2 3.5-2C17.9 5 20 7 20 9.9c0 5.7-8 10.6-8 10.6z" fill="#fff"/>',
+'<path d="M13.5 2.5L5.5 13.5h5.8l-1.3 8 8.5-11.5h-6z" fill="#fff"/>',
+'<path d="M15 3.5a8.5 8.5 0 1 0 5.5 13.6A7.2 7.2 0 0 1 15 3.5z" fill="#fff"/>',
+'<g fill="#fff"><circle cx="12" cy="6.3" r="3.3"/><circle cx="17.4" cy="10.3" r="3.3"/><circle cx="15.4" cy="16.6" r="3.3"/><circle cx="8.6" cy="16.6" r="3.3"/><circle cx="6.6" cy="10.3" r="3.3"/></g><circle cx="12" cy="12" r="2.6" fill="#ffd34d"/>',
+'<path d="M3.5 18.5h17l1-11-5.5 4.5L12 4.5 8 12 2.5 7.5z" fill="#fff" stroke="#fff" stroke-width="1" stroke-linejoin="round"/>',
+'<circle cx="12" cy="12" r="8.5" fill="none" stroke="#fff" stroke-width="2.2"/><circle cx="9" cy="10" r="1.4" fill="#fff"/><circle cx="15" cy="10" r="1.4" fill="#fff"/><path d="M8.3 14.2a4.4 4.4 0 0 0 7.4 0" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/>',
+'<path d="M6.5 3.5h11L15 14H9z" fill="#fff"/><path d="M9.2 4l1.2 9.6M12 3.5V14M14.8 4l-1.2 9.6M7.4 8h9.2" stroke="currentColor" stroke-width=".9"/><path d="M8.6 14h6.8v2.4a3.4 3.4 0 0 1-6.8 0z" fill="#fff"/>'];
+function avIndex(nm){const p=S.profiles[nm];if(p&&p.av!=null)return p.av;let h=0;for(const ch of (nm||''))h=(h*31+ch.charCodeAt(0))>>>0;return h%8;}
+function avatar(i){return `<svg viewBox="0 0 24 24" role="img" aria-label="${AVN[i]}" style="color:${AVC[i]}"><circle cx="12" cy="12" r="12" fill="${AVC[i]}"/><g transform="translate(3.6 3.6) scale(.7)">${AVG[i]}</g></svg>`;}
+function setPot(){document.getElementById('potn').textContent=P().shuttles;const h=document.getElementById('hav');if(h)h.innerHTML=avatar(avIndex(S.current));}
 
 /* =========================================================
    STEM: alleen Nederlandse stemmen, vrouwenstem voorkeur
@@ -1551,24 +1596,27 @@ function homeView(){
   const p=P(); const ns=nextStep(); const due=bakDue().length;
   const conn=(lit)=>`<div class="conn ${lit?'lit':''}" aria-hidden="true"><svg viewBox="0 0 40 24"><path d="M5 3h30L20 21z" stroke-linejoin="round"/></svg></div>`;
   app.innerHTML=`
-  <div class="hero"><span class="heroic">${I.shuttle}</span><div style="min-width:0;flex:1">
+  <div class="hero"><button class="heroav" id="heroav" aria-label="Kies je figuurtje">${avatar(avIndex(S.current))}</button><div style="min-width:0;flex:1">
     <div class="namerow" id="namerow"><h1>Hoi ${esc(S.current)}!</h1><button class="editbtn" id="edit" aria-label="Naam aanpassen" title="Naam aanpassen">${I.pencil}</button></div>
     <form class="namerow" id="nameform" hidden><label for="nm" class="sr">Je naam</label><input type="text" id="nm" maxlength="20" value="${esc(S.current)}"><button class="okbtn" type="submit" aria-label="Naam opslaan">${ic('check',20)}</button></form>
+    <div class="avpick" id="avpick" hidden aria-label="Kies je figuurtje">${AVC.map((_,i)=>`<button type="button" data-av="${i}" class="${avIndex(S.current)===i?'on':''}" aria-label="${AVN[i]}">${avatar(i)}</button>`).join('')}</div>
     <p class="muted small" id="nmsg">Je hebt ${p.shuttles} ${p.shuttles===1?'shuttle':'shuttles'} gespaard</p></div></div>
   ${ns?`<button class="bigbtn" id="next"><span class="bb1">Verder leren</span><span class="bb2">${esc(ns.label)}</span>${I.play}</button>`:`<div class="card"><b>Alle niveaus gehaald!</b> <span class="muted">Speel de spelletjes om scherp te blijven.</span></div>`}
   ${due?`<button class="item bak" id="bak"><span class="ic">${I.redo}</span><span class="t"><b>Foutenbak</b><span>${due} ${due===1?'vraag':'vragen'} om te herhalen</span></span>${ic('next')}</button>`:''}
   <div class="path">${LEVELS.map((l,ix)=>{const open=levelOpen(l.n), pass=!!p.passed[l.n], d=lessonsDone(l), t=l.lessons.length;
     return (ix?conn(!!p.passed[l.n-1]):'')+`<button class="stop ${open?'':'locked'} ${pass?'passed':''}" data-n="${l.n}" aria-label="Niveau ${l.n}${open?'':', op slot'}">
-      <span class="num">${open?l.n:I.lock}</span>
+      <span class="num">${open?l.n:I.lock}${open&&!pass&&LEVELS.find(z=>levelOpen(z.n)&&!p.passed[z.n])===l?`<span class="me" aria-label="Hier ben je">${avatar(avIndex(S.current))}</span>`:''}</span>
       <span class="txt"><b>${l.name}</b><span class="sub">${open?(pass?'foutloos gehaald':`${d} van ${t} lessen`):`eerst niveau ${l.n-1} foutloos`}</span>${open?`<span class="progress"><i style="width:${(d+(pass?1:0))/(t+1)*100}%"></i></span>`:''}</span>
       ${pass?`<span class="medal">${I.medal}</span>`:''}</button>`;}).join('')}</div>
   <div class="topics" aria-label="Onderwerp-badges">${TOPIC_ORDER.map(t=>{const s=topicStars(t);return `<span class="tb ${s?'':'off'}"${tcol(t)} title="${TOPICS[t].name}: ${s} van 5 sterren"><span class="tbi">${I[TOPICS[t].icon]}</span><span class="tbs">${'★'.repeat(s)}${'☆'.repeat(5-s)}</span></span>`;}).join('')}</div>
-  ${voiceWarn()}`;
+  ${S.auto?voiceWarn():''}`;
   const nb=document.getElementById('next'); if(nb) nb.onclick=()=>doStep(ns);
   const bb=document.getElementById('bak'); if(bb) bb.onclick=()=>startQuiz({n:1,title:'Foutenbak',kind:'bak',src:()=>bakDue().slice(0,8).map(b=>b.r)});
-  app.querySelectorAll('.stop').forEach(b=>b.onclick=()=>{const n=+b.dataset.n; if(levelOpen(n)) go({view:'level',n,tab:'les'}); else speak(`Niveau ${n} is nog op slot. Haal eerst niveau ${n-1} foutloos.`);});
+  app.querySelectorAll('.stop').forEach(b=>b.onclick=()=>{const n=+b.dataset.n; if(levelOpen(n)) go({view:'level',n,tab:'les'}); else {const m=`Niveau ${n} is nog op slot. Haal eerst niveau ${n-1} foutloos.`; toast(m,true); if(S.auto) speak(m);}});
   const nr=document.getElementById('namerow'), nf=document.getElementById('nameform'), nm=document.getElementById('nm');
-  document.getElementById('edit').onclick=()=>{nr.hidden=true;nf.hidden=false;nm.focus();nm.select();};
+  const openEdit=()=>{nr.hidden=true;nf.hidden=false;document.getElementById('avpick').hidden=false;nm.focus();nm.select();};
+  document.getElementById('edit').onclick=openEdit; document.getElementById('heroav').onclick=openEdit;
+  app.querySelectorAll('[data-av]').forEach(b=>b.onclick=()=>{P().av=+b.dataset.av;save();setPot();render();});
   nf.onsubmit=e=>{e.preventDefault(); const v=nm.value.trim(), old=S.current;
     if(!v||v===old){render();return;}
     if(S.profiles[v]){document.getElementById('nmsg').textContent=`De naam ${v} bestaat al op dit apparaat. Kies een andere naam.`;return;}
@@ -1591,7 +1639,7 @@ function levelView(n){
   <div class="tiles">
     ${of?`<button class="tile opf" id="opf"><span class="tn">${I.redo}</span><span class="tt">Opfrissen<small>5 vragen van eerder</small></span></button>`:''}
     ${l.lessons.map((x,i)=>{const open=lessonOpen(l,i), done=!!p.lessons[x.id];
-    return `<button class="tile ${done?'done':''} ${open&&!done?'now':''}"${tcol(x.topic)} data-l="${i}" ${open?'':'disabled'}><span class="tn">${!open?I.lock:done?I.check:I[TOPICS[x.topic].icon]}</span><span class="tt">${i+1}. ${x.title}<small>${TOPICS[x.topic].name}</small></span></button>`;}).join('')}</div>
+    return `<button class="tile ${done?'done':''} ${open&&!done?'now':''}"${tcol(x.topic)} data-l="${i}" ${open?'':'disabled'}><span class="tn">${done?I.check:I[TOPICS[x.topic].icon]}${!open?`<span class="lk">${I.lock}</span>`:''}</span><span class="tt">${i+1}. ${x.title}<small>${TOPICS[x.topic].name}</small></span></button>`;}).join('')}</div>
   <button class="item exam" id="exam" ${eo?'':'disabled'}><span class="ic">${eo?ic('medal',26):I.lock}</span><span class="t"><b>Eindtoets niveau ${n}</b><span>${eo?'12 vragen, alles goed = niveau gehaald':'eerst alle lessen foutloos'}</span></span>${pass?`<span class="medal">${I.medal}</span>`:''}</button>`
   :`<div class="tiles">${gamesFor(n).map(g=>`<button class="tile game" data-g="${g.id}"><span class="tn">${I[g.icon]}</span><span class="tt">${g.title}<small>${p.best[g.id]!=null?'beste '+p.best[g.id]:g.desc}</small></span></button>`).join('')}</div>
   <p class="note">Oefenen en shuttles sparen, zo vaak als je wilt.</p>`}`;
@@ -1775,8 +1823,8 @@ function answer(i,el){
   const c=cur, q=c.qs[c.k]; if(c.answered!=null) return;
   stopTimer();
   c.answered=i; const ok=q.tap?q.result[0]:i===q.a; if(!c.res) c.res=[]; c.res[c.k]=ok;
-  if(ok){c.good++;c.streak++;let gain=1;if(c.streak%3===0)gain++;c.earned+=gain;award(gain,el);}
-  else {c.streak=0;c.missed.push({q:questionText(q).replace(/<[^>]+>/g,''),a:q.tap?'':q.opts[q.a],why:q.tap?q.result[1]:q.why});}
+  if(ok){c.good++;c.streak++;let gain=1;if(c.streak%3===0){gain++;setTimeout(()=>toast(`${I.shuttle}<span>${c.streak} op rij! <small>+1 extra</small></span>`),250);}c.earned+=gain;award(gain,el);}
+  else {bonk();c.streak=0;c.missed.push({q:questionText(q).replace(/<[^>]+>/g,''),a:q.tap?'':q.opts[q.a],why:q.tap?q.result[1]:q.why});}
   if(q.raw&&!q.sim){
     if(c.kind==='bak'){const p=P(),k=bakKey(q.raw),it=p.bak.find(b=>b.k===k);
       if(it){ if(ok){it.ok++;it.due=Date.now()+H44; if(it.ok>=2) p.bak=p.bak.filter(b=>b!==it);} else {it.ok=0;it.due=Date.now()+H20;} }}
@@ -1792,6 +1840,9 @@ function kaching(vol){if(S.nosound)return;const a=audioCtx();if(!a)return;try{co
  const ns=a.createBufferSource();ns.buffer=buf;const bp=a.createBiquadFilter();bp.type='bandpass';bp.frequency.value=1800;bp.Q.value=1.2;const ng=a.createGain();ng.gain.value=1.1;ns.connect(bp);bp.connect(ng);ng.connect(out);ns.start(t);
  [[0.075,1],[0.16,.75]].forEach(([dt,amp],k)=>{const t2=t+dt;[[2093,1],[2637,.55],[3136,.42],[4186,.22],[5588,.12]].forEach(([f,g])=>{const o=a.createOscillator();o.type='sine';o.frequency.value=f*(k?1.122:1);const e=a.createGain();e.gain.setValueAtTime(0,t2);e.gain.linearRampToValueAtTime(g*.45*amp,t2+.004);e.gain.exponentialRampToValueAtTime(.0004,t2+(k?1.1:.6));o.connect(e);e.connect(out);o.start(t2);o.stop(t2+1.2);});});
 }catch(e){}}
+function toast(html,plain){document.querySelectorAll('.toast').forEach(t=>t.remove());const t=document.createElement('div');t.className='toast'+(plain?' plain':'');t.setAttribute('role','status');t.innerHTML=html;document.body.appendChild(t);setTimeout(()=>t.classList.add('out'),plain?2600:1700);setTimeout(()=>t.remove(),plain?3100:2200);}
+function bonk(){if(S.nosound)return;const a=audioCtx();if(!a)return;try{const t=a.currentTime+.01,out=a.createGain();out.gain.value=.22;out.connect(a.destination);
+ [[392,0],[311,.14]].forEach(([f,dt])=>{const o=a.createOscillator();o.type='triangle';o.frequency.setValueAtTime(f,t+dt);o.frequency.exponentialRampToValueAtTime(f*.94,t+dt+.25);const e=a.createGain();e.gain.setValueAtTime(0,t+dt);e.gain.linearRampToValueAtTime(.8,t+dt+.02);e.gain.exponentialRampToValueAtTime(.001,t+dt+.32);o.connect(e);e.connect(out);o.start(t+dt);o.stop(t+dt+.35);});}catch(e){}}
 function award(n,el){
   audioCtx();
   const p=P(); p.shuttles+=n; save();
@@ -1939,9 +1990,14 @@ function settingsView(){
   let body='';
   if(tab==='spelers') body=`
     <p class="note">Wie speelt er? Tik op je naam.</p>
-    <div class="profiles">${Object.keys(S.profiles).map(nm=>`<button class="chip ${nm===S.current?'on':''}" data-p="${esc(nm)}">${esc(nm)} · ${S.profiles[nm].shuttles}</button>`).join('')}</div>
+    <div class="profiles">${Object.keys(S.profiles).map(nm=>`<button class="chip ${nm===S.current?'on':''}" data-p="${esc(nm)}"><span class="cav">${avatar(avIndex(nm))}</span>${esc(nm)} · ${S.profiles[nm].shuttles}</button>`).join('')}</div>
     <form class="row" id="pf"><label for="pn" class="note">Nieuwe speler</label><input type="text" id="pn" maxlength="20" placeholder="Voornaam"><button class="btn alt small" type="submit">Toevoegen</button></form>`;
-  if(tab==='algemeen') body=(opts.length?`
+  if(tab==='algemeen') body=`
+    <label class="row note"><input type="checkbox" id="au" ${S.auto?'checked':''}> Vragen en uitleg automatisch voorlezen</label>
+    <label class="row note"><input type="checkbox" id="snd" ${S.nosound?'':'checked'}> Appgeluiden (kassageluid en foutgeluid)</label>
+    <label class="row note"><input type="checkbox" id="bg" ${S.big?'checked':''}> Grotere letters</label>
+    <div class="row"><label class="row note"><input type="checkbox" id="sps" ${S.nosplash?'':'checked'}> Openingsscherm tonen bij het starten</label><button class="btn alt small" id="spv">Bekijk</button></div>
+    <details class="vdet" id="vdet" ${S.vopen?'open':''}><summary>Voorleesstem en snelheid</summary><div class="stack">`+(opts.length?`
     <label for="vs" class="note">Voorleesstem</label>
     <select id="vs">${opts.map((v,i)=>`<option value="${i}" ${chosen&&v.name===chosen.name?'selected':''}>${esc(v.name)} · ${/^nl/i.test(v.lang)?(/nl[-_]BE/i.test(v.lang)?'Vlaams':'Nederlands'):esc(v.lang)}${MALE.test(v.name)?' · man':FEMALE.test(v.name)?' · vrouw':''}</option>`).join('')}</select>
     <div class="row"><button class="btn go small" id="hear">${I.speaker} Luister</button><button class="btn alt small" id="rescan">Opnieuw zoeken</button></div>`
@@ -1950,15 +2006,12 @@ function settingsView(){
     <label class="row note"><input type="checkbox" id="allv" ${S.allv?'checked':''}> Toon ook stemmen in andere talen <span class="muted">(die lezen Nederlands met een accent)</span></label>
     <label for="rt" class="note">Snelheid: <span id="rtv">${S.rate.toFixed(2)}</span></label>
     <input type="range" id="rt" min="0.6" max="1.2" step="0.05" value="${S.rate}">
-    <label class="row note"><input type="checkbox" id="au" ${S.auto?'checked':''}> Vragen en uitleg automatisch voorlezen</label>
-    <label class="row note"><input type="checkbox" id="bg" ${S.big?'checked':''}> Grotere letters</label>
-    <div class="row"><label class="row note"><input type="checkbox" id="sps" ${S.nosplash?'':'checked'}> Openingsscherm tonen bij het starten</label><button class="btn alt small" id="spv">Bekijk</button></div>
-    <label class="row note"><input type="checkbox" id="snd" ${S.nosound?'':'checked'}> Appgeluiden (kassageluid bij shuttles sparen)</label>`;
+    </div></details>`;
   if(tab==='ouders') body=`
     <h3>Voor ouders</h3>
-    <p class="small">Shuttle-school leert de spelregels van badminton, stap voor stap, in 5 niveaus. Op elk niveau komen dezelfde 8 onderwerpen terug, steeds een beetje dieper.</p>
+    <p class="small">Shuttle-school leert de spelregels van badminton, stap voor stap, in 5 niveaus. Op elk niveau komen dezelfde 9 onderwerpen terug, steeds een beetje dieper.</p>
     <p class="small"><b>Foutloos = verder.</b> Een les gaat pas open als de toets van de vorige les helemaal goed is. Zo blijft niets half hangen. Fout? Dan ziet je kind wat er misging en probeert het opnieuw.</p>
-    <p class="small"><b>Hulp:</b> alles wordt voorgelezen, en het gloeilampje geeft een hint zonder het antwoord te verklappen. Foute vragen komen later terug in de foutenbak.</p>
+    <p class="small"><b>Hulp:</b> met de oranje luidspreker laat je elke tekst voorlezen (of zet automatisch voorlezen aan bij Algemeen), en het gloeilampje geeft een hint zonder het antwoord te verklappen. Foute vragen komen later terug in de foutenbak.</p>
     <p class="small"><b>Als app op je telefoon of tablet:</b> open de Shuttle-school in Safari (iPhone/iPad) of Chrome (Android). Kies <b>Deel › Zet op beginscherm</b> of <b>⋮ › App installeren</b>. Daarna start je de app met het shuttle-icoon, ook zonder internet.</p>
     <p class="small"><b>Gegevens:</b> voortgang en shuttles staan alleen op dit apparaat, per voornaam. Er gaat niets naar de club of naar internet.</p>`;
   if(tab==='trainer'){
@@ -1986,6 +2039,7 @@ function settingsView(){
   const rs=document.getElementById('rescan'); if(rs) rs.onclick=()=>{if(synth){try{synth.cancel();speak(' ');synth.getVoices();}catch(e){}} setTimeout(render,600); setTimeout(render,1800);};
   const rt=document.getElementById('rt'); if(rt) rt.oninput=()=>{S.rate=+rt.value;document.getElementById('rtv').textContent=S.rate.toFixed(2);save();};
   const au=document.getElementById('au'); if(au) au.onchange=e=>{S.auto=e.target.checked;save();};
+  const vd=document.getElementById('vdet'); if(vd) vd.ontoggle=()=>{S.vopen=vd.open;save();};
   const av=document.getElementById('allv'); if(av) av.onchange=e=>{S.allv=e.target.checked;save();render();};
   const sps=document.getElementById('sps'); if(sps) sps.onchange=e=>{S.nosplash=!e.target.checked;save();};
   const snd=document.getElementById('snd'); if(snd) snd.onchange=e=>{S.nosound=!e.target.checked;save();if(!S.nosound)kaching();};
