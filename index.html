@@ -385,6 +385,7 @@ body.bigtext .fb{font-size:clamp(18px,2.9vh,24px)}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .hero-card{box-shadow:none}}
 @media (prefers-reduced-motion:reduce){#app.enter,.resic.pop{animation:none}}
 .tiles>.tile:last-child:nth-child(odd){grid-column:2}
+.opts.pics .opt .onum{display:block;width:100%;text-align:center;font-family:var(--display);font-weight:700;font-size:clamp(30px,5vh,44px);color:var(--blue);line-height:1.1}
 </style>
 
 <header class="bar"><div class="bar-in">
@@ -572,7 +573,7 @@ function scene(o){
   g+=`<rect x="167" y="70" width="6" height="88" fill="var(--fg)"/><rect x="160" y="68" width="20" height="6" rx="2" fill="#fff" stroke="var(--fg)"/>`;
   g+=`<g opacity=".35">`; for(let i=0;i<8;i++) g+=`<line x1="163" y1="${78+i*9}" x2="177" y2="${78+i*9}" stroke="var(--fg)"/>`; g+=`</g>`;
   g+=kid(70,'#2b3bd8')+kid(270,'#f07f1a');
-  g+=`<text x="70" y="182" text-anchor="middle" font-family="Fredoka" font-weight="700" font-size="15" fill="#fff">Blauw</text><text x="270" y="182" text-anchor="middle" font-family="Fredoka" font-weight="700" font-size="15" fill="#fff">Oranje</text>`;
+  g+=`<text x="70" y="182" text-anchor="middle" font-family="Fredoka, sans-serif" font-weight="700" font-size="15" fill="#fff">Blauw</text><text x="270" y="182" text-anchor="middle" font-family="Fredoka, sans-serif" font-weight="700" font-size="15" fill="#fff">Oranje</text>`;
   const racketL=(x2,y2)=>`<line x1="82" y1="112" x2="${x2}" y2="${y2}" stroke="#1d1d55" stroke-width="3"/><ellipse cx="${x2}" cy="${y2}" rx="8" ry="11" fill="none" stroke="#1d1d55" stroke-width="3"/>`;
   const racketR=(x2,y2)=>`<line x1="258" y1="112" x2="${x2}" y2="${y2}" stroke="#1d1d55" stroke-width="3"/><ellipse cx="${x2}" cy="${y2}" rx="8" ry="11" fill="none" stroke="#1d1d55" stroke-width="3"/>`;
   const k=o.k;
@@ -613,10 +614,10 @@ function scene(o){
   if(k==='rally')   g+=RL+RR+flightN([[96,96,170,-20,240,92],[240,92,205,36,169,37]],null);
   if(k==='svchoog'||k==='svcgoed'||k==='svcvoet'){
     const bad=k!=='svcgoed';
-    g+=`<line x1="20" y1="108" x2="160" y2="108" stroke="#f07f1a" stroke-width="2.5" stroke-dasharray="7 5"/><text x="24" y="102" font-family="Fredoka" font-weight="700" font-size="13" fill="var(--fg)">1,15 m</text>`;
-    if(k==='svchoog') g+=`<g><animateTransform attributeName="transform" type="rotate" values="70 82 112;0 82 112;70 82 112" dur="1.8s" repeatCount="1" fill="freeze"/><line x1="82" y1="112" x2="104" y2="76" stroke="#1d1d55" stroke-width="3"/><ellipse cx="104" cy="76" rx="8" ry="11" fill="none" stroke="#1d1d55" stroke-width="3"/></g>`+sh(114,72,0,1)+`<text x="250" y="40" text-anchor="middle" font-family="Fredoka" font-weight="700" font-size="18" fill="#c23b2b">te hoog: fout</text>`;
-    if(k==='svcgoed') g+=`<g><animateTransform attributeName="transform" type="rotate" values="-60 82 112;0 82 112;-60 82 112" dur="1.8s" repeatCount="1" fill="freeze"/><line x1="82" y1="112" x2="98" y2="132" stroke="#1d1d55" stroke-width="3"/><ellipse cx="98" cy="132" rx="8" ry="11" fill="none" stroke="#1d1d55" stroke-width="3"/></g><g><animateMotion dur="1.8s" repeatCount="1" fill="freeze" keyPoints="0;0;1" keyTimes="0;0.5;1" calcMode="linear" rotate="auto" path="M108 124 Q198 -6 298 146"/><g transform="rotate(-90) translate(-16 -22.5)">${SHUTTLE_INNER}</g></g><text x="250" y="40" text-anchor="middle" font-family="Fredoka" font-weight="700" font-size="18" fill="var(--good)">onder 1,15 m: goed</text>`;
-    if(k==='svcvoet') g+=racketL(98,128)+sh(108,122,0,1)+`<rect x="72" y="140" width="7" height="18" rx="3" fill="#c23b2b"><animate attributeName="x" values="72;90" dur="1.2s" repeatCount="1" fill="freeze"/></rect><text x="250" y="40" text-anchor="middle" font-family="Fredoka" font-weight="700" font-size="18" fill="#c23b2b">voet schuift: fout</text>`;
+    g+=`<line x1="20" y1="108" x2="160" y2="108" stroke="#f07f1a" stroke-width="2.5" stroke-dasharray="7 5"/><text x="24" y="102" font-family="Fredoka, sans-serif" font-weight="700" font-size="13" fill="var(--fg)">1,15 m</text>`;
+    if(k==='svchoog') g+=`<g><animateTransform attributeName="transform" type="rotate" values="70 82 112;0 82 112;70 82 112" dur="1.8s" repeatCount="1" fill="freeze"/><line x1="82" y1="112" x2="104" y2="76" stroke="#1d1d55" stroke-width="3"/><ellipse cx="104" cy="76" rx="8" ry="11" fill="none" stroke="#1d1d55" stroke-width="3"/></g>`+sh(114,72,0,1)+`<text x="250" y="40" text-anchor="middle" font-family="Fredoka, sans-serif" font-weight="700" font-size="18" fill="#c23b2b">te hoog: fout</text>`;
+    if(k==='svcgoed') g+=`<g><animateTransform attributeName="transform" type="rotate" values="-60 82 112;0 82 112;-60 82 112" dur="1.8s" repeatCount="1" fill="freeze"/><line x1="82" y1="112" x2="98" y2="132" stroke="#1d1d55" stroke-width="3"/><ellipse cx="98" cy="132" rx="8" ry="11" fill="none" stroke="#1d1d55" stroke-width="3"/></g><g><animateMotion dur="1.8s" repeatCount="1" fill="freeze" keyPoints="0;0;1" keyTimes="0;0.5;1" calcMode="linear" rotate="auto" path="M108 124 Q198 -6 298 146"/><g transform="rotate(-90) translate(-16 -22.5)">${SHUTTLE_INNER}</g></g><text x="250" y="40" text-anchor="middle" font-family="Fredoka, sans-serif" font-weight="700" font-size="18" fill="var(--good)">onder 1,15 m: goed</text>`;
+    if(k==='svcvoet') g+=racketL(98,128)+sh(108,122,0,1)+`<rect x="72" y="140" width="7" height="18" rx="3" fill="#c23b2b"><animate attributeName="x" values="72;90" dur="1.2s" repeatCount="1" fill="freeze"/></rect><text x="250" y="40" text-anchor="middle" font-family="Fredoka, sans-serif" font-weight="700" font-size="18" fill="#c23b2b">voet schuift: fout</text>`;
   }
   if(k==='serve') g+=racketL(98,128)+racketR(240,92)+flight(112,120,195,-34,290,151.5,-80.7);
   return g+'</svg>';
@@ -630,24 +631,37 @@ function picArt(p){
   if(p.kids){let g='<svg viewBox="0 0 '+(p.kids*18+4)+' 34">';for(let i=0;i<p.kids;i++){const x=11+i*18,c=i<2?'#2b3bd8':'#f07f1a';g+=`<circle cx="${x}" cy="8" r="5" fill="${c}"/><rect x="${x-6}" y="14" width="12" height="16" rx="5" fill="${c}"/>`;}return g+'</svg>';}
   return '';
 }
-function netArt(kind){
+function netArt(kind,hide){
   const sh=(x,y,r)=>`<g transform="translate(${x} ${y}) rotate(${r}) scale(1.4) translate(-16 -16)">${SHUTTLE_INNER}</g>`;
   let g=`<svg viewBox="0 0 300 170" width="300" height="170"><rect width="300" height="170" rx="14" fill="var(--blue-soft)"/><rect x="0" y="150" width="300" height="20" fill="var(--court)"/>`;
   g+=`<rect x="146" y="60" width="8" height="90" fill="var(--fg)"/><rect x="138" y="58" width="24" height="6" rx="2" fill="#fff" stroke="var(--fg)"/>`;
   if(kind==='over') g+=`<path d="M40 130 Q150 -10 250 130" fill="none" stroke="#f07f1a" stroke-width="4" stroke-dasharray="8 7"/>`+sh(248,126,-35);
-  if(kind==='netrand') g+=`<path d="M40 120 Q120 40 150 58 Q175 70 240 140" fill="none" stroke="#f07f1a" stroke-width="4" stroke-dasharray="8 7"/>`+sh(240,136,-43)+`<text x="236" y="40" text-anchor="middle" font-family="Fredoka" font-weight="700" font-size="20" fill="var(--good)">doorspelen</text>`;
-  if(kind==='onder') g+=`<path d="M40 140 L250 140" fill="none" stroke="#c23b2b" stroke-width="4" stroke-dasharray="8 7"/>`+sh(255,140,-90)+`<text x="150" y="40" text-anchor="middle" font-family="Fredoka" font-weight="700" font-size="22" fill="#c23b2b">fout</text>`;
-  if(kind==='innet') g+=`<path d="M40 120 Q100 60 146 100" fill="none" stroke="#c23b2b" stroke-width="4" stroke-dasharray="8 7"/>`+sh(142,102,-49)+`<text x="230" y="40" text-anchor="middle" font-family="Fredoka" font-weight="700" font-size="22" fill="#c23b2b">fout</text>`;
-  if(kind==='plafond'){g=`<svg viewBox="0 0 300 190" width="300" height="190"><rect width="300" height="190" rx="14" fill="var(--blue-soft)"/><rect x="0" y="0" width="300" height="22" fill="var(--fg)" opacity=".55"/><text x="150" y="16" text-anchor="middle" font-family="Fredoka" font-weight="700" font-size="14" fill="#fff">plafond</text><rect x="0" y="170" width="300" height="20" fill="var(--court)"/><rect x="146" y="90" width="8" height="80" fill="var(--fg)"/><rect x="138" y="88" width="24" height="6" rx="2" fill="#fff" stroke="var(--fg)"/><path d="M40 160 Q70 20 108 26" fill="none" stroke="#c23b2b" stroke-width="4" stroke-dasharray="8 7"/>`+sh(110,38,-81)+`<text x="220" y="60" text-anchor="middle" font-family="Fredoka" font-weight="700" font-size="22" fill="#c23b2b">fout</text>`;}
-  if(kind==='dopin'||kind==='dopuit'){const inn=kind==='dopin'; const cx=inn?150:178;
-    g=`<svg viewBox="0 0 300 170" width="300" height="170" role="img" aria-label="Shuttle op de grond bij een lijn, van dichtbij"><rect width="300" height="170" rx="14" fill="var(--blue-soft)"/><rect x="0" y="22" width="140" height="126" fill="var(--court)"/><rect x="140" y="22" width="16" height="126" fill="#fff"/><rect x="156" y="22" width="144" height="126" fill="var(--court)" opacity=".55"/>`
-     +`<text x="70" y="16" text-anchor="middle" font-family="Fredoka" font-weight="700" font-size="15" fill="var(--fg)">binnen</text><text x="148" y="16" text-anchor="middle" font-family="Fredoka" font-weight="700" font-size="15" fill="var(--fg)">lijn</text><text x="228" y="16" text-anchor="middle" font-family="Fredoka" font-weight="700" font-size="15" fill="var(--fg)">buiten</text>`
-     +`<g transform="translate(${cx} 86) rotate(${inn?90:-90}) scale(2.3) translate(-16 -26)">${SHUTTLE_INNER}</g>`
-     +`<circle cx="${cx}" cy="86" r="13" fill="none" stroke="#c23b2b" stroke-width="3" stroke-dasharray="4 3"/>`
-     +`<text x="150" y="165" text-anchor="middle" font-family="Fredoka" font-weight="700" font-size="16" fill="${inn?'var(--good)':'var(--bad)'}">${inn?'dopje op de lijn: IN':'dopje buiten de lijn: UIT'}</text>`;}
+  if(kind==='netrand') g+=`<path d="M40 120 Q120 40 150 58 Q175 70 240 140" fill="none" stroke="#f07f1a" stroke-width="4" stroke-dasharray="8 7"/>`+sh(240,136,-43)+`<text x="236" y="40" text-anchor="middle" font-family="Fredoka, sans-serif" font-weight="700" font-size="20" fill="var(--good)">doorspelen</text>`;
+  if(kind==='onder') g+=`<path d="M40 140 L250 140" fill="none" stroke="#c23b2b" stroke-width="4" stroke-dasharray="8 7"/>`+sh(255,140,-90)+`<text x="150" y="40" text-anchor="middle" font-family="Fredoka, sans-serif" font-weight="700" font-size="22" fill="#c23b2b">fout</text>`;
+  if(kind==='innet') g+=`<path d="M40 120 Q100 60 146 100" fill="none" stroke="#c23b2b" stroke-width="4" stroke-dasharray="8 7"/>`+sh(142,102,-49)+`<text x="230" y="40" text-anchor="middle" font-family="Fredoka, sans-serif" font-weight="700" font-size="22" fill="#c23b2b">fout</text>`;
+  if(kind==='plafond'){g=`<svg viewBox="0 0 300 190" width="300" height="190"><rect width="300" height="190" rx="14" fill="var(--blue-soft)"/><rect x="0" y="0" width="300" height="22" fill="var(--fg)" opacity=".55"/><text x="150" y="16" text-anchor="middle" font-family="Fredoka, sans-serif" font-weight="700" font-size="14" fill="#fff">plafond</text><rect x="0" y="170" width="300" height="20" fill="var(--court)"/><rect x="146" y="90" width="8" height="80" fill="var(--fg)"/><rect x="138" y="88" width="24" height="6" rx="2" fill="#fff" stroke="var(--fg)"/><path d="M40 160 Q70 20 108 26" fill="none" stroke="#c23b2b" stroke-width="4" stroke-dasharray="8 7"/>`+sh(110,38,-81)+`<text x="220" y="60" text-anchor="middle" font-family="Fredoka, sans-serif" font-weight="700" font-size="22" fill="#c23b2b">fout</text>`;}
+  if(kind==='dopin'||kind==='dopuit'){const inn=kind==='dopin'; const cx=inn?278:308;
+    /* links: de hele baan klein, met een kadertje op de plek; rechts: dat stukje vergroot */
+    const mx=14,my=26,ms=9.6, mX=m=>(mx+m*ms).toFixed(1), mY=m=>(my+m*ms).toFixed(1);
+    let mini=`<rect x="${mX(0)}" y="${mY(0)}" width="${(6.1*ms).toFixed(1)}" height="${(13.4*ms).toFixed(1)}" fill="var(--court)"/>`;
+    const ml=(a,b,c,d)=>`<line x1="${mX(a)}" y1="${mY(b)}" x2="${mX(c)}" y2="${mY(d)}" stroke="#fff" stroke-width="1.4"/>`;
+    [0,.46,5.64,6.1].forEach(x=>mini+=ml(x,0,x,13.4)); [0,.76,4.72,8.68,12.64,13.4].forEach(y=>mini+=ml(0,y,6.1,y)); mini+=ml(3.05,0,3.05,4.72)+ml(3.05,8.68,3.05,13.4);
+    mini+=`<line x1="${mX(-.3)}" y1="${mY(6.7)}" x2="${mX(6.4)}" y2="${mY(6.7)}" stroke="var(--fg)" stroke-width="3"/>`;
+    const fx=+mX(5.64)-9, fy=+mY(10.2)-9;
+    mini+=`<rect x="${fx}" y="${fy}" width="18" height="18" fill="none" stroke="#f07f1a" stroke-width="3" rx="2"/>`;
+    const px=150,py=24,pw=262,ph=136;
+    const link=`<path d="M${fx+18} ${fy} L${px} ${py} M${fx+18} ${fy+18} L${px} ${py+ph}" stroke="#f07f1a" stroke-width="2" stroke-dasharray="4 4" fill="none"/>`;
+    g=`<svg viewBox="0 0 420 ${hide?178:200}" width="420" height="${hide?178:200}" role="img" aria-label="Links de hele baan, rechts een stukje zijlijn vergroot met een shuttle erop"><rect width="420" height="${hide?178:200}" rx="14" fill="var(--blue-soft)"/>`
+     +mini+link
+     +`<rect x="${px}" y="${py}" width="${pw}" height="${ph}" fill="var(--court)" opacity=".55"/><rect x="${px}" y="${py}" width="120" height="${ph}" fill="var(--court)"/><rect x="${px+120}" y="${py}" width="16" height="${ph}" fill="#fff"/>`
+     +`<rect x="${px}" y="${py}" width="${pw}" height="${ph}" fill="none" stroke="#f07f1a" stroke-width="3" rx="3"/>`
+     +`<text x="${px+60}" y="17" text-anchor="middle" font-family="Fredoka, sans-serif" font-weight="700" font-size="15" fill="var(--fg)">binnen</text><text x="${px+128}" y="17" text-anchor="middle" font-family="Fredoka, sans-serif" font-weight="700" font-size="15" fill="var(--fg)">lijn</text><text x="${px+200}" y="17" text-anchor="middle" font-family="Fredoka, sans-serif" font-weight="700" font-size="15" fill="var(--fg)">buiten</text>`
+     +`<g transform="translate(${cx} 92) rotate(${inn?90:-90}) scale(2.3) translate(-16 -22.5)">${SHUTTLE_INNER}</g>`
+     +`<circle cx="${cx}" cy="92" r="14" fill="none" stroke="#c23b2b" stroke-width="3" stroke-dasharray="4 3"/>`
+     +(hide?'':`<text x="${px+pw/2}" y="190" text-anchor="middle" font-family="Fredoka, sans-serif" font-weight="700" font-size="16" fill="${inn?'var(--good)':'var(--bad)'}">${inn?'dopje op de lijn: IN':'dopje buiten de lijn: UIT'}</text>`);}
   if(kind==='lava'){g=`<svg viewBox="0 0 300 170" width="300" height="170"><rect width="300" height="170" rx="14" fill="var(--blue-soft)"/><path d="M0 140 Q30 128 60 140 T120 140 T180 140 T240 140 T300 140 V170 H0Z" fill="#f07f1a"/><path d="M0 152 Q30 142 60 152 T120 152 T180 152 T240 152 T300 152 V170 H0Z" fill="#c23b2b"/>`+sh(150,55,0)+`<path d="M150 90 v25" stroke="#f07f1a" stroke-width="3" stroke-dasharray="4 5"/>`;}
-  if(kind==='hoogte'){g=`<svg viewBox="0 0 300 190" width="300" height="190"><rect width="300" height="190" rx="14" fill="var(--blue-soft)"/><rect x="0" y="170" width="300" height="20" fill="var(--court)"/><line x1="20" y1="95" x2="280" y2="95" stroke="#f07f1a" stroke-width="3" stroke-dasharray="8 6"/><text x="24" y="86" font-family="Fredoka" font-weight="700" font-size="18" fill="var(--fg)">1,15 m</text>`+sh(170,126,0)+`<text x="200" y="134" font-family="Fredoka" font-weight="700" font-size="16" fill="var(--good)">goed: eronder</text>`;}
-  if(kind==='net'){g=`<svg viewBox="0 0 300 190" width="300" height="190"><rect width="300" height="190" rx="14" fill="var(--blue-soft)"/><rect x="0" y="170" width="300" height="20" fill="var(--court)"/><rect x="30" y="50" width="6" height="120" fill="var(--fg)"/><rect x="264" y="50" width="6" height="120" fill="var(--fg)"/><path d="M36 54 Q150 62 264 54" fill="none" stroke="#fff" stroke-width="6"/><path d="M36 54 Q150 62 264 54 L264 110 Q150 118 36 110Z" fill="var(--fg)" opacity=".25"/><text x="44" y="40" font-family="Fredoka" font-weight="700" font-size="15" fill="var(--fg)">paal: 1,55 m</text><text x="150" y="86" text-anchor="middle" font-family="Fredoka" font-weight="700" font-size="15" fill="var(--fg)">midden: 1,524 m</text>`;}
+  if(kind==='hoogte'){g=`<svg viewBox="0 0 300 190" width="300" height="190"><rect width="300" height="190" rx="14" fill="var(--blue-soft)"/><rect x="0" y="170" width="300" height="20" fill="var(--court)"/><line x1="20" y1="95" x2="280" y2="95" stroke="#f07f1a" stroke-width="3" stroke-dasharray="8 6"/><text x="24" y="86" font-family="Fredoka, sans-serif" font-weight="700" font-size="18" fill="var(--fg)">1,15 m</text>`+sh(170,126,0)+`<text x="200" y="134" font-family="Fredoka, sans-serif" font-weight="700" font-size="16" fill="var(--good)">goed: eronder</text>`;}
+  if(kind==='net'){g=`<svg viewBox="0 0 300 190" width="300" height="190"><rect width="300" height="190" rx="14" fill="var(--blue-soft)"/><rect x="0" y="170" width="300" height="20" fill="var(--court)"/><rect x="30" y="50" width="6" height="120" fill="var(--fg)"/><rect x="264" y="50" width="6" height="120" fill="var(--fg)"/><path d="M36 54 Q150 62 264 54" fill="none" stroke="#fff" stroke-width="6"/><path d="M36 54 Q150 62 264 54 L264 110 Q150 118 36 110Z" fill="var(--fg)" opacity=".25"/><text x="44" y="40" font-family="Fredoka, sans-serif" font-weight="700" font-size="15" fill="var(--fg)">paal: 1,55 m</text><text x="150" y="86" text-anchor="middle" font-family="Fredoka, sans-serif" font-weight="700" font-size="15" fill="var(--fg)">midden: 1,524 m</text>`;}
   return g+'</svg>';
 }
 function art(a){
@@ -656,7 +670,7 @@ function art(a){
   if(a.scene) return scene(a.scene);
   if(a.big) return bigArt(a.big,a.sub);
   if(a.icon) return iconArt(a.icon);
-  if(a.net) return netArt(a.net);
+  if(a.net) return netArt(a.net,a.hide);
   if(a.board) return boardArt(a.board);
   return '';
 }
@@ -1235,6 +1249,7 @@ function prep(q){
   if(q.t==='wn'){q.opts=['Waar','Niet waar'];q.a=q.a?0:1;q.cols='two';}
   else if(q.t==='ref'){q.opts=['Fout','Let','Geen fout'];q.a=q.opts.indexOf(q.a);q.q=q.q+' Wat beslis jij?';q.cols='three';q.pre=q.pre||'Jij bent de scheidsrechter';}
   else if(q.t==='mc'){const sh=shuffle(q.opts.map((o,i)=>i));q.opts=sh.map(i=>q.opts[i]);if(q.pics)q.pics=sh.map(i=>q.pics[i]);q.a=sh.indexOf(q.a);}
+  if(q.art&&q.art.net&&/^dop/.test(q.art.net)) q.artQ={net:q.art.net,hide:true};
   else if(q.t==='punt'){const d=PUNT[q.k];q.q=d[0]+' Wie krijgt het punt?';q.opts=['Blauw','Oranje'];q.a=q.opts.indexOf(d[1]);q.why=d[2];q.cols='two';q.colored=true;q.art={scene:{k:q.k}};}
   else if(q.t==='inout') prepInout(q);
   else if(q.t==='vak'){
@@ -1535,6 +1550,7 @@ function svgPoint(svg,e){
   return [p.x/s+(+svg.dataset.xmin), p.y/s+(+svg.dataset.ymin)];
 }
 function optLabel(q,o,i){
+  if(q.pics&&q.pics[i]&&q.pics[i].txt) return `<span class="onum">${o}</span>`;
   if(q.pics&&q.pics[i]) return `<span class="opic">${picArt(q.pics[i])}</span><span>${o}</span>`;
   if(q.t==='wn') return `${i===0?ic('check',20):ic('cross',20)} ${o}`;
   return o;
