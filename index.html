@@ -549,8 +549,9 @@ const ic=(n,w)=>I[n].replace('<svg',`<svg width="${w||22}" height="${w||22}"`);
    ========================================================= */
 const KEY='shuttleschool-v1';
 const TRAINER_CODE='luckraeck';
-let S={profiles:{},current:null,voice:'',rate:0.9,auto:true};
+let S={profiles:{},current:null,voice:'',rate:0.9,auto:false};
 try{const raw=localStorage.getItem(KEY); if(raw) S=Object.assign(S,JSON.parse(raw));}catch(e){}
+if(!S.cfg2){S.auto=false;S.cfg2=true;}
 function save(){try{localStorage.setItem(KEY,JSON.stringify(S));}catch(e){}}
 function newProfile(){return {shuttles:0,lessons:{},passed:{},best:{},unlock:1,opfris:{},bak:[],passedAt:{}};}
 function P(){
@@ -1839,7 +1840,7 @@ function resultView(){
     ${c.perfect&&graded?`<div class="resic ${c.kind==='exam'?'pop':''}">${c.kind==='exam'?I.medal:I.shuttle}</div>`:''}
     <div class="label">${esc(c.title)}</div>
     <div class="big">${c.good} / ${c.tot}</div>
-    <p class="say">${msg}</p>
+    <div class="qrow" style="justify-content:center;align-items:center"><button class="speak" id="rsp" aria-label="Lees voor">${I.speaker}</button><p class="say">${msg}</p></div>
     <p class="earn">+${c.earned} shuttles${c.bonus?` <span class="muted">(incl. ${c.bonus} bonus)</span>`:''}</p>
   </div>
   <div class="navcol">
@@ -1851,7 +1852,8 @@ function resultView(){
       ${c.kind!=='bak'?`<button class="btn alt small" id="lv">Niveau ${c.n}</button>`:''}
     </div>
   </div>`;
-  speak(msg+' Je hebt '+c.earned+' shuttles verdiend.',null);
+  const rtxt=msg+' Je hebt '+c.earned+' shuttles verdiend.'; const rsp=document.getElementById('rsp'); if(rsp) rsp.onclick=()=>speak(rtxt,rsp);
+  if(S.auto) speak(rtxt,rsp);
   if(c.kind==='exam'&&c.perfect) celebrate();
   const on=(id,fn)=>{const e=document.getElementById(id); if(e) e.onclick=fn;};
   on('lv',()=>go({view:'level',n:c.n,tab:c.kind==='game'?'spel':'les'}));
@@ -1948,10 +1950,10 @@ function settingsView(){
     <label class="row note"><input type="checkbox" id="allv" ${S.allv?'checked':''}> Toon ook stemmen in andere talen <span class="muted">(die lezen Nederlands met een accent)</span></label>
     <label for="rt" class="note">Snelheid: <span id="rtv">${S.rate.toFixed(2)}</span></label>
     <input type="range" id="rt" min="0.6" max="1.2" step="0.05" value="${S.rate}">
-    <label class="row note"><input type="checkbox" id="au" ${S.auto?'checked':''}> Automatisch voorlezen</label>
+    <label class="row note"><input type="checkbox" id="au" ${S.auto?'checked':''}> Vragen en uitleg automatisch voorlezen</label>
     <label class="row note"><input type="checkbox" id="bg" ${S.big?'checked':''}> Grotere letters</label>
     <div class="row"><label class="row note"><input type="checkbox" id="sps" ${S.nosplash?'':'checked'}> Openingsscherm tonen bij het starten</label><button class="btn alt small" id="spv">Bekijk</button></div>
-    <label class="row note"><input type="checkbox" id="snd" ${S.nosound?'':'checked'}> Kassageluid bij shuttles sparen</label>`;
+    <label class="row note"><input type="checkbox" id="snd" ${S.nosound?'':'checked'}> Appgeluiden (kassageluid bij shuttles sparen)</label>`;
   if(tab==='ouders') body=`
     <h3>Voor ouders</h3>
     <p class="small">Shuttle-school leert de spelregels van badminton, stap voor stap, in 5 niveaus. Op elk niveau komen dezelfde 8 onderwerpen terug, steeds een beetje dieper.</p>
