@@ -5,7 +5,15 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#1d1d55">
 <meta name="description" content="Shuttle-school: leer spelenderwijs de spelregels van badminton. Luck Raeck jeugd.">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Shuttle-school">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+<script>if('serviceWorker' in navigator&&location.protocol==='https:'){window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));}</script>
 </head>
 <body>
 <title>Shuttle-school</title>
@@ -337,6 +345,45 @@ body.bigtext .fb{font-size:clamp(18px,2.9vh,24px)}
 .spname{display:flex;align-items:center;gap:10px;width:100%}
 .spname label{flex:none;font-family:var(--display);font-weight:700;font-size:17px}
 .spname input{flex:1;min-width:0;height:44px;box-sizing:border-box;font-family:var(--display);font-weight:600;font-size:18px}
+
+/* 2. rustiger kleur: voortgang in blauw, oranje voor de belangrijkste knop en beloningen */
+.progress i{background:var(--blue)}
+.dots i.on{background:var(--blue)}
+.stop.passed .num{background:var(--orange)}
+/* 6. grotere tikvlakken */
+.back{min-height:48px;padding:4px 8px 4px 0}
+.speak{width:48px;height:48px}
+.hintbtn{width:48px;height:48px}
+.replay{width:44px;height:44px}
+.editbtn{width:40px;height:40px}
+.tab{min-height:44px}
+.chip{min-height:44px}
+/* 4. zachte overgang */
+#app.enter{animation:enter .22s ease-out}
+@keyframes enter{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+/* 3. feest */
+.confetti{position:fixed;inset:0;pointer-events:none;z-index:50;overflow:hidden}
+.confetti span{position:absolute;top:-50px;width:30px;height:30px;animation:fall linear forwards}
+.confetti span svg{width:100%;height:100%}
+@keyframes fall{to{transform:translate(var(--x),110vh) rotate(var(--r))}}
+.resic.pop{animation:pop .7s cubic-bezier(.2,1.6,.4,1)}
+@keyframes pop{from{transform:scale(.2);opacity:0}to{transform:scale(1);opacity:1}}
+/* 7. bevestiging */
+.confirm{position:fixed;inset:0;z-index:40;background:rgba(18,37,68,.55);display:grid;place-items:center;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.confirm-box{background:var(--surface);color:var(--fg);border-radius:22px;padding:22px;max-width:420px;width:100%;display:flex;flex-direction:column;gap:14px;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+/* 8. voortgangsbolletjes */
+.qdots{display:flex;gap:6px;flex-wrap:wrap;flex:none}
+.qdots i{flex:1 1 0;min-width:10px;max-width:40px;height:10px;border-radius:6px;background:var(--line)}
+.qdots i.cur{background:var(--blue);box-shadow:0 0 0 2px var(--blue-soft)}
+.qdots i.ok{background:var(--good)}
+.qdots i.no{background:var(--bad)}
+/* 9. meelezen */
+.snt{border-radius:6px;transition:background .15s,box-shadow .15s}
+.snt.reading{background:var(--orange-soft);box-shadow:0 0 0 3px var(--orange-soft)}
+/* 5. donkere modus: logo en lichte vlakken */
+:root[data-theme="dark"] .hero-card{box-shadow:none}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .hero-card{box-shadow:none}}
+@media (prefers-reduced-motion:reduce){#app.enter,.resic.pop{animation:none}}
 </style>
 
 <header class="bar"><div class="bar-in">
@@ -441,7 +488,30 @@ function speak(text,btn,forced){
   if(btn){speakingBtn=btn; btn.classList.add('on'); u.onend=u.onerror=()=>btn.classList.remove('on');}
   try{synth.speak(u);}catch(e){}
 }
-function hush(){ if(synth) try{synth.cancel();}catch(e){} }
+/* voorlezen per zin, met de zin die gelezen wordt opgelicht */
+function sentSpans(html){
+  const parts=html.replace(/([.!?])\s+(?=[A-ZÀ-Ý0-9<"'(])/g,'$1\u0001').split('\u0001');
+  return parts.map(p=>`<span class="snt">${p}</span>`).join(' ');
+}
+let seqId=0;
+function speakSpans(root,btn,tail){
+  if(!synth||!root) return;
+  const spans=[...root.querySelectorAll('.snt')]; if(!spans.length){speak(root.textContent+(tail?'. '+tail:''),btn);return;}
+  try{synth.cancel();}catch(e){}
+  if(speakingBtn) speakingBtn.classList.remove('on');
+  const id=++seqId; const v=pickVoice();
+  const clear=()=>spans.forEach(x=>x.classList.remove('reading'));
+  if(btn){speakingBtn=btn;btn.classList.add('on');}
+  const items=spans.map(sp=>({t:sp.textContent,el:sp})); if(tail) items.push({t:tail,el:null});
+  let i=0;
+  const next=()=>{ if(id!==seqId) return; clear(); if(i>=items.length){ if(btn) btn.classList.remove('on'); return; }
+    const it=items[i++]; if(it.el) it.el.classList.add('reading');
+    const u=new SpeechSynthesisUtterance(spoken(it.t)); u.lang=v?v.lang:'nl-NL'; if(v) u.voice=v; u.rate=S.rate; u.pitch=1.05;
+    u.onend=next; u.onerror=()=>{clear(); if(btn) btn.classList.remove('on');};
+    try{synth.speak(u);}catch(e){} };
+  next();
+}
+function hush(){ seqId++; document.querySelectorAll('.snt.reading').forEach(x=>x.classList.remove('reading')); if(synth) try{synth.cancel();}catch(e){} }
 
 /* =========================================================
    BAAN (meters; net op y=0; eigen helft onderaan, y>0)
@@ -475,7 +545,7 @@ function court(o){
   if(o.lab) o.lab.forEach(t=>g+=`<g><rect x="${(+X(t[0])-t[2].length*4.6-8).toFixed(1)}" y="${(+Y(t[1])-14).toFixed(1)}" width="${(t[2].length*9.2+16).toFixed(1)}" height="22" rx="11" fill="var(--surface)" opacity=".92"/><text x="${X(t[0])}" y="${(+Y(t[1])+2).toFixed(1)}" text-anchor="middle" font-family="Fredoka,sans-serif" font-weight="700" font-size="14" fill="var(--fg)">${t[2]}</text></g>`);
   if(o.text) o.text.forEach(t=>g+=`<text x="${X(t[0])}" y="${Y(t[1])}" text-anchor="middle" font-family="Fredoka,sans-serif" font-weight="700" font-size="${t[3]||18}" fill="${t[4]||'#fff'}">${t[2]}</text>`);
   if(o.player) o.player.forEach(p=>{g+=`<circle cx="${X(p[0])}" cy="${Y(p[1])}" r="${(s*0.32).toFixed(1)}" fill="${p[2]||'#2b3bd8'}" stroke="#fff" stroke-width="3"/>`;
-    if(p[3]) g+=`<text x="${X(p[0])}" y="${(+Y(p[1])+s*0.32+16).toFixed(1)}" text-anchor="middle" font-family="Fredoka,sans-serif" font-weight="700" font-size="15" fill="#fff" stroke="#123" stroke-width="3" paint-order="stroke">${p[3]}</text>`;
+    if(p[3]) g+=`<text x="${X(p[0])}" y="${(+Y(p[1])+s*0.32+16).toFixed(1)}" text-anchor="middle" font-family="Fredoka,sans-serif" font-weight="700" font-size="15" fill="#fff" stroke="#1d1d55" stroke-width="3" paint-order="stroke">${p[3]}</text>`;
     if(p[4]) g+=`<g transform="translate(${(+X(p[0])+s*0.2).toFixed(1)} ${(+Y(p[1])-s*0.75).toFixed(1)}) scale(.75)">${SHUTTLE_INNER}</g>`;});
   if(o.opp) g+=`<circle cx="${X(o.opp[0])}" cy="${Y(o.opp[1])}" r="${(s*0.34).toFixed(1)}" fill="#f07f1a" stroke="#fff" stroke-width="3"/>`;
   if(o.dot){const [x,y]=o.dot; const tx=+X(x), ty=+Y(y);
@@ -502,8 +572,8 @@ function scene(o){
   g+=`<g opacity=".35">`; for(let i=0;i<8;i++) g+=`<line x1="163" y1="${78+i*9}" x2="177" y2="${78+i*9}" stroke="var(--fg)"/>`; g+=`</g>`;
   g+=kid(70,'#2b3bd8')+kid(270,'#f07f1a');
   g+=`<text x="70" y="182" text-anchor="middle" font-family="Fredoka" font-weight="700" font-size="15" fill="#fff">Blauw</text><text x="270" y="182" text-anchor="middle" font-family="Fredoka" font-weight="700" font-size="15" fill="#fff">Oranje</text>`;
-  const racketL=(x2,y2)=>`<line x1="82" y1="112" x2="${x2}" y2="${y2}" stroke="#123" stroke-width="3"/><ellipse cx="${x2}" cy="${y2}" rx="8" ry="11" fill="none" stroke="#123" stroke-width="3"/>`;
-  const racketR=(x2,y2)=>`<line x1="258" y1="112" x2="${x2}" y2="${y2}" stroke="#123" stroke-width="3"/><ellipse cx="${x2}" cy="${y2}" rx="8" ry="11" fill="none" stroke="#123" stroke-width="3"/>`;
+  const racketL=(x2,y2)=>`<line x1="82" y1="112" x2="${x2}" y2="${y2}" stroke="#1d1d55" stroke-width="3"/><ellipse cx="${x2}" cy="${y2}" rx="8" ry="11" fill="none" stroke="#1d1d55" stroke-width="3"/>`;
+  const racketR=(x2,y2)=>`<line x1="258" y1="112" x2="${x2}" y2="${y2}" stroke="#1d1d55" stroke-width="3"/><ellipse cx="${x2}" cy="${y2}" rx="8" ry="11" fill="none" stroke="#1d1d55" stroke-width="3"/>`;
   const k=o.k;
   /* vlucht: van (sx,sy) via controlepunt naar (ex,ey); eindhoek er (null = vlieghoek) */
   /* vlucht in één of meer delen: [sx,sy,cx,cy,ex,ey] per deel; eindhoek er (null = vlieghoek) */
@@ -514,7 +584,7 @@ function scene(o){
       `<g class="flight" data-p="${segs.map(q=>q.join(',')).join(';')}" data-er="${er==null?'':er}" transform="translate(${L[4]} ${L[5]}) rotate(${fa.toFixed(1)}) scale(1.3) translate(-16 -16)">${SHUTTLE_INNER}</g>`;};
   const flight=(sx,sy,cx,cy,ex,ey,er,col)=>flightN([[sx,sy,cx,cy,ex,ey]],er,col);
   /* racket dat naar een plek beweegt (bijv. tegen het net) */
-  const rkMove=(px,py,fx,fy,tx,ty)=>`<g class="rk" data-p="${[px,py,fx,fy,tx,ty].join(',')}"><line x1="${px}" y1="${py}" x2="${tx}" y2="${ty}" stroke="#123" stroke-width="3"/><ellipse cx="${tx}" cy="${ty}" rx="8" ry="11" fill="none" stroke="#123" stroke-width="3"/></g>`;
+  const rkMove=(px,py,fx,fy,tx,ty)=>`<g class="rk" data-p="${[px,py,fx,fy,tx,ty].join(',')}"><line x1="${px}" y1="${py}" x2="${tx}" y2="${ty}" stroke="#1d1d55" stroke-width="3"/><ellipse cx="${tx}" cy="${ty}" rx="8" ry="11" fill="none" stroke="#1d1d55" stroke-width="3"/></g>`;
   const endMark=(x,y)=>`<circle class="endonly" cx="${x}" cy="${y}" r="14" fill="none" stroke="#c23b2b" stroke-width="3"/>`;
   const RL=racketL(96,96), RR=racketR(240,92), LY=80.7;
   if(k==='groundL') g+=RL+RR+flight(240,92,170,0,120,151.5,LY);
@@ -533,8 +603,8 @@ function scene(o){
   if(k==='svchoog'||k==='svcgoed'||k==='svcvoet'){
     const bad=k!=='svcgoed';
     g+=`<line x1="20" y1="108" x2="160" y2="108" stroke="#f07f1a" stroke-width="2.5" stroke-dasharray="7 5"/><text x="24" y="102" font-family="Fredoka" font-weight="700" font-size="13" fill="var(--fg)">1,15 m</text>`;
-    if(k==='svchoog') g+=`<g><animateTransform attributeName="transform" type="rotate" values="70 82 112;0 82 112;70 82 112" dur="1.8s" repeatCount="1" fill="freeze"/><line x1="82" y1="112" x2="104" y2="76" stroke="#123" stroke-width="3"/><ellipse cx="104" cy="76" rx="8" ry="11" fill="none" stroke="#123" stroke-width="3"/></g>`+sh(114,72,0,1)+`<text x="250" y="40" text-anchor="middle" font-family="Fredoka" font-weight="700" font-size="18" fill="#c23b2b">te hoog: fout</text>`;
-    if(k==='svcgoed') g+=`<g><animateTransform attributeName="transform" type="rotate" values="-60 82 112;0 82 112;-60 82 112" dur="1.8s" repeatCount="1" fill="freeze"/><line x1="82" y1="112" x2="98" y2="132" stroke="#123" stroke-width="3"/><ellipse cx="98" cy="132" rx="8" ry="11" fill="none" stroke="#123" stroke-width="3"/></g><g><animateMotion dur="1.8s" repeatCount="1" fill="freeze" keyPoints="0;0;1" keyTimes="0;0.5;1" calcMode="linear" rotate="auto" path="M108 124 Q198 -6 298 146"/><g transform="rotate(-90) translate(-16 -22.5)">${SHUTTLE_INNER}</g></g><text x="250" y="40" text-anchor="middle" font-family="Fredoka" font-weight="700" font-size="18" fill="var(--good)">onder 1,15 m: goed</text>`;
+    if(k==='svchoog') g+=`<g><animateTransform attributeName="transform" type="rotate" values="70 82 112;0 82 112;70 82 112" dur="1.8s" repeatCount="1" fill="freeze"/><line x1="82" y1="112" x2="104" y2="76" stroke="#1d1d55" stroke-width="3"/><ellipse cx="104" cy="76" rx="8" ry="11" fill="none" stroke="#1d1d55" stroke-width="3"/></g>`+sh(114,72,0,1)+`<text x="250" y="40" text-anchor="middle" font-family="Fredoka" font-weight="700" font-size="18" fill="#c23b2b">te hoog: fout</text>`;
+    if(k==='svcgoed') g+=`<g><animateTransform attributeName="transform" type="rotate" values="-60 82 112;0 82 112;-60 82 112" dur="1.8s" repeatCount="1" fill="freeze"/><line x1="82" y1="112" x2="98" y2="132" stroke="#1d1d55" stroke-width="3"/><ellipse cx="98" cy="132" rx="8" ry="11" fill="none" stroke="#1d1d55" stroke-width="3"/></g><g><animateMotion dur="1.8s" repeatCount="1" fill="freeze" keyPoints="0;0;1" keyTimes="0;0.5;1" calcMode="linear" rotate="auto" path="M108 124 Q198 -6 298 146"/><g transform="rotate(-90) translate(-16 -22.5)">${SHUTTLE_INNER}</g></g><text x="250" y="40" text-anchor="middle" font-family="Fredoka" font-weight="700" font-size="18" fill="var(--good)">onder 1,15 m: goed</text>`;
     if(k==='svcvoet') g+=racketL(98,128)+sh(108,122,0,1)+`<rect x="72" y="140" width="7" height="18" rx="3" fill="#c23b2b"><animate attributeName="x" values="72;90" dur="1.2s" repeatCount="1" fill="freeze"/></rect><text x="250" y="40" text-anchor="middle" font-family="Fredoka" font-weight="700" font-size="18" fill="#c23b2b">voet schuift: fout</text>`;
   }
   if(k==='serve') g+=racketL(98,128)+racketR(240,92)+flight(112,120,195,0,290,151.5,-80.7);
@@ -1273,7 +1343,7 @@ function bakDue(){return P().bak.filter(b=>b.due<=Date.now());}
 let cur={view:'home'}; let timerH=null; let trainerOk=false;
 const app=document.getElementById('app');
 function stopTimer(){if(timerH){clearInterval(timerH);timerH=null;}}
-function go(v){hush();stopTimer();cur=v;render();app.scrollTop=0;}
+function go(v){hush();stopTimer();cur=v;render();app.scrollTop=0; app.classList.remove('enter'); void app.offsetWidth; app.classList.add('enter');}
 document.getElementById('home-btn').onclick=()=>go({view:'home'});
 document.getElementById('set-btn').onclick=()=>go({view:'settings',tab:'algemeen'});
 function render(){
@@ -1368,16 +1438,16 @@ function lessonView(){
   <div class="ltitle"><span class="tic">${I[TOPICS[le.topic].icon]}</span><h2>${le.title}</h2></div>
   <div class="stage lesson-stage">
     <div class="art" id="art">${art(sl.art)}</div>
-    <div class="qrow"><button class="speak" id="sp" aria-label="Lees voor">${I.speaker}</button><p class="say">${sl.say}</p></div>
+    <div class="qrow"><button class="speak" id="sp" aria-label="Lees voor">${I.speaker}</button><p class="say" id="say">${sentSpans(sl.say)}</p></div>
   </div>
   ${last&&!testOpen?`<p class="note">De toets van deze les gaat open als je de lessen ervoor hebt gedaan.</p>`:''}
   <div class="navrow">
     ${i>0?`<button class="btn alt" id="pv">${I.back} Terug</button>`:'<span></span>'}
     <button class="btn ${last?'go':''}" id="nx" ${last&&!testOpen?'disabled':''}>${last?'Naar de toets':'Verder'} ${I.next}</button>
   </div>`;
-  const sp=document.getElementById('sp'); sp.onclick=()=>speak(sl.say,sp);
+  const sp=document.getElementById('sp'), sayEl=document.getElementById('say'); sp.onclick=()=>speakSpans(sayEl,sp);
   landAnim();
-  if(S.auto) speak(sl.say,sp);
+  if(S.auto) speakSpans(sayEl,sp);
   document.getElementById('bk').onclick=()=>go({view:'level',n,tab:'les'});
   if(i>0) document.getElementById('pv').onclick=()=>go({view:'lesson',n,li,i:i-1});
   document.getElementById('nx').onclick=()=>{ if(last) startQuiz({n,title:le.title,kind:'lesson',li,src:()=>le.quiz}); else go({view:'lesson',n,li,i:i+1}); };
@@ -1411,9 +1481,9 @@ function quizView(){
   const cols=q.pics?'pics':(q.cols||(q.opts&&q.opts.length===4?'four':''));
   app.innerHTML=`
   <div class="topline"><button class="back" id="bk">${I.back} Stoppen</button><span class="label">${esc(c.title)} · ${c.k+1}/${c.qs.length}</span></div>
-  <div class="progress"><i style="width:${(c.k)/c.qs.length*100}%"></i></div>
+  <div class="qdots" aria-label="Voortgang: vraag ${c.k+1} van ${c.qs.length}">${c.qs.map((_,i)=>`<i class="${c.res&&c.res[i]===true?'ok':c.res&&c.res[i]===false?'no':i===c.k?'cur':''}"></i>`).join('')}</div>
   <div class="stage">
-    <div class="qrow"><button class="speak" id="sp" aria-label="Lees de vraag voor">${I.speaker}</button><p class="say">${q.pre?`<span class="label" style="display:block">${q.pre}</span>`:''}${q.q}</p>${H?`<button class="hintbtn" id="hb" aria-label="Hint bekijken" title="Hint">${I.bulb}</button>`:''}</div>
+    <div class="qrow"><button class="speak" id="sp" aria-label="Lees de vraag voor">${I.speaker}</button><p class="say">${q.pre?`<span class="label" style="display:block">${q.pre}</span>`:''}<span id="qtext">${sentSpans(q.q)}</span></p>${H?`<button class="hintbtn" id="hb" aria-label="Hint bekijken" title="Hint">${I.bulb}</button>`:''}</div>
     ${artHtml?`<div class="art" id="art">${artHtml}</div>`:''}
     ${H?`<div class="hintpanel" id="hp" hidden><div class="hph"><span class="hlab">${I.bulb} Hint</span><button class="btn alt small" id="hpx">Terug naar de vraag</button></div>${H.art?`<div class="art hart">${art(H.art)}</div>`:''}<div class="qrow"><button class="speak" id="hsp" aria-label="Lees de hint voor">${I.speaker}</button><p class="say">${H.text}</p></div></div>`:''}
     ${q.tap&&ans==null?`<p class="hint">Tik op de baan</p>`:''}
@@ -1423,15 +1493,27 @@ function quizView(){
     ${ans!=null?`<div class="fb ${ok?'good':'bad'}" role="status"><span style="color:${ok?'var(--good)':'var(--bad)'}">${ic(ok?'check':'cross',22)}</span><div class="fbt"><b>${ans===-1?'Te laat!':ok?pick(['Goed zo!','Top!','Helemaal goed!','Knap!']):'Bijna!'}</b> ${q.tap?q.result[1]:q.why}</div><button class="btn go small" id="nx">${c.k===c.qs.length-1?'Klaar':'Verder'} ${I.next}</button></div>`:''}
   </div>`;
   const sp=document.getElementById('sp');
-  sp.onclick=()=>speak(ans!=null?(q.tap?q.result[1]:q.why):readOut(q),sp);
-  document.getElementById('bk').onclick=()=>go(c.kind==='bak'?{view:'home'}:{view:'level',n:c.n,tab:c.kind==='game'?'spel':'les'});
+  const optTail=q.opts&&(q.t==='mc'||q.t==='score'||q.t==='dub')?q.opts.join('? ')+'?':'';
+  const readQ=()=>speakSpans(document.getElementById('qtext'),sp,optTail);
+  sp.onclick=()=>{ if(ans!=null) speak(q.tap?q.result[1]:q.why,sp); else readQ(); };
+  const leave=()=>go(c.kind==='bak'?{view:'home'}:{view:'level',n:c.n,tab:c.kind==='game'?'spel':'les'});
+  document.getElementById('bk').onclick=()=>{
+    if(c.k===0&&c.answered==null){leave();return;}
+    hush(); stopTimer();
+    const ov=document.createElement('div'); ov.className='confirm'; ov.setAttribute('role','dialog'); ov.setAttribute('aria-modal','true');
+    ov.innerHTML=`<div class="confirm-box"><h2>Wil je echt stoppen?</h2><p class="say">Wat je in deze ${c.kind==='game'?'ronde':'toets'} hebt gedaan, gaat dan verloren. Je shuttles houd je.</p><div class="navrow"><button class="btn alt" id="cfstop">Stoppen</button><button class="btn go" id="cfgo">Doorgaan</button></div></div>`;
+    app.appendChild(ov);
+    document.getElementById('cfgo').onclick=()=>{ov.remove(); if(q.timer&&c.answered==null) startTimer(q.timer);};
+    document.getElementById('cfstop').onclick=leave;
+    document.getElementById('cfgo').focus();
+  };
   app.querySelectorAll('.opt').forEach(b=>b.onclick=()=>answer(+b.dataset.i,b));
   if(H){const hp=document.getElementById('hp'), hsp=document.getElementById('hsp');
     document.getElementById('hb').onclick=()=>{hp.hidden=false; if(S.auto) speak(H.text,hsp);};
     document.getElementById('hpx').onclick=()=>{hp.hidden=true; hush();};
     hsp.onclick=()=>speak(H.text,hsp);}
   if(ans==null){
-    if(S.auto&&!(q.timer&&q.t==='inout'&&c.k>0)) speak(readOut(q),sp);
+    if(S.auto&&!(q.timer&&q.t==='inout'&&c.k>0)) readQ();
     if(isVak){const a=document.getElementById('art');a.querySelector('.tapL').onclick=e=>answer(0,e.target);a.querySelector('.tapR').onclick=e=>answer(1,e.target);}
     if(q.tap){const svg=document.querySelector('#art svg'); svg.style.cursor='crosshair'; svg.addEventListener('click',e=>{
       const [mx,my]=svgPoint(svg,e);
@@ -1506,7 +1588,7 @@ function startTimer(sec){
 function answer(i,el){
   const c=cur, q=c.qs[c.k]; if(c.answered!=null) return;
   stopTimer();
-  c.answered=i; const ok=q.tap?q.result[0]:i===q.a;
+  c.answered=i; const ok=q.tap?q.result[0]:i===q.a; if(!c.res) c.res=[]; c.res[c.k]=ok;
   if(ok){c.good++;c.streak++;let gain=1;if(c.streak%3===0)gain++;c.earned+=gain;award(gain,el);}
   else {c.streak=0;c.missed.push({q:questionText(q).replace(/<[^>]+>/g,''),a:q.tap?'':q.opts[q.a],why:q.tap?q.result[1]:q.why});}
   if(q.raw&&!q.sim){
@@ -1534,6 +1616,14 @@ function finish(){
   go({view:'result',n:c.n,title:c.title,kind:c.kind,li:c.li,gid:c.gid,src:c.src,good:c.good,tot:c.qs.length,earned:c.earned+bonus,bonus,perfect,missed:c.missed});
 }
 function bestStr(prev,good,tot){const pg=typeof prev==='string'?parseInt(prev):(prev||0);return Math.max(pg||0,good)+'/'+tot;}
+function celebrate(){
+  if(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const box=document.createElement('div'); box.className='confetti'; box.setAttribute('aria-hidden','true');
+  for(let i=0;i<26;i++){const d=document.createElement('span'); d.innerHTML=I.shuttle;
+    d.style.left=(Math.random()*100)+'%'; d.style.animationDelay=(Math.random()*0.9).toFixed(2)+'s'; d.style.animationDuration=(1.8+Math.random()*1.4).toFixed(2)+'s';
+    d.style.setProperty('--r',(Math.random()*720-360).toFixed(0)+'deg'); d.style.setProperty('--x',(Math.random()*80-40).toFixed(0)+'px'); box.appendChild(d);}
+  document.body.appendChild(box); setTimeout(()=>box.remove(),3800);
+}
 function resultView(){
   const c=cur; const graded=c.kind==='lesson'||c.kind==='exam'||c.kind==='opfris';
   let msg;
@@ -1552,7 +1642,7 @@ function resultView(){
     :graded&&!c.perfect?['again','Toets opnieuw']:['again','Nog een keer'];
   app.innerHTML=`
   <div class="stage center">
-    ${c.perfect&&graded?`<div class="resic">${c.kind==='exam'?I.medal:I.shuttle}</div>`:''}
+    ${c.perfect&&graded?`<div class="resic ${c.kind==='exam'?'pop':''}">${c.kind==='exam'?I.medal:I.shuttle}</div>`:''}
     <div class="label">${esc(c.title)}</div>
     <div class="big">${c.good} / ${c.tot}</div>
     <p class="say">${msg}</p>
@@ -1568,6 +1658,7 @@ function resultView(){
     </div>
   </div>`;
   speak(msg+' Je hebt '+c.earned+' shuttles verdiend.',null);
+  if(c.kind==='exam'&&c.perfect) celebrate();
   const on=(id,fn)=>{const e=document.getElementById(id); if(e) e.onclick=fn;};
   on('lv',()=>go({view:'level',n:c.n,tab:c.kind==='game'?'spel':'les'}));
   on('again',()=>startQuiz({n:c.n,title:c.title,kind:c.kind,li:c.li,gid:c.gid,src:c.src}));
@@ -1671,6 +1762,7 @@ function settingsView(){
     <p class="small">Shuttle-school leert de spelregels van badminton, stap voor stap, in 5 niveaus. Op elk niveau komen dezelfde 8 onderwerpen terug, steeds een beetje dieper.</p>
     <p class="small"><b>Foutloos = verder.</b> Een les gaat pas open als de toets van de vorige les helemaal goed is. Zo blijft niets half hangen. Fout? Dan ziet je kind wat er misging en probeert het opnieuw.</p>
     <p class="small"><b>Hulp:</b> alles wordt voorgelezen, en het gloeilampje geeft een hint zonder het antwoord te verklappen. Foute vragen komen later terug in de foutenbak.</p>
+    <p class="small"><b>Als app op je telefoon of tablet:</b> open de Shuttle-school in Safari (iPhone/iPad) of Chrome (Android). Kies <b>Deel › Zet op beginscherm</b> of <b>⋮ › App installeren</b>. Daarna start je de app met het shuttle-icoon, ook zonder internet.</p>
     <p class="small"><b>Gegevens:</b> voortgang en shuttles staan alleen op dit apparaat, per voornaam. Er gaat niets naar de club of naar internet.</p>`;
   if(tab==='trainer'){
     if(!trainerOk) body=`<form class="row" id="tf"><label for="tc" class="note">Trainerscode</label><input type="password" id="tc" autocomplete="off" style="width:150px"><button class="btn alt small" type="submit">Open</button></form><p class="note" id="tmsg" role="status"></p>`;
