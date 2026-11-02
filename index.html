@@ -480,6 +480,10 @@ body.onsplash{background:#1d1d55 radial-gradient(130% 85% at 30% 18%,#3a48e0 0%,
 .splash2 .sprow,.splash2 .sprow label,.splash2 .linkbtn{color:#e6eaff}
 .splash2 .copy{color:#aab4e8}
 @media (prefers-reduced-motion: reduce){.sp-fly{display:none}}
+
+.sp-lock svg{max-height:36vh}
+.sp-catch{max-width:none;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:clamp(15px,min(2.4vh,4.7vw),21px)}
+.sp-catch>*{white-space:nowrap}
 </style>
 
 <header class="bar"><div class="bar-in">
@@ -2145,8 +2149,17 @@ function choosePlayer(raw){
   if(fresh){S.profiles[v]=cp;delete S.profiles[S.current];} else S.profiles[v]=newProfile();
   S.current=v; save();
 }
+function fitLockup(){
+  const svg=document.getElementById('splock'); if(!svg) return;
+  const ss=svg.querySelector('#sp-ss'), tg=svg.querySelector('#sp-tg'), X=79, T=680;
+  const fit=(el,fs)=>{try{el.setAttribute('x',X);el.setAttribute('font-size',fs);let bb=el.getBBox();if(!bb.width)return fs;fs=fs*T/bb.width;el.setAttribute('font-size',fs.toFixed(2));bb=el.getBBox();el.setAttribute('x',(X+(X-bb.x)).toFixed(2));}catch(e){}return fs;};
+  const a=fit(ss,118), b=fit(tg,46);
+  const y1=336+24+a*.72; ss.setAttribute('y',y1.toFixed(1));
+  const y2=y1+a*.22+b*1.0; tg.setAttribute('y',y2.toFixed(1));
+  svg.setAttribute('viewBox','0 0 838 '+Math.ceil(y2+b*.3));
+}
 function splashView(){
-  const arc='M70 830 Q150 520 430 470';
+  const arc='M60 840 Q140 560 345 468';
   const bg=`<svg class="sp-bg" viewBox="0 0 400 800" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
     <g transform="translate(250 380) rotate(28) scale(.8)" opacity=".12"><g fill="none" stroke="#fff" stroke-width="4"><rect x="0" y="0" width="305" height="670"/><path d="M23 0V670M282 0V670M0 38H305M0 632H305M0 236.0H305M0 434.0H305M152.5 0V236.0M152.5 434.0V670"/><path d="M-30 335.0H335" stroke-width="7" stroke-dasharray="3 5"/></g></g>
     <path d="${arc}" fill="none" stroke="#ffb06a" stroke-width="3" stroke-dasharray="9 11" stroke-linecap="round" opacity=".55"/>
@@ -2156,10 +2169,9 @@ function splashView(){
   <div class="splash2">
     ${bg}
     <div class="sp-lock">
-      <svg viewBox="0 0 760 470" role="img" aria-label="Luck Raeck, badmintonvereniging Montfoort. Shuttle-school"><image href="${LOGO_W}" x="0" y="0" width="760" height="336"/><text x="74" y="452" textLength="672" lengthAdjust="spacingAndGlyphs" font-family="Fredoka, 'Baloo 2', 'Trebuchet MS', sans-serif" font-weight="700" font-size="128" fill="#ff9a3d">Shuttle-school</text></svg>
-      <p class="sp-tag">Word de baas over de spelregels!</p>
+      <svg id="splock" viewBox="0 0 838 520" role="img" aria-label="Luck Raeck, badmintonvereniging Montfoort. Shuttle-school. Word de baas over de spelregels!"><image href="${LOGO_W}" x="0" y="0" width="760" height="336"/><text id="sp-ss" x="79" y="446" font-family="Fredoka, 'Baloo 2', 'Trebuchet MS', sans-serif" font-weight="700" font-size="118" fill="#ff9a3d">Shuttle-school</text><text id="sp-tg" x="79" y="510" font-family="Fredoka, 'Baloo 2', 'Trebuchet MS', sans-serif" font-weight="600" font-size="46" fill="#ffffff">Word de baas over de spelregels!</text></svg>
     </div>
-    <p class="sp-catch">Met Shuttle-school maak je <strong>spelenderwijs</strong> en <strong>stapje voor stapje</strong> kennis met de badmintonsport!</p>
+    <p class="sp-catch"><span>Met Shuttle-school maak je</span><strong>spelenderwijs en stapje voor stapje</strong><span>kennis met de badmintonsport!</span></p>
     <div class="spbot">
       <form class="spname" id="spform"><label for="spn">Hoe heet je?</label><input type="text" id="spn" maxlength="20" value="${S.current&&S.current!=='Speler'?esc(S.current):''}" placeholder="Je voornaam" autocomplete="off"></form>
       <button class="bigbtn start pulse" id="start"><span class="bb1">Start</span>${I.play}</button>
@@ -2167,6 +2179,7 @@ function splashView(){
       <p class="copy">© BV LUCK RAECK</p>
     </div>
   </div>`;
+  fitLockup(); if(document.fonts){document.fonts.load('700 100px Fredoka').then(fitLockup).catch(()=>{}); document.fonts.ready.then(fitLockup); document.fonts.onloadingdone=()=>fitLockup();}
   const startNow=()=>{hush(); choosePlayer(document.getElementById('spn').value); if(!openFromHash()) go({view:'home'});};
   document.getElementById('start').onclick=startNow;
   document.getElementById('spform').onsubmit=e=>{e.preventDefault(); startNow();};
