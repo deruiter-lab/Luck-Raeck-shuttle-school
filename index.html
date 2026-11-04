@@ -38,7 +38,7 @@
 :root{
   --bg:#eef3fb; --surface:#ffffff; --fg:#122544; --muted:#5a6b88;
   --blue:#2b3bd8; --blue-soft:#dbe6f8; --orange:#f07f1a; --orange-soft:#fde8d4;
-  --court:#2f7d5b; --court-line:#ffffff; --good:#1f8a4c; --good-soft:#d9f2e3; --bad:#c23b2b; --bad-soft:#fbe1dd;
+  --court:#2f7d5b; --court-line:#3f8cff; --good:#1f8a4c; --good-soft:#d9f2e3; --bad:#c23b2b; --bad-soft:#fbe1dd;
   --line:#cfdaec; --lock:#9aa8c0; --on-accent:#ffffff;
   --display:"Fredoka","Baloo 2","Trebuchet MS",system-ui,sans-serif;
   --body:"Atkinson Hyperlegible",Verdana,system-ui,sans-serif;
@@ -46,12 +46,12 @@
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
   --bg:#0c1730; --surface:#14244a; --fg:#eaf0fb; --muted:#9fb0cf;
   --blue:#9aa4ff; --blue-soft:#1e3463; --orange:#ff9a3d; --orange-soft:#4a2e14;
-  --court:#256b4d; --court-line:#f4f7fb; --good:#5fd08f; --good-soft:#173d2a; --bad:#ff7b6b; --bad-soft:#4a1f1a;
+  --court:#256b4d; --court-line:#4a95ff; --good:#5fd08f; --good-soft:#173d2a; --bad:#ff7b6b; --bad-soft:#4a1f1a;
   --line:#2a3e6b; --lock:#5b6d93; --on-accent:#0c1730; --picbg:#e8eefb; color-scheme:dark }}
 :root[data-theme="dark"]{
   --bg:#0c1730; --surface:#14244a; --fg:#eaf0fb; --muted:#9fb0cf;
   --blue:#9aa4ff; --blue-soft:#1e3463; --orange:#ff9a3d; --orange-soft:#4a2e14;
-  --court:#256b4d; --court-line:#f4f7fb; --good:#5fd08f; --good-soft:#173d2a; --bad:#ff7b6b; --bad-soft:#4a1f1a;
+  --court:#256b4d; --court-line:#4a95ff; --good:#5fd08f; --good-soft:#173d2a; --bad:#ff7b6b; --bad-soft:#4a1f1a;
   --line:#2a3e6b; --lock:#5b6d93; --on-accent:#0c1730; --picbg:#e8eefb; color-scheme:dark }
 *{box-sizing:border-box}
 body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:17px;line-height:1.5}
@@ -796,7 +796,7 @@ function scene(o){
   const sh=(x,y,r,sc)=>`<g transform="translate(${x} ${y}) rotate(${r}) scale(${sc||1.3}) translate(-16 -16)">${SHUTTLE_INNER}</g>`;
   const kid=(x,c,flip)=>`<g><circle cx="${x}" cy="88" r="13" fill="${c}"/><rect x="${x-13}" y="104" width="26" height="40" rx="10" fill="${c}"/><rect x="${x-9}" y="140" width="7" height="18" rx="3" fill="${c}"/><rect x="${x+2}" y="140" width="7" height="18" rx="3" fill="${c}"/></g>`;
   let g=`<svg viewBox="0 0 340 190" width="340" height="190" role="img" aria-label="Twee spelers aan weerszijden van het net"><rect width="340" height="190" rx="14" fill="var(--blue-soft)"/>`;
-  g+=`<rect x="0" y="158" width="340" height="32" fill="var(--court)"/><rect x="40" y="158" width="4" height="7" fill="#fff"/><rect x="296" y="158" width="4" height="7" fill="#fff"/>`;
+  g+=`<rect x="0" y="158" width="340" height="32" fill="var(--court)"/><rect x="40" y="158" width="4" height="7" fill="var(--court-line)"/><rect x="296" y="158" width="4" height="7" fill="var(--court-line)"/>`;
   g+=`<rect x="167" y="70" width="6" height="88" fill="var(--fg)"/><rect x="160" y="68" width="20" height="6" rx="2" fill="#fff" stroke="var(--fg)"/>`;
   g+=`<g opacity=".35">`; for(let i=0;i<8;i++) g+=`<line x1="163" y1="${78+i*9}" x2="177" y2="${78+i*9}" stroke="var(--fg)"/>`; g+=`</g>`;
   g+=kid(70,'#2b3bd8')+kid(270,'#f07f1a');
@@ -872,7 +872,7 @@ function netArt(kind,hide){
     /* links: de hele baan klein, met een kadertje op de plek; rechts: dat stukje vergroot */
     const mx=14,my=26,ms=9.6, mX=m=>(mx+m*ms).toFixed(1), mY=m=>(my+m*ms).toFixed(1);
     let mini=`<rect x="${mX(0)}" y="${mY(0)}" width="${(6.1*ms).toFixed(1)}" height="${(13.4*ms).toFixed(1)}" fill="var(--court)"/>`;
-    const ml=(a,b,c,d)=>`<line x1="${mX(a)}" y1="${mY(b)}" x2="${mX(c)}" y2="${mY(d)}" stroke="#fff" stroke-width="1.4"/>`;
+    const ml=(a,b,c,d)=>`<line x1="${mX(a)}" y1="${mY(b)}" x2="${mX(c)}" y2="${mY(d)}" stroke="var(--court-line)" stroke-width="1.4"/>`;
     [0,.46,5.64,6.1].forEach(x=>mini+=ml(x,0,x,13.4)); [0,.76,4.72,8.68,12.64,13.4].forEach(y=>mini+=ml(0,y,6.1,y)); mini+=ml(3.05,0,3.05,4.72)+ml(3.05,8.68,3.05,13.4);
     mini+=`<line x1="${mX(-.3)}" y1="${mY(6.7)}" x2="${mX(6.4)}" y2="${mY(6.7)}" stroke="var(--fg)" stroke-width="3"/>`;
     const fx=+mX(5.64)-9, fy=+mY(10.2)-9;
@@ -881,7 +881,7 @@ function netArt(kind,hide){
     const link=`<path d="M${fx+18} ${fy} L${px} ${py} M${fx+18} ${fy+18} L${px} ${py+ph}" stroke="#f07f1a" stroke-width="2" stroke-dasharray="4 4" fill="none"/>`;
     g=`<svg viewBox="0 0 420 ${hide?178:200}" width="420" height="${hide?178:200}" role="img" aria-label="Links de hele baan, rechts een stukje zijlijn vergroot met een shuttle erop"><rect width="420" height="${hide?178:200}" rx="14" fill="var(--blue-soft)"/>`
      +mini+link
-     +`<rect x="${px}" y="${py}" width="${pw}" height="${ph}" fill="var(--court)" opacity=".55"/><rect x="${px}" y="${py}" width="120" height="${ph}" fill="var(--court)"/><rect x="${px+120}" y="${py}" width="16" height="${ph}" fill="#fff"/>`
+     +`<rect x="${px}" y="${py}" width="${pw}" height="${ph}" fill="var(--court)" opacity=".55"/><rect x="${px}" y="${py}" width="120" height="${ph}" fill="var(--court)"/><rect x="${px+120}" y="${py}" width="16" height="${ph}" fill="var(--court-line)"/>`
      +`<rect x="${px}" y="${py}" width="${pw}" height="${ph}" fill="none" stroke="#f07f1a" stroke-width="3" rx="3"/>`
      +`<text x="${px+60}" y="17" text-anchor="middle" font-family="Fredoka, sans-serif" font-weight="700" font-size="15" fill="var(--fg)">binnen</text><text x="${px+128}" y="17" text-anchor="middle" font-family="Fredoka, sans-serif" font-weight="700" font-size="15" fill="var(--fg)">lijn</text><text x="${px+200}" y="17" text-anchor="middle" font-family="Fredoka, sans-serif" font-weight="700" font-size="15" fill="var(--fg)">buiten</text>`
      +`<g transform="translate(${cx} 92) rotate(${inn?90:-90}) scale(2.3) translate(-16 -22.5)">${SHUTTLE_INNER}</g>`
@@ -960,7 +960,7 @@ const LEVELS=[
    {t:'wn',q:'Je kunt alleen een punt krijgen als de shuttle bij de ander op de grond valt.',a:false,why:'Ook als de ander een fout maakt, zoals in het net slaan of uit slaan, krijg jij het punt.'}],
   'Denk aan wat je wilt bereiken: waar moet de shuttle terechtkomen om een punt te krijgen? En wat gebeurt er als de ander een fout maakt?'),
  L_('lijnen','lijnen-1','Binnen of buiten',[
-  CE('Een badmintonbaan heeft <strong>lijnen</strong>. De shuttle moet <strong>binnen de lijnen</strong> op de grond komen. Welke lijnen precies meetellen, leer je in niveau 2.',{court:{full:true,areas:[FAR_E,{x0:SI,x1:W-SI,y0:0,y1:L}]}}),
+  CE('Een badmintonbaan heeft <strong>lijnen</strong>. De shuttle moet <strong>binnen de lijnen</strong> op de grond komen. Welke lijnen precies meetellen, leer je in niveau 2.',{court:{full:true}}),
   CE('Valt de shuttle <strong>buiten</strong> de lijnen op de grond? Dan is hij <strong>uit</strong>. Wie hem uit sloeg, verliest de rally.',{scene:{k:'outR'}}),
   CE('Valt de shuttle precies <strong>op de lijn</strong>? Dan is hij <strong>in</strong>! De lijn hoort erbij.',{scene:{k:'lineR'}})],
   [{t:'punt',k:'outR'},{t:'punt',k:'lineR'},{t:'punt',k:'outL'},
