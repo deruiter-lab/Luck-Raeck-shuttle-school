@@ -901,6 +901,7 @@ function art(a){
   if(a.net) return netArt(a.net,a.hide);
   if(a.board) return boardArt(a.board);
   if(a.fhbh) return fhbhArt();
+  if(a.shuttles2) return shuttles2Art();
   return '';
 }
 function fhbhArt(){
@@ -915,6 +916,24 @@ function fhbhArt(){
   ${kid(278,'#2b3bd8')}${arm(286,94,244,84)}${rk(244,84,-32)}${sh(208,31,-34)}
   <text x="85" y="176" text-anchor="middle" font-family="Fredoka, sans-serif" font-weight="700" font-size="17" fill="#fff">Forehand</text>
   <text x="255" y="176" text-anchor="middle" font-family="Fredoka, sans-serif" font-weight="700" font-size="17" fill="#fff">Backhand</text>
+  </svg>`;
+}
+function shuttles2Art(){
+  const N='#1d1d55';
+  const cork=x=>`<path d="M${x-14} 140 H${x+14} V146 A14 14 0 0 1 ${x-14} 146 Z" fill="#f07f1a" stroke="${N}" stroke-width="2.4"/>`;
+  let fe='';
+  [-36,-24,-12,0,12,24,36].forEach(d=>{const bx=85+d*.28, tx=85+d;fe+=`<path d="M${bx-2.5} 140 L${tx-6} 50 Q${tx} 36 ${tx+6} 50 L${bx+2.5} 140 Z" fill="#fff" stroke="${N}" stroke-width="1.8" stroke-linejoin="round"/><path d="M${bx} 140 L${tx} 44" stroke="${N}" stroke-width=".8" opacity=".5"/>`;});
+  fe+=`<path d="M64 102 Q85 107 106 102 M70 120 Q85 124 100 120" fill="none" stroke="${N}" stroke-width="1.6"/>`;
+  let lat='';for(let k=-12;k<14;k++){lat+=`M${175+k*9} 52 l60 80 M${255-k*9} 52 l-60 80 `;}
+  return `<svg viewBox="0 0 300 200" width="300" height="200" role="img" aria-label="Links een shuttle met echte veertjes, rechts een nylon shuttle met een rok"><defs><clipPath id="rokclip"><path d="M199 126 L178 52 L252 52 L231 126 Z"/></clipPath></defs>
+  <rect width="300" height="200" rx="14" fill="var(--blue-soft)"/>
+  ${fe}${cork(85)}
+  <path d="M199 140 L175 40 L255 40 L231 140 Z" fill="#fff" stroke="${N}" stroke-width="2.4" stroke-linejoin="round"/>
+  <path d="${lat}" stroke="${N}" stroke-width="1.1" opacity=".55" clip-path="url(#rokclip)"/>
+  <path d="M178 52 H252 M199 126 H231" stroke="${N}" stroke-width="2"/>
+  ${cork(215)}
+  <text x="85" y="188" text-anchor="middle" font-family="Fredoka, sans-serif" font-weight="700" font-size="17" fill="var(--fg)">Veertjes</text>
+  <text x="215" y="188" text-anchor="middle" font-family="Fredoka, sans-serif" font-weight="700" font-size="17" fill="var(--fg)">Nylon: de rok</text>
   </svg>`;
 }
 function boardArt(b){
@@ -969,7 +988,8 @@ const LEVELS=[
   'Kijk waar de shuttle op de grond komt: binnen de lijnen, op de lijn of erbuiten?'),
  L_('service','service-1','Racket, shuttle en service',[
   CE('Pak je racket vast alsof je iemand een <strong>hand</strong> geeft. Niet te hard knijpen.',{icon:'racket'}),
-  CE('Een shuttle heeft een ronde <strong>dop</strong> en <strong>veertjes</strong>. Pak hem voorzichtig vast aan de veertjes, met je vingertoppen. Net als een <strong>vieze sok</strong>!',{icon:'shuttle'}),
+  CE('Een shuttle heeft een ronde <strong>dop</strong> en kan echte <strong>veertjes</strong> hebben of een plastic (eigenlijk <strong>nylon</strong>) deel. Dat deel wordt ook wel de <strong>rok</strong> genoemd. Herken je er een rok in?',{shuttles2:true}),
+  CE('Bij Luck Raeck spelen we met <strong>nylon</strong> shuttles. Pak hem voorzichtig vast aan de rok, met je vingertoppen. Net als een <strong>vieze sok</strong>!',{icon:'sock'}),
   CE('Elke rally begint met de <strong>service</strong>. Je slaat de shuttle <strong>onderhands</strong>: van onder naar boven, over het net.',{scene:{k:'serve'}}),
   CE('Je serveert pas als de ander <strong>klaar</strong> is.',{scene:{k:'serve',zzz:true}})],
   [{t:'mc',q:'Hoe pak je je racket vast?',opts:['Alsof je iemand een hand geeft','Met twee handen heel hard','Aan het blad'],pics:[{icon:'handshake'},{icon:'fist'},{icon:'racket'}],a:0,why:'Je geeft je racket een hand. Rustig vasthouden.'},
