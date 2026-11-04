@@ -852,7 +852,7 @@ function scene(o){
   if(k==='svckort') g+=racketL(98,128)+RR+flight(112,120,158,-52,210,151.5,-LY);
   if(k==='svclang') g+=racketL(98,128)+RR+flight(112,120,200,-70,278,151.5,-LY);
   if(k==='rally')   g+=RL+RR+flightN([[96,96,170,-20,240,92],[240,92,205,36,169,37]],null);
-  if(k==='rallyPunt') g+=RL+RR+flightN([[96,96,170,-26,240,92],[240,92,170,-20,96,96],[96,96,180,-30,222,151.5]],-LY)+`<circle class="endonly" cx="222" cy="151" r="16" fill="none" stroke="#c23b2b" stroke-width="3" stroke-dasharray="5 4"/><g class="endonly"><rect x="14" y="12" width="132" height="30" rx="15" fill="#2b3bd8"/><text x="80" y="32.5" text-anchor="middle" font-family="Fredoka, sans-serif" font-weight="700" font-size="16" fill="#fff">+1 punt voor Blauw</text></g>`;
+  if(k==='rallyPunt') g+=RL+RR+flightN([[96,96,170,-26,240,92],[240,92,170,-20,96,96],[96,96,180,-30,222,151.5]],-LY)+`<circle class="endonly" cx="222" cy="151" r="16" fill="none" stroke="#c23b2b" stroke-width="3" stroke-dasharray="5 4"/><g class="endonly"><rect x="12" y="12" width="168" height="30" rx="15" fill="#2b3bd8"/><text x="96" y="32.5" text-anchor="middle" font-family="Fredoka, sans-serif" font-weight="700" font-size="16" fill="#fff">+1 punt voor Blauw</text></g>`;
   if(k==='svchoog'||k==='svcgoed'||k==='svcvoet'){
     const bad=k!=='svcgoed';
     g+=`<line x1="20" y1="108" x2="160" y2="108" stroke="#f07f1a" stroke-width="2.5" stroke-dasharray="7 5"/><text x="24" y="102" font-family="Fredoka, sans-serif" font-weight="700" font-size="13" fill="var(--fg)">1,15 m</text>`;
