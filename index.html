@@ -488,6 +488,7 @@ body.onsplash{background:#1d1d55 radial-gradient(130% 85% at 30% 18%,#3a48e0 0%,
 .splash2 .spname{flex-direction:column;align-items:center;gap:6px}
 .splash2 .spname label{font-size:clamp(17px,2.6vh,20px)}
 .splash2 .spname input{flex:none;width:min(100%,300px);text-align:center}
+.splash2>.spname{position:relative;z-index:1;width:100%;max-width:420px}
 </style>
 
 <header class="bar"><div class="bar-in">
@@ -2176,8 +2177,8 @@ function splashView(){
       <svg id="splock" viewBox="0 0 838 520" role="img" aria-label="Luck Raeck, badmintonvereniging Montfoort. Shuttle-school. Word de baas over de spelregels!"><image href="${LOGO_W}" x="0" y="0" width="760" height="336"/><text id="sp-ss" x="79" y="446" font-family="Fredoka, 'Baloo 2', 'Trebuchet MS', sans-serif" font-weight="700" font-size="118" fill="#ff9a3d">Shuttle-school</text><text id="sp-tg" x="79" y="510" font-family="Fredoka, 'Baloo 2', 'Trebuchet MS', sans-serif" font-weight="600" font-size="46" fill="#ffffff">Word de baas over de spelregels!</text></svg>
     </div>
     <p class="sp-catch"><span>Met Shuttle-school maak je</span><strong>spelenderwijs en stapje voor stapje</strong><span>kennis met de badmintonsport!</span></p>
+    <form class="spname" id="spform"><label for="spn">Hoe heet je?</label><input type="text" id="spn" maxlength="20" value="${S.current&&S.current!=='Speler'?esc(S.current):''}" placeholder="Je voornaam" autocomplete="off"></form>
     <div class="spbot">
-      <form class="spname" id="spform"><label for="spn">Hoe heet je?</label><input type="text" id="spn" maxlength="20" value="${S.current&&S.current!=='Speler'?esc(S.current):''}" placeholder="Je voornaam" autocomplete="off"></form>
       <button class="bigbtn start pulse" id="start"><span class="bb1">Start</span>${I.play}</button>
       <div class="sprow"><label class="note"><input type="checkbox" id="nosplash" ${S.nosplash?'checked':''}> Dit scherm niet meer tonen</label><button class="linkbtn" id="splay">${I.speaker} Lees voor</button></div>
       <p class="copy">© BV LUCK RAECK</p>
