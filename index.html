@@ -489,10 +489,21 @@ body.onsplash{background:#1d1d55 radial-gradient(130% 85% at 30% 18%,#3a48e0 0%,
 .splash2 .spname label{font-size:clamp(17px,2.6vh,20px)}
 .splash2 .spname input{flex:none;width:min(100%,300px);text-align:center}
 .splash2>.spname{position:relative;z-index:1;width:100%;max-width:420px}
+
+/* testmodus */
+.tpill{display:none;margin-left:8px;vertical-align:1px;line-height:1.3;font-family:var(--body);font-size:11px;font-weight:700;letter-spacing:1.5px;padding:2px 7px;border-radius:999px;background:#f07f1a;color:#fff}
+body.testmode .tpill{display:inline-block}
+.testbox{border:2px dashed var(--orange);border-radius:14px;padding:10px 12px}
+.testbox label{align-items:flex-start;flex-wrap:nowrap;gap:8px}.testbox label>span{flex:1;min-width:0}
+.jump details{border-top:1px solid var(--line);padding:6px 0}
+.jump summary{cursor:pointer;font-family:var(--display);font-weight:600;color:var(--blue)}
+.jl{display:flex;flex-direction:column;gap:6px;margin-top:6px}
+.jr{display:flex;align-items:center;gap:6px}.jr>span{flex:1;min-width:0;font-size:14px}
+.topline #tskip{margin-left:auto;margin-right:8px;white-space:nowrap;padding:6px 10px;font-size:14px;flex:none}.topline #tskip svg{width:14px;height:14px}
 </style>
 
 <header class="bar"><div class="bar-in">
-  <button class="brand" id="home-btn" aria-label="Naar het begin">Shuttle-school<small>Luck Raeck jeugd</small></button>
+  <button class="brand" id="home-btn" aria-label="Naar het begin">Shuttle-school<small>Luck Raeck jeugd<span class="tpill">TEST</span></small></button>
   <span class="hav" id="hav" aria-hidden="true"></span><div class="pot" id="pot" aria-label="Gespaarde shuttles"><span id="potico"></span><span id="potn">0</span></div>
   <button class="iconbtn" id="set-btn" aria-label="Instellingen"></button>
 </div></header>
@@ -673,7 +684,7 @@ function setPhoto(file){
 }
 function avatarFor(nm){const p=S.profiles[nm];if(p&&p.photo){const id='avp'+(++avUid);return `<svg viewBox="0 0 24 24" role="img" aria-label="Foto van ${esc(nm)}"><defs><clipPath id="${id}"><circle cx="12" cy="12" r="12"/></clipPath></defs><image href="${p.photo}" x="0" y="0" width="24" height="24" preserveAspectRatio="xMidYMid slice" clip-path="url(#${id})"/></svg>`;}return avatar(avIndex(nm));}
 function avatar(i){return `<svg viewBox="0 0 24 24" role="img" aria-label="${AVN[i]}" style="color:${AVC[i]}"><circle cx="12" cy="12" r="12" fill="${AVC[i]}"/><g transform="translate(3.6 3.6) scale(.7)">${AVG[i]}</g></svg>`;}
-function setPot(){document.getElementById('potn').textContent=P().shuttles;const h=document.getElementById('hav');if(h)h.innerHTML=avatarFor(S.current);}
+function setPot(){document.body.classList.toggle('testmode',!!S.testmode);document.getElementById('potn').textContent=P().shuttles;const h=document.getElementById('hav');if(h)h.innerHTML=avatarFor(S.current);}
 
 /* =========================================================
    STEM: alleen Nederlandse stemmen, vrouwenstem voorkeur
@@ -1626,11 +1637,11 @@ function prepDub(q){
 /* =========================================================
    VOORTGANG EN SLOTEN
    ========================================================= */
-function opfrisNeeded(n){const p=P();return n>1&&!!p.passed[n-1]&&!p.opfris[n];}
-function levelOpen(n){const p=P();return n===1||!!p.passed[n-1]||p.unlock>=n;}
-function lessonOpen(l,i){return i===0?!opfrisNeeded(l.n):!!P().lessons[l.lessons[i-1].id];}
+function opfrisNeeded(n){if(S.testmode)return false;const p=P();return n>1&&!!p.passed[n-1]&&!p.opfris[n];}
+function levelOpen(n){if(S.testmode)return true;const p=P();return n===1||!!p.passed[n-1]||p.unlock>=n;}
+function lessonOpen(l,i){if(S.testmode)return true;return i===0?!opfrisNeeded(l.n):!!P().lessons[l.lessons[i-1].id];}
 function lessonsDone(l){return l.lessons.filter(x=>P().lessons[x.id]).length;}
-function examOpen(l){return lessonsDone(l)===l.lessons.length;}
+function examOpen(l){if(S.testmode)return true;return lessonsDone(l)===l.lessons.length;}
 function topicStars(t){const p=P();return LEVELS.filter(l=>{const ls=l.lessons.filter(x=>x.topic===t);return ls.length&&ls.every(x=>p.lessons[x.id]);}).length;}
 function nextStep(){
   for(const l of LEVELS){ if(!levelOpen(l.n)) return null; if(P().passed[l.n]) continue;
@@ -1803,7 +1814,7 @@ function quizView(){
   const H=!q.timer&&ans==null?hintFor(q):null;
   const cols=q.pics?'pics':(q.cols||(q.opts&&q.opts.length===4?'four':''));
   app.innerHTML=`
-  <div class="topline"><button class="back" id="bk">${I.back} Stoppen</button><span class="label">${esc(c.title)} · ${c.k+1}/${c.qs.length}</span></div>
+  <div class="topline"><button class="back" id="bk">${I.back} Stoppen</button>${S.testmode?`<button class="btn alt small" id="tskip">Sla over ${I.next}</button>`:''}<span class="label">${esc(c.title)} · ${c.k+1}/${c.qs.length}</span></div>
   <div class="qdots" aria-label="Voortgang: vraag ${c.k+1} van ${c.qs.length}">${c.qs.map((_,i)=>`<i class="${c.res&&c.res[i]===true?'ok':c.res&&c.res[i]===false?'no':i===c.k?'cur':''}"></i>`).join('')}</div>
   <div class="stage${artHtml?'':' noart'}${ans!=null?' answered':''}">
     <div class="qrow"><button class="speak" id="sp" aria-label="Lees de vraag voor">${I.speaker}</button><p class="say">${q.pre?`<span class="label" style="display:block">${q.pre}</span>`:''}<span id="qtext">${sentSpans(q.q)}</span></p>${H?`<button class="hintbtn" id="hb" aria-label="Hint bekijken" title="Hint">${I.bulb}</button>`:''}</div>
@@ -1815,6 +1826,7 @@ function quizView(){
     ${q.t==='ref'&&ans==null?`<p class="note"><b>Fout</b> = punt voor de tegenstander · <b>Let</b> = rally opnieuw · <b>Geen fout</b> = alles is goed</p>`:''}
     ${ans!=null?`<div class="fb ${ok?'good':'bad'}" role="status"><span style="color:${ok?'var(--good)':'var(--bad)'}">${ic(ok?'check':'cross',22)}</span><div class="fbt"><b>${ans===-1?'Te laat!':ok?pick(['Goed zo!','Top!','Helemaal goed!','Knap!']):'Bijna!'}</b> ${q.tap?q.result[1]:q.why}</div><button class="btn go small" id="nx">${c.k===c.qs.length-1?'Klaar':'Verder'} ${I.next}</button></div>`:''}
   </div>`;
+  const tsk=document.getElementById('tskip'); if(tsk) tsk.onclick=()=>{hush(); try{stopTimer();}catch(e){} if(c.k===c.qs.length-1) finish(); else {c.k++;c.answered=null;render();}};
   const sp=document.getElementById('sp');
   const optTail=q.opts&&(q.t==='mc'||q.t==='score'||q.t==='dub')?q.opts.join('? ')+'?':'';
   const readQ=()=>speakSpans(document.getElementById('qtext'),sp,optTail);
@@ -1914,7 +1926,7 @@ function answer(i,el){
   c.answered=i; const ok=q.tap?q.result[0]:i===q.a; if(!c.res) c.res=[]; c.res[c.k]=ok;
   if(ok){c.good++;c.streak++;let gain=1;if(c.streak%3===0){gain++;setTimeout(()=>toast(`${I.shuttle}<span>${c.streak} op rij! <small>+1 extra</small></span>`),250);}c.earned+=gain;award(gain,el);}
   else {bonk();c.streak=0;c.missed.push({q:questionText(q).replace(/<[^>]+>/g,''),a:q.tap?'':q.opts[q.a],why:q.tap?q.result[1]:q.why});}
-  if(q.raw&&!q.sim){
+  if(q.raw&&!q.sim&&!S.testmode){
     if(c.kind==='bak'){const p=P(),k=bakKey(q.raw),it=p.bak.find(b=>b.k===k);
       if(it){ if(ok){it.ok++;it.due=Date.now()+H44; if(it.ok>=2) p.bak=p.bak.filter(b=>b!==it);} else {it.ok=0;it.due=Date.now()+H20;} }}
     else if(!ok) bakAdd(q.raw);
@@ -1933,7 +1945,7 @@ function toast(html,plain){document.querySelectorAll('.toast').forEach(t=>t.remo
 function bonk(){if(S.nosound)return;const a=audioCtx();if(!a)return;try{const t=a.currentTime+.01,out=a.createGain();out.gain.value=.22;out.connect(a.destination);
  [[392,0],[311,.14]].forEach(([f,dt])=>{const o=a.createOscillator();o.type='triangle';o.frequency.setValueAtTime(f,t+dt);o.frequency.exponentialRampToValueAtTime(f*.94,t+dt+.25);const e=a.createGain();e.gain.setValueAtTime(0,t+dt);e.gain.linearRampToValueAtTime(.8,t+dt+.02);e.gain.exponentialRampToValueAtTime(.001,t+dt+.32);o.connect(e);e.connect(out);o.start(t+dt);o.stop(t+dt+.35);});}catch(e){}}
 function award(n,el){
-  audioCtx();
+  audioCtx(); if(S.testmode){kaching(.6);return;}
   const p=P(); p.shuttles+=n; save();
   const pot=document.getElementById('pot'); const r=el.getBoundingClientRect(); const t=pot.getBoundingClientRect();
   for(let k=0;k<n;k++){const f=document.createElement('div');f.className='fly';f.innerHTML=I.shuttle;f.style.left=(r.left+r.width/2-17)+'px';f.style.top=(r.top+r.height/2-17)+'px';document.body.appendChild(f);
@@ -1942,6 +1954,7 @@ function award(n,el){
 }
 function finish(){
   const c=cur, p=P(); const perfect=c.good===c.qs.length; let bonus=0;
+  if(S.testmode){go({view:'result',n:c.n,title:c.title,kind:c.kind,li:c.li,gid:c.gid,src:c.src,good:c.good,tot:c.qs.length,earned:0,bonus:0,perfect,missed:c.missed});return;}
   if(c.kind==='lesson'&&perfect){const id=LEVELS[c.n-1].lessons[c.li].id; if(!p.lessons[id]) bonus=3; p.lessons[id]=true;}
   if(c.kind==='opfris'&&perfect){p.opfris[c.n]=true;}
   if(c.kind==='exam'&&perfect){ if(!p.passed[c.n]){bonus=12;p.passedAt[c.n]=new Date().toISOString().slice(0,10);} p.passed[c.n]=true; }
@@ -2106,6 +2119,8 @@ function settingsView(){
   if(tab==='trainer'){
     if(!trainerOk) body=`<form class="row" id="tf"><label for="tc" class="note">Trainerscode</label><input type="password" id="tc" autocomplete="off" style="width:150px"><button class="btn alt small" type="submit">Open</button></form><p class="note" id="tmsg" role="status"></p>`;
     else body=`
+    <div class="testbox stack"><label class="row note"><input type="checkbox" id="tm" ${S.testmode?'checked':''}> <span><b>Testmodus</b>: alle lessen, toetsen en spelletjes staan open. Voortgang en shuttles veranderen niet.</span></label>
+    ${S.testmode?`<p class="note">Kies een scherm om direct te bekijken. In een toets kun je met <b>Sla over</b> naar de volgende vraag.</p><div class="jump">${LEVELS.map(l=>`<details><summary>Niveau ${l.n} · ${esc(l.name)}</summary><div class="jl">${l.lessons.map((x,i)=>`<div class="jr"><span>${i+1}. ${esc(x.title)}</span><button class="btn alt small" data-ju="${l.n}:${i}">Uitleg</button><button class="btn alt small" data-jt="${l.n}:${i}">Toets</button></div>`).join('')}${l.n>1?`<div class="jr"><span>Opfrissen</span><button class="btn alt small" data-jo="${l.n}">Toets</button></div>`:''}<div class="jr"><span>Eindtoets</span><button class="btn alt small" data-je="${l.n}">Toets</button></div><div class="jr"><span>Spelletjes</span><button class="btn alt small" data-jg="${l.n}">Bekijk</button></div></div></details>`).join('')}</div>`:''}</div>
     <div class="row"><label for="tl" class="note">${esc(S.current)} mag spelen t/m</label><select id="tl">${[1,2,3,4,5].map(n=>`<option value="${n}" ${p.unlock===n?'selected':''}>Niveau ${n}</option>`).join('')}</select></div>
     <div class="tbl" role="table" aria-label="Voortgang per speler"><div class="tr th" role="row"><span>Speler</span><span>Gehaald</span><span>Nu bezig</span><span>Foutenbak</span></div>
       ${Object.keys(S.profiles).map(nm=>{const q=S.profiles[nm]; const hi=[1,2,3,4,5].filter(n=>q.passed&&q.passed[n]).pop()||0; const curL=LEVELS[Math.min(hi,4)]; const d=curL.lessons.filter(x=>q.lessons&&q.lessons[x.id]).length;
@@ -2134,6 +2149,13 @@ function settingsView(){
   const snd=document.getElementById('snd'); if(snd) snd.onchange=e=>{S.nosound=!e.target.checked;save();if(!S.nosound)kaching();};
   const spv=document.getElementById('spv'); if(spv) spv.onclick=()=>go({view:'splash'});
   const bg=document.getElementById('bg'); if(bg) bg.onchange=e=>{S.big=e.target.checked;save();render();};
+  const tm=document.getElementById('tm'); if(tm) tm.onchange=e=>{S.testmode=e.target.checked;save();render();};
+  const LV=n=>LEVELS[n-1];
+  app.querySelectorAll('[data-ju]').forEach(b=>b.onclick=()=>{const [n,i]=b.dataset.ju.split(':').map(Number);go({view:'lesson',n,li:i,i:0});});
+  app.querySelectorAll('[data-jt]').forEach(b=>b.onclick=()=>{const [n,i]=b.dataset.jt.split(':').map(Number);const le=LV(n).lessons[i];startQuiz({n,title:le.title,kind:'lesson',li:i,src:()=>le.quiz});});
+  app.querySelectorAll('[data-je]').forEach(b=>b.onclick=()=>{const n=+b.dataset.je;startQuiz({n,title:`Eindtoets niveau ${n}`,kind:'exam',src:()=>examFor(n)});});
+  app.querySelectorAll('[data-jo]').forEach(b=>b.onclick=()=>{const n=+b.dataset.jo;startQuiz({n,title:`Opfrissen niveau ${n}`,kind:'opfris',src:()=>opfrisFor(n)});});
+  app.querySelectorAll('[data-jg]').forEach(b=>b.onclick=()=>go({view:'level',n:+b.dataset.jg,tab:'spel'}));
   const tf=document.getElementById('tf'); if(tf) tf.onsubmit=e=>{e.preventDefault();
     if(document.getElementById('tc').value.trim().toLowerCase()!==TRAINER_CODE){document.getElementById('tmsg').textContent='Die code klopt niet.';return;} trainerOk=true;render();};
   const tl=document.getElementById('tl'); if(tl) tl.onchange=()=>{P().unlock=+tl.value;save();};
