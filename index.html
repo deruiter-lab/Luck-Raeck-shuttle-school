@@ -782,7 +782,7 @@ function court(o){
   g+=`<circle cx="${X(-0.45)}" cy="${Y(0)}" r="5" fill="var(--fg)"/><circle cx="${X(W+0.45)}" cy="${Y(0)}" r="5" fill="var(--fg)"/>`;
   if(o.lab) o.lab.forEach(t=>g+=`<g><rect x="${(+X(t[0])-t[2].length*4.6-8).toFixed(1)}" y="${(+Y(t[1])-14).toFixed(1)}" width="${(t[2].length*9.2+16).toFixed(1)}" height="22" rx="11" fill="var(--surface)" opacity=".92"/><text x="${X(t[0])}" y="${(+Y(t[1])+2).toFixed(1)}" text-anchor="middle" font-family="Fredoka,sans-serif" font-weight="700" font-size="14" fill="var(--fg)">${t[2]}</text></g>`);
   if(o.text) o.text.forEach(t=>g+=`<text x="${X(t[0])}" y="${Y(t[1])}" text-anchor="middle" font-family="Fredoka,sans-serif" font-weight="700" font-size="${t[3]||18}" fill="${t[4]||'#fff'}">${t[2]}</text>`);
-  if(o.player) o.player.forEach(p=>{g+=`<circle cx="${X(p[0])}" cy="${Y(p[1])}" r="${(s*0.32).toFixed(1)}" fill="${p[2]||'#2b3bd8'}" stroke="#fff" stroke-width="3"/>`;
+  if(o.player) o.player.forEach(p=>{g+=`<circle cx="${X(p[0])}" cy="${Y(p[1])}" r="${(s*0.32+2.6).toFixed(1)}" fill="none" stroke="#1d1d55" stroke-width="1.6"/><circle cx="${X(p[0])}" cy="${Y(p[1])}" r="${(s*0.32).toFixed(1)}" fill="${p[2]||'#2b3bd8'}" stroke="#fff" stroke-width="3"/>`;
     if(p[3]) g+=`<text x="${X(p[0])}" y="${(+Y(p[1])+s*0.32+16).toFixed(1)}" text-anchor="middle" font-family="Fredoka,sans-serif" font-weight="700" font-size="15" fill="#fff" stroke="#1d1d55" stroke-width="3" paint-order="stroke">${p[3]}</text>`;
     if(p[4]) g+=`<g transform="translate(${(+X(p[0])+s*0.2).toFixed(1)} ${(+Y(p[1])-s*0.75).toFixed(1)}) scale(.75)">${SHUTTLE_INNER}</g>`;});
   if(o.opp) g+=`<circle cx="${X(o.opp[0])}" cy="${Y(o.opp[1])}" r="${(s*0.34).toFixed(1)}" fill="#f07f1a" stroke="#fff" stroke-width="3"/>`;
@@ -1045,7 +1045,7 @@ const LEVELS=[
   'Kon iemand er iets aan doen? Of gebeurde er iets geks, van buitenaf?'),
  L_('dubbel','dubbel-1','Samen met een maatje',[
   CE('Bij <strong>dubbelspel</strong> speel je met z\'n tweeën tegen twee anderen. Jij en je maatje zijn een <strong>team</strong>.',{court:{full:true,player:FOUR.map(p=>p.slice(0,3))}}),
-  CE('Bij dubbelspel is de baan <strong>breder</strong>. Er is meer ruimte voor vier spelers.',{court:{full:true,areas:[FAR_D],player:[[4.6,4.2],[1.5,4.2,'#2b3bd8']]}}),
+  CE('Bij dubbelspel is de baan <strong>breder</strong>. Er is meer ruimte voor vier spelers.',{court:{full:true,areas:[FAR_D],player:[[4.6,4.2],[1.5,4.2,'#2b3bd8'],[1.5,-4.2,'#f07f1a'],[4.6,-4.2,'#f07f1a']]}}),
   CE('Komt de shuttle naar jullie kant? Dan slaat <strong>één</strong> van jullie hem terug. Roep "<strong>ik!</strong>" als jij hem neemt.',{scene:{k:'rally'}})],
   [{t:'mc',q:'Met hoeveel spelers speel je dubbelspel?',opts:['4','2','1'],pics:[{kids:4},{kids:2},{kids:1}],a:0,why:'Twee teams van twee: samen vier spelers.'},
    {t:'wn',q:'Bij dubbelspel mogen jij en je maatje de shuttle allebei raken voordat hij teruggaat.',a:false,why:'Eén van jullie slaat hem terug. Daarom roep je "ik!".'},
