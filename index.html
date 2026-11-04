@@ -503,6 +503,15 @@ body.testmode .tpill{display:inline-block}
 
 .revbar{height:6px;border-radius:6px;background:var(--blue-soft);overflow:hidden;flex:none}.revbar i{display:block;height:100%;background:var(--orange)}
 .revsub{display:block;font-family:var(--body);font-weight:400;font-size:13px;color:var(--muted);margin-top:2px}
+
+.rokfig{cursor:pointer;-webkit-tap-highlight-color:transparent}
+.rokfig:focus{outline:none}.rokfig:focus-visible{outline:3px solid var(--blue);outline-offset:3px;border-radius:14px}
+.rokfig .sh{transform-box:view-box;transform-origin:150px 133px;transition:transform .8s cubic-bezier(.45,-.25,.35,1.3)}
+.rokfig.on .sh{transform:rotate(180deg) translateY(-4px)}
+.rokfig .lady{opacity:0;transform:translateY(-16px);transition:opacity .45s .6s,transform .45s .6s}
+.rokfig.on .lady{opacity:1;transform:none}
+.rokfig .tiphint{transition:opacity .3s}.rokfig.on .tiphint{opacity:0}
+@media (prefers-reduced-motion: reduce){.rokfig .sh,.rokfig .lady{transition:none}}
 </style>
 
 <header class="bar"><div class="bar-in">
@@ -901,7 +910,7 @@ function art(a){
   if(a.net) return netArt(a.net,a.hide);
   if(a.board) return boardArt(a.board);
   if(a.fhbh) return fhbhArt();
-  if(a.shuttles2) return shuttles2Art();
+  if(a.rok) return rokArt();
   return '';
 }
 function fhbhArt(){
@@ -918,23 +927,40 @@ function fhbhArt(){
   <text x="255" y="176" text-anchor="middle" font-family="Fredoka, sans-serif" font-weight="700" font-size="17" fill="#fff">Backhand</text>
   </svg>`;
 }
-function shuttles2Art(){
-  const N='#1d1d55';
-  const cork=x=>`<path d="M${x-14} 140 H${x+14} V146 A14 14 0 0 1 ${x-14} 146 Z" fill="#f07f1a" stroke="${N}" stroke-width="2.4"/>`;
-  let fe='';
-  [-36,-24,-12,0,12,24,36].forEach(d=>{const bx=85+d*.28, tx=85+d;fe+=`<path d="M${bx-2.5} 140 L${tx-6} 50 Q${tx} 36 ${tx+6} 50 L${bx+2.5} 140 Z" fill="#fff" stroke="${N}" stroke-width="1.8" stroke-linejoin="round"/><path d="M${bx} 140 L${tx} 44" stroke="${N}" stroke-width=".8" opacity=".5"/>`;});
-  fe+=`<path d="M64 102 Q85 107 106 102 M70 120 Q85 124 100 120" fill="none" stroke="${N}" stroke-width="1.6"/>`;
-  let lat='';for(let k=-12;k<14;k++){lat+=`M${175+k*9} 52 l60 80 M${255-k*9} 52 l-60 80 `;}
-  return `<svg viewBox="0 0 300 200" width="300" height="200" role="img" aria-label="Links een shuttle met echte veertjes, rechts een nylon shuttle met een rok"><defs><clipPath id="rokclip"><path d="M199 126 L178 52 L252 52 L231 126 Z"/></clipPath></defs>
-  <rect width="300" height="200" rx="14" fill="var(--blue-soft)"/>
-  ${fe}${cork(85)}
-  <path d="M199 140 L175 40 L255 40 L231 140 Z" fill="#fff" stroke="${N}" stroke-width="2.4" stroke-linejoin="round"/>
-  <path d="${lat}" stroke="${N}" stroke-width="1.1" opacity=".55" clip-path="url(#rokclip)"/>
-  <path d="M178 52 H252 M199 126 H231" stroke="${N}" stroke-width="2"/>
-  ${cork(215)}
-  <text x="85" y="188" text-anchor="middle" font-family="Fredoka, sans-serif" font-weight="700" font-size="17" fill="var(--fg)">Veertjes</text>
-  <text x="215" y="188" text-anchor="middle" font-family="Fredoka, sans-serif" font-weight="700" font-size="17" fill="var(--fg)">Nylon: de rok</text>
+function rokArt(){
+  const N='#1d1d55', SK='#f6c9a3';
+  let lat='';for(let k=-14;k<16;k++){lat+=`M${110+k*10} 78 l70 92 M${190-k*10} 78 l-70 92 `;}
+  return `<svg class="rokfig" viewBox="0 0 300 260" width="300" height="260" role="button" tabindex="0" aria-label="Nylon shuttle. Tik erop om hem om te draaien.">
+  <defs><clipPath id="rokclip2"><path d="M135 154 L112 78 L188 78 L165 154 Z"/></clipPath></defs>
+  <rect width="300" height="260" rx="14" fill="var(--blue-soft)"/>
+  <g class="lady">
+    <path d="M136 240 l-2 10 h-12 a6 6 0 0 1 6 -8 Z M164 240 l2 10 h12 a6 6 0 0 0 -6 -8 Z" fill="${N}"/>
+    <rect x="133" y="203" width="9" height="40" rx="4" fill="${SK}" stroke="${N}" stroke-width="2"/><rect x="158" y="203" width="9" height="40" rx="4" fill="${SK}" stroke="${N}" stroke-width="2"/>
+    </g>
+  <g class="sh">
+    <path d="M135 165 L108 66 L192 66 L165 165 Z" fill="#fff" stroke="${N}" stroke-width="2.6" stroke-linejoin="round"/>
+    <path d="${lat}" stroke="${N}" stroke-width="1.2" opacity=".55" clip-path="url(#rokclip2)"/>
+    <path d="M112 78 H188 M135 154 H165" stroke="${N}" stroke-width="2.2"/>
+    <path d="M135 165 H165 V172 A15 15 0 0 1 135 172 Z" fill="#f07f1a" stroke="${N}" stroke-width="2.6"/>
+  </g>
+  <g class="lady"><path d="M128 50 Q118 54 113 66 L104 84 Q102 90 108 92 L124 95" fill="none" stroke="${N}" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/><path d="M128 50 Q118 54 113 66 L104 84 Q102 90 108 92 L124 95" fill="none" stroke="#f07f1a" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M172 50 Q182 54 187 66 L196 84 Q198 90 192 92 L176 95" fill="none" stroke="${N}" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/><path d="M172 50 Q182 54 187 66 L196 84 Q198 90 192 92 L176 95" fill="none" stroke="#f07f1a" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="124" cy="95" r="5" fill="${SK}" stroke="${N}" stroke-width="1.8"/><circle cx="176" cy="95" r="5" fill="${SK}" stroke="${N}" stroke-width="1.8"/>
+    <path d="M135.5 104 L132 58 Q132 47 142 46 H158 Q168 47 168 58 L164.5 104 Z" fill="#f07f1a" stroke="${N}" stroke-width="2.2" stroke-linejoin="round"/>
+    <path d="M144 46 Q150 54 156 46" fill="${SK}" stroke="${N}" stroke-width="1.8"/>
+    <rect x="146" y="36" width="8" height="11" fill="${SK}" stroke="${N}" stroke-width="1.8"/>
+    <path d="M163 14 Q178 18 176 36 Q172 30 166 28 Z" fill="#7a4524" stroke="${N}" stroke-width="1.8" stroke-linejoin="round"/>
+    <circle cx="150" cy="24" r="14" fill="${SK}" stroke="${N}" stroke-width="2"/>
+    <path d="M136 24 Q136 8 150 8 Q164 8 164 22 Q156 14 146 15 Q140 17 136 24 Z" fill="#7a4524" stroke="${N}" stroke-width="1.8" stroke-linejoin="round"/>
+    <circle cx="145" cy="25" r="1.8" fill="${N}"/><circle cx="155" cy="25" r="1.8" fill="${N}"/><path d="M145 30 Q150 34 155 30" fill="none" stroke="${N}" stroke-width="1.8" stroke-linecap="round"/>
+    <circle cx="140" cy="29" r="2.4" fill="#f4a0a0" opacity=".7"/><circle cx="160" cy="29" r="2.4" fill="#f4a0a0" opacity=".7"/>
+  </g>
+  <text class="tiphint" x="150" y="226" text-anchor="middle" font-family="Fredoka, sans-serif" font-weight="600" font-size="15" fill="var(--blue)">Tik op de shuttle</text>
   </svg>`;
+}
+if(document.addEventListener){
+  const flip=e=>{const t=e.target.closest&&e.target.closest('.rokfig'); if(!t) return; if(e.type==='keydown'&&e.key!=='Enter'&&e.key!==' ') return; e.preventDefault(); t.classList.toggle('on'); if(t.classList.contains('on')) try{kaching(.5);}catch(x){}};
+  document.addEventListener('click',flip); document.addEventListener('keydown',flip);
 }
 function boardArt(b){
   return `<div class="board" aria-label="Scorebord">${b.map(r=>`<span>${r[0]}</span><span class="sv">${r[2]?I.shuttle:''}</span><span class="sc">${r[1]}</span>`).join('')}</div>`;
@@ -988,7 +1014,7 @@ const LEVELS=[
   'Kijk waar de shuttle op de grond komt: binnen de lijnen, op de lijn of erbuiten?'),
  L_('service','service-1','Racket, shuttle en service',[
   CE('Pak je racket vast alsof je iemand een <strong>hand</strong> geeft. Niet te hard knijpen.',{icon:'racket'}),
-  CE('Een shuttle heeft een ronde <strong>dop</strong> en kan echte <strong>veertjes</strong> hebben of een plastic (eigenlijk <strong>nylon</strong>) deel. Dat deel wordt ook wel de <strong>rok</strong> genoemd. Herken je er een rok in?',{shuttles2:true}),
+  CE('Een shuttle heeft een ronde <strong>dop</strong> en kan echte <strong>veertjes</strong> hebben of een plastic (eigenlijk <strong>nylon</strong>) deel. Dat deel wordt ook wel de <strong>rok</strong> genoemd. Herken je er een rok in? Tik er dan maar eens op!',{rok:true}),
   CE('Bij Luck Raeck spelen we met <strong>nylon</strong> shuttles. Pak hem voorzichtig vast aan de rok, met je vingertoppen. Net als een <strong>vieze sok</strong>!',{icon:'sock'}),
   CE('Elke rally begint met de <strong>service</strong>. Je slaat de shuttle <strong>onderhands</strong>: van onder naar boven, over het net.',{scene:{k:'serve'}}),
   CE('Je serveert pas als de ander <strong>klaar</strong> is.',{scene:{k:'serve',zzz:true}})],
