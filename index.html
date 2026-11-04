@@ -962,25 +962,58 @@ if(document.addEventListener){
 function dubbelLosArt(){
   const N='#1d1d55';
   const kid=(x,c)=>`<circle cx="${x}" cy="88" r="13" fill="${c}"/><rect x="${x-13}" y="104" width="26" height="40" rx="10" fill="${c}"/><rect x="${x-9}" y="140" width="7" height="18" rx="3" fill="${c}"/><rect x="${x+2}" y="140" width="7" height="18" rx="3" fill="${c}"/>`;
-  const rk=(x1,y1,x2,y2)=>`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${N}" stroke-width="3"/><ellipse cx="${x2}" cy="${y2}" rx="8" ry="11" fill="none" stroke="${N}" stroke-width="3" transform="rotate(${Math.atan2(y2-y1,x2-x1)*180/Math.PI+90} ${x2} ${y2})"/>`;
-  const seg=[122,74,168,-24,206,90];
-  const ta=Math.atan2(seg[5]-seg[3],seg[4]-seg[2])*180/Math.PI-90;
-  return `<svg viewBox="0 0 340 190" width="340" height="190" role="img" aria-label="Dubbelspel: twee blauwe spelers aan de ene kant, twee oranje aan de andere. Eén blauwe speler roept los en slaat de shuttle terug.">
+  const rk=(cls,px,py,len,ang)=>`<g class="${cls}" data-px="${px}" data-py="${py}" data-a="${ang}" transform="rotate(${ang} ${px} ${py})"><line x1="${px}" y1="${py}" x2="${px}" y2="${py-len}" stroke="${N}" stroke-width="3"/><ellipse cx="${px}" cy="${py-len-11}" rx="8" ry="11" fill="none" stroke="${N}" stroke-width="3"/></g>`;
+  return `<svg class="dlos" viewBox="0 0 340 190" width="340" height="190" role="img" aria-label="Dubbelspel. Oranje serveert naar blauw. De voorste blauwe speler laat de shuttle gaan, de achterste roept los en slaat terug. De shuttle landt binnen de lijnen bij oranje: punt voor blauw.">
   <rect width="340" height="190" rx="14" fill="var(--blue-soft)"/>
   <rect x="0" y="158" width="340" height="32" fill="var(--court)"/><rect x="18" y="158" width="4" height="7" fill="var(--court-line)"/><rect x="318" y="158" width="4" height="7" fill="var(--court-line)"/>
   <rect x="167" y="70" width="6" height="88" fill="var(--fg)"/><rect x="160" y="68" width="20" height="6" rx="2" fill="#fff" stroke="var(--fg)"/>
   <g opacity=".35">${[0,1,2,3,4,5,6,7].map(i=>`<line x1="163" y1="${78+i*9}" x2="177" y2="${78+i*9}" stroke="var(--fg)"/>`).join('')}</g>
-  ${kid(46,'#5566ee')}${rk(56,110,74,90)}
-  ${kid(108,'#2b3bd8')}${rk(118,108,122,86)}
-  ${kid(238,'#f39a4a')}${rk(228,112,214,98)}
-  ${kid(296,'#f07f1a')}${rk(286,112,272,100)}
-  <g><path d="M86 22 H130 Q138 22 138 30 V44 Q138 52 130 52 H114 L106 61 L106 52 H86 Q78 52 78 44 V30 Q78 22 86 22 Z" fill="#fff" stroke="${N}" stroke-width="2.2" stroke-linejoin="round"/>
-  <text x="108" y="43.5" text-anchor="middle" font-family="Fredoka, sans-serif" font-weight="700" font-size="19" fill="#f07f1a">los!</text></g>
-  <path class="ftrail" d="M${seg[0]} ${seg[1]} Q${seg[2]} ${seg[3]} ${seg[4]} ${seg[5]}" fill="none" stroke="#f07f1a" stroke-width="3" stroke-dasharray="6 6"/>
-  <g class="flight" data-p="${seg.join(',')}" data-er="" transform="translate(${seg[4]} ${seg[5]}) rotate(${ta.toFixed(1)}) scale(1.3) translate(-16 -16)">${SHUTTLE_INNER}</g>
-  <text x="77" y="182" text-anchor="middle" font-family="Fredoka, sans-serif" font-weight="700" font-size="15" fill="#fff">Blauw</text>
+  ${kid(52,'#2b3bd8')}${rk('rkB',62,110,18,22)}
+  ${kid(114,'#5566ee')}${rk('rkA',124,110,18,30)}
+  ${kid(236,'#f39a4a')}${rk('rkO1',226,112,18,-30)}
+  ${kid(298,'#f07f1a')}${rk('rkO2',288,112,18,-70)}
+  <path class="dl-t1" d="M278 136 Q190 -14 74 80" fill="none" stroke="#f07f1a" stroke-width="2.5" stroke-dasharray="5 6" opacity="0"/>
+  <path class="dl-t2" d="M74 80 Q170 -40 266 151.5" fill="none" stroke="#2b3bd8" stroke-width="3" stroke-dasharray="6 6"/>
+  <g class="dl-bub" style="transform-box:fill-box;transform-origin:30% 100%"><path d="M36 20 H80 Q88 20 88 28 V42 Q88 50 80 50 H64 L56 59 L56 50 H36 Q28 50 28 42 V28 Q28 20 36 20 Z" fill="#fff" stroke="${N}" stroke-width="2.2" stroke-linejoin="round"/>
+  <text x="58" y="41.5" text-anchor="middle" font-family="Fredoka, sans-serif" font-weight="700" font-size="19" fill="#f07f1a">Los!</text></g>
+  <g class="dl-sh" transform="translate(266 151.5) rotate(-80.7) scale(1.3) translate(-16 -16)">${SHUTTLE_INNER}</g>
+  <g class="dl-pt"><rect x="128" y="10" width="124" height="28" rx="14" fill="#2b3bd8"/><text x="190" y="29.5" text-anchor="middle" font-family="Fredoka, sans-serif" font-weight="700" font-size="15" fill="#fff">Punt voor blauw!</text></g>
+  <text x="83" y="182" text-anchor="middle" font-family="Fredoka, sans-serif" font-weight="700" font-size="15" fill="#fff">Blauw</text>
   <text x="267" y="182" text-anchor="middle" font-family="Fredoka, sans-serif" font-weight="700" font-size="15" fill="#fff">Oranje</text>
   </svg>`;
+}
+function dlosAnim(sv,done){
+  done=done||function(){};
+  const $=c=>sv.querySelector(c), sh=$('.dl-sh'), t1=$('.dl-t1'), t2=$('.dl-t2'), bub=$('.dl-bub'), pt=$('.dl-pt');
+  const rot=(g,a)=>{const px=+g.dataset.px,py=+g.dataset.py;g.setAttribute('transform',`rotate(${a} ${px} ${py})`);};
+  const rA=$('.rkA'), rB=$('.rkB'), rO=$('.rkO2');
+  const qb=(p0,c,p1,t)=>(1-t)*(1-t)*p0+2*(1-t)*t*c+t*t*p1;
+  const qd=(p0,c,p1,t)=>2*(1-t)*(c-p0)+2*t*(p1-c);
+  const S1=[278,136,190,-14,74,80], S2=[74,80,170,-40,266,151.5];
+  const place=(S,t,endA)=>{const x=qb(S[0],S[2],S[4],t),y=qb(S[1],S[3],S[5],t);let a=Math.atan2(qd(S[1],S[3],S[5],t),qd(S[0],S[2],S[4],t))*180/Math.PI-90;
+    if(endA!=null&&t>.85){const k=(t-.85)/.15;a=a+(endA-a)*k;}
+    sh.setAttribute('transform',`translate(${x.toFixed(1)} ${y.toFixed(1)}) rotate(${a.toFixed(1)}) scale(1.3) translate(-16 -16)`);};
+  if(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches){done();return;}
+  const T={serve:[0,1300],hit:[1300,2400],pts:2550,end:2900};
+  bub.style.opacity=0; pt.style.opacity=0; t2.style.opacity=0; t1.style.opacity=0;
+  const t0=performance.now(); sv.dataset.run=t0;
+  const ease=x=>x<.5?2*x*x:1-Math.pow(-2*x+2,2)/2;
+  const step=now=>{ if(sv.dataset.run!=String(t0)) return; const e=now-t0;
+    // oranje serveert (onderhands)
+    rot(rO, e<450?-150+ease(e/450)*80:-70);
+    if(e<T.serve[1]){const t=e/T.serve[1]; place(S1,t,null); t1.style.opacity=.55;}
+    // voorste blauwe speler wil bijna slaan (racket omhoog en weer terug)
+    const aT=(e-550)/650; rot(rA, aT<0?30:aT<.5?30-ease(aT*2)*65:aT<1?-35+ease((aT-.5)*2)*65:30);
+    // Los!
+    if(e>850){const k=Math.min(1,(e-850)/220); bub.style.opacity=k; bub.style.transform=`scale(${.6+.4*k})`;}
+    // achterste blauwe speler slaat terug
+    const bT=(e-1150)/350; rot(rB, bT<0?22:bT<.4?22-ease(bT/.4)*40:bT<1?-18+ease((bT-.4)/.6)*40:22);
+    if(e>=T.hit[0]&&e<T.hit[1]){const t=(e-T.hit[0])/(T.hit[1]-T.hit[0]); place(S2,t,-80.7); t2.style.opacity=.8; t1.style.opacity=.25;}
+    if(e>=T.hit[1]){place(S2,1,-80.7);}
+    if(e>T.pts){pt.style.opacity=Math.min(1,(e-T.pts)/250);}
+    if(e<T.end) requestAnimationFrame(step); else {t1.style.opacity=0; done();}
+  };
+  requestAnimationFrame(step);
 }
 function boardArt(b){
   return `<div class="board" aria-label="Scorebord">${b.map(r=>`<span>${r[0]}</span><span class="sv">${r[2]?I.shuttle:''}</span><span class="sc">${r[1]}</span>`).join('')}</div>`;
@@ -1961,7 +1994,7 @@ function quizView(){
 }
 function ensureReplay(){
   const a=document.getElementById('art'); if(!a||a.querySelector('.replay')) return;
-  if(!a.querySelector('.landing,.flight,.rk,animate,animateTransform,animateMotion')) return;
+  if(!a.querySelector('.landing,.flight,.rk,.dlos,animate,animateTransform,animateMotion')) return;
   const b=document.createElement('button'); b.className='replay'; b.type='button'; b.setAttribute('aria-label','Animatie opnieuw afspelen'); b.title='Opnieuw afspelen'; b.innerHTML=I.redo;
   b.onclick=e=>{e.stopPropagation(); landAnim();}; a.appendChild(b);
 }
@@ -1969,6 +2002,7 @@ function landAnim(done){
   done=done||function(){};
   ensureReplay();
   const root=document.getElementById('art'); if(!root){done();return;}
+  const dl=root.querySelector('.dlos'); if(dl){dlosAnim(dl,done);return;}
   const gs=root.querySelectorAll('.landing'), fl=root.querySelectorAll('.flight'), rks=root.querySelectorAll('.rk'), ends=root.querySelectorAll('.endonly');
   root.querySelectorAll('svg').forEach(sv=>{ if(sv.querySelector('animate,animateTransform,animateMotion')&&sv.setCurrentTime){ try{sv.setCurrentTime(0);sv.unpauseAnimations();}catch(e){} } });
   if(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches){done();return;}
