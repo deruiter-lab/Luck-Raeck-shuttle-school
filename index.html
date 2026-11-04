@@ -852,6 +852,7 @@ function scene(o){
   if(k==='svckort') g+=racketL(98,128)+RR+flight(112,120,158,-52,210,151.5,-LY);
   if(k==='svclang') g+=racketL(98,128)+RR+flight(112,120,200,-70,278,151.5,-LY);
   if(k==='rally')   g+=RL+RR+flightN([[96,96,170,-20,240,92],[240,92,205,36,169,37]],null);
+  if(k==='rallyPunt') g+=RL+RR+flightN([[96,96,170,-26,240,92],[240,92,170,-20,96,96],[96,96,180,-30,222,151.5]],-LY)+`<circle class="endonly" cx="222" cy="151" r="16" fill="none" stroke="#c23b2b" stroke-width="3" stroke-dasharray="5 4"/><g class="endonly"><rect x="14" y="12" width="132" height="30" rx="15" fill="#2b3bd8"/><text x="80" y="32.5" text-anchor="middle" font-family="Fredoka, sans-serif" font-weight="700" font-size="16" fill="#fff">+1 punt voor Blauw</text></g>`;
   if(k==='svchoog'||k==='svcgoed'||k==='svcvoet'){
     const bad=k!=='svcgoed';
     g+=`<line x1="20" y1="108" x2="160" y2="108" stroke="#f07f1a" stroke-width="2.5" stroke-dasharray="7 5"/><text x="24" y="102" font-family="Fredoka, sans-serif" font-weight="700" font-size="13" fill="var(--fg)">1,15 m</text>`;
@@ -1132,7 +1133,7 @@ const LEVELS=[
 /* ---------------- NIVEAU 2 ---------------- */
 {n:2,name:'Samen rallyen',age:'6 tot 7 jaar',lessons:[
  L_('spel','spel-2','Een rally winnen',[
-  CE('Een rally begint met de service, en is voorbij als de shuttle de grond raakt, in het net blijft, of als iemand een <strong>fout</strong> maakt.',{scene:{k:'rally'}}),
+  CE('Een rally begint met de service, en is voorbij als de shuttle de grond raakt, in het net blijft, of als iemand een <strong>fout</strong> maakt.',{scene:{k:'rallyPunt'}}),
   CE('Hoe win je een rally? Kijk waar de ander staat. Speel de shuttle naar een plek waar <strong>niemand</strong> staat.',{court:{full:true,areas:[{x0:SI,x1:W-SI,y0:-L,y1:0,op:.18}],player:[[3,4,'#2b3bd8','jij'],[1.6,-2,'#f07f1a','tegenstander']]}}),
   CE('Staat de ander vooraan? Speel dan ver naar <strong>achteren</strong>. Staat hij achteraan? Speel dan kort, vlak achter het net. Maar wel <strong>binnen de lijnen</strong>!',{court:{full:true,areas:[{x0:SI,x1:W-SI,y0:-L,y1:0,op:.18}],player:[[3,4,'#2b3bd8','jij'],[3,-1.3,'#f07f1a','tegenstander']],dot:[4.5,-6.1]}})],
   [{t:'mc',q:'Wanneer is een rally voorbij?',opts:['Als de shuttle de grond raakt of iemand een fout maakt','Na tien slagen','Als de trainer fluit'],a:0,why:'Grond geraakt, in het net of een fout: dan is de rally voorbij.'},
