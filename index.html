@@ -500,6 +500,9 @@ body.testmode .tpill{display:inline-block}
 .jl{display:flex;flex-direction:column;gap:6px;margin-top:6px}
 .jr{display:flex;align-items:center;gap:6px}.jr>span{flex:1;min-width:0;font-size:14px}
 .topline #tskip{margin-left:auto;margin-right:8px;white-space:nowrap;padding:6px 10px;font-size:14px;flex:none}.topline #tskip svg{width:14px;height:14px}
+
+.revbar{height:6px;border-radius:6px;background:var(--blue-soft);overflow:hidden;flex:none}.revbar i{display:block;height:100%;background:var(--orange)}
+.revsub{display:block;font-family:var(--body);font-weight:400;font-size:13px;color:var(--muted);margin-top:2px}
 </style>
 
 <header class="bar"><div class="bar-in">
@@ -1763,7 +1766,11 @@ function stepBar(l){
   h+=`<span class="sb-line ${steps.every(x=>x.done)?'lit':''}"></span>`+dot(exDone?'done':exOpen?'now':'','Eindtoets',I.medal.replace('<svg','<svg class="sbm"'));
   return h+'</div>'+(of?'<p class="note" style="margin:0">Eerst even opfrissen, dan gaat les 1 open.</p>':'');
 }
+function revList(){const r=[];LEVELS.forEach(l=>l.lessons.forEach((le,li)=>le.slides.forEach((_,i)=>r.push([l.n,li,i]))));return r;}
+function revGo(g){const r=revList();g=Math.max(0,Math.min(r.length-1,g));const [n,li,i]=r[g];S.revpos=g;save();go({view:'lesson',n,li,i,review:true});}
+if(document.addEventListener) document.addEventListener('keydown',e=>{if(!(cur&&cur.view==='lesson'&&cur.review))return;const r=revList();const g=r.findIndex(x=>x[0]===cur.n&&x[1]===cur.li&&x[2]===cur.i);if(e.key==='ArrowRight'&&g<r.length-1){e.preventDefault();revGo(g+1);}if(e.key==='ArrowLeft'&&g>0){e.preventDefault();revGo(g-1);}});
 function lessonView(){
+  if(cur.review&&S.testmode) return slideReview();
   const {n,li,i}=cur; const lv=LEVELS[n-1]; const le=lv.lessons[li]; const sl=le.slides[i]; const last=i===le.slides.length-1;
   const testOpen=levelOpen(n)&&lessonOpen(lv,li);
   app.innerHTML=`
@@ -1784,6 +1791,30 @@ function lessonView(){
   document.getElementById('bk').onclick=()=>go({view:'level',n,tab:'les'});
   if(i>0) document.getElementById('pv').onclick=()=>go({view:'lesson',n,li,i:i-1});
   document.getElementById('nx').onclick=()=>{ if(last) startQuiz({n,title:le.title,kind:'lesson',li,src:()=>le.quiz}); else go({view:'lesson',n,li,i:i+1}); };
+}
+function slideReview(){
+  const {n,li,i}=cur; const lv=LEVELS[n-1]; const le=lv.lessons[li]; const sl=le.slides[i];
+  const r=revList(), g=r.findIndex(x=>x[0]===n&&x[1]===li&&x[2]===i), tot=r.length;
+  S.revpos=g; save();
+  app.innerHTML=`
+  <div class="topline"><button class="back" id="bk">${I.back} Stoppen</button><span class="label">Scherm ${g+1} van ${tot}</span></div>
+  <div class="revbar"><i style="width:${((g+1)/tot*100).toFixed(1)}%"></i></div>
+  <div class="ltitle"><span class="tic"${tcol(le.topic)}>${I[TOPICS[le.topic].icon]}</span><h2>${le.title}<small class="revsub">Niveau ${n} · les ${li+1} · uitleg ${i+1} van ${le.slides.length}</small></h2></div>
+  <div class="stage lesson-stage">
+    <div class="art" id="art">${art(sl.art)}</div>
+    <div class="qrow"><button class="speak" id="sp" aria-label="Lees voor">${I.speaker}</button><p class="say" id="say">${sentSpans(sl.say)}</p></div>
+  </div>
+  <div class="navrow">
+    ${g>0?`<button class="btn alt" id="pv">${I.back} Vorige</button>`:'<span></span>'}
+    <button class="btn ${g===tot-1?'go':''}" id="nx">${g===tot-1?'Klaar':'Volgende'} ${I.next}</button>
+  </div>`;
+  const sp=document.getElementById('sp'), sayEl=document.getElementById('say'); sp.onclick=()=>speakSpans(sayEl,sp);
+  landAnim();
+  if(S.auto) speakSpans(sayEl,sp);
+  const out=()=>{hush();go({view:'settings',tab:'trainer'});};
+  document.getElementById('bk').onclick=out;
+  const pv=document.getElementById('pv'); if(pv) pv.onclick=()=>{hush();revGo(g-1);};
+  document.getElementById('nx').onclick=()=>{hush(); if(g===tot-1) out(); else revGo(g+1);};
 }
 function startQuiz(o){
   const qs=o.src().map(q0=>{const q=prep(q0);q.raw=q0;return q;});
@@ -2120,7 +2151,7 @@ function settingsView(){
     if(!trainerOk) body=`<form class="row" id="tf"><label for="tc" class="note">Trainerscode</label><input type="password" id="tc" autocomplete="off" style="width:150px"><button class="btn alt small" type="submit">Open</button></form><p class="note" id="tmsg" role="status"></p>`;
     else body=`
     <div class="testbox stack"><label class="row note"><input type="checkbox" id="tm" ${S.testmode?'checked':''}> <span><b>Testmodus</b>: alle lessen, toetsen en spelletjes staan open. Voortgang en shuttles veranderen niet.</span></label>
-    ${S.testmode?`<p class="note">Kies een scherm om direct te bekijken. In een toets kun je met <b>Sla over</b> naar de volgende vraag.</p><div class="jump">${LEVELS.map(l=>`<details><summary>Niveau ${l.n} · ${esc(l.name)}</summary><div class="jl">${l.lessons.map((x,i)=>`<div class="jr"><span>${i+1}. ${esc(x.title)}</span><button class="btn alt small" data-ju="${l.n}:${i}">Uitleg</button><button class="btn alt small" data-jt="${l.n}:${i}">Toets</button></div>`).join('')}${l.n>1?`<div class="jr"><span>Opfrissen</span><button class="btn alt small" data-jo="${l.n}">Toets</button></div>`:''}<div class="jr"><span>Eindtoets</span><button class="btn alt small" data-je="${l.n}">Toets</button></div><div class="jr"><span>Spelletjes</span><button class="btn alt small" data-jg="${l.n}">Bekijk</button></div></div></details>`).join('')}</div>`:''}</div>
+    ${S.testmode?`<div class="row" style="flex-wrap:wrap;gap:8px"><button class="btn go small" id="revall">${I.play} Alle uitleg achter elkaar</button>${S.revpos>0?`<button class="btn alt small" id="revcont">Verder bij scherm ${S.revpos+1}</button>`:''}</div><p class="note">Of kies hieronder een les. <b>Uitleg</b> start daar en loopt daarna door alle volgende lessen. In een toets kun je met <b>Sla over</b> naar de volgende vraag.</p><div class="jump">${LEVELS.map(l=>`<details><summary>Niveau ${l.n} · ${esc(l.name)}</summary><div class="jl">${l.lessons.map((x,i)=>`<div class="jr"><span>${i+1}. ${esc(x.title)}</span><button class="btn alt small" data-ju="${l.n}:${i}">Uitleg</button><button class="btn alt small" data-jt="${l.n}:${i}">Toets</button></div>`).join('')}${l.n>1?`<div class="jr"><span>Opfrissen</span><button class="btn alt small" data-jo="${l.n}">Toets</button></div>`:''}<div class="jr"><span>Eindtoets</span><button class="btn alt small" data-je="${l.n}">Toets</button></div><div class="jr"><span>Spelletjes</span><button class="btn alt small" data-jg="${l.n}">Bekijk</button></div></div></details>`).join('')}</div>`:''}</div>
     <div class="row"><label for="tl" class="note">${esc(S.current)} mag spelen t/m</label><select id="tl">${[1,2,3,4,5].map(n=>`<option value="${n}" ${p.unlock===n?'selected':''}>Niveau ${n}</option>`).join('')}</select></div>
     <div class="tbl" role="table" aria-label="Voortgang per speler"><div class="tr th" role="row"><span>Speler</span><span>Gehaald</span><span>Nu bezig</span><span>Foutenbak</span></div>
       ${Object.keys(S.profiles).map(nm=>{const q=S.profiles[nm]; const hi=[1,2,3,4,5].filter(n=>q.passed&&q.passed[n]).pop()||0; const curL=LEVELS[Math.min(hi,4)]; const d=curL.lessons.filter(x=>q.lessons&&q.lessons[x.id]).length;
@@ -2151,7 +2182,9 @@ function settingsView(){
   const bg=document.getElementById('bg'); if(bg) bg.onchange=e=>{S.big=e.target.checked;save();render();};
   const tm=document.getElementById('tm'); if(tm) tm.onchange=e=>{S.testmode=e.target.checked;save();render();};
   const LV=n=>LEVELS[n-1];
-  app.querySelectorAll('[data-ju]').forEach(b=>b.onclick=()=>{const [n,i]=b.dataset.ju.split(':').map(Number);go({view:'lesson',n,li:i,i:0});});
+  app.querySelectorAll('[data-ju]').forEach(b=>b.onclick=()=>{const [n,i]=b.dataset.ju.split(':').map(Number);go({view:'lesson',n,li:i,i:0,review:true});});
+  const ra=document.getElementById('revall'); if(ra) ra.onclick=()=>revGo(0);
+  const rc=document.getElementById('revcont'); if(rc) rc.onclick=()=>revGo(S.revpos);
   app.querySelectorAll('[data-jt]').forEach(b=>b.onclick=()=>{const [n,i]=b.dataset.jt.split(':').map(Number);const le=LV(n).lessons[i];startQuiz({n,title:le.title,kind:'lesson',li:i,src:()=>le.quiz});});
   app.querySelectorAll('[data-je]').forEach(b=>b.onclick=()=>{const n=+b.dataset.je;startQuiz({n,title:`Eindtoets niveau ${n}`,kind:'exam',src:()=>examFor(n)});});
   app.querySelectorAll('[data-jo]').forEach(b=>b.onclick=()=>{const n=+b.dataset.jo;startQuiz({n,title:`Opfrissen niveau ${n}`,kind:'opfris',src:()=>opfrisFor(n)});});
