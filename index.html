@@ -649,6 +649,7 @@ const I={
  medal:'<svg viewBox="0 0 40 40"><path d="M12 2h6l4 12h-6z" fill="#2b3bd8"/><path d="M28 2h-6l-4 12h6z" fill="#5b67ee"/><circle cx="20" cy="25" r="12" fill="#f07f1a" stroke="#c45f08" stroke-width="2"/><circle cx="20" cy="25" r="7.5" fill="none" stroke="#fff" stroke-width="1.6"/></svg>'
 };
 Object.assign(I,ICG);
+ICP.highfive='<svg viewBox="0 0 48 48" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M24 4.5V1M17.5 6l-3-3M30.5 6l3-3" stroke="#f07f1a" stroke-width="2.2"/><g transform="translate(35 42) rotate(-17) scale(-0.78 0.78) translate(-23 -44)"><path d="M15 44V35c-3-2-6-6-7-10-.6-2 1.8-3.2 3.2-1.7L15 27V12.5a2.4 2.4 0 0 1 4.8 0V24V9.5a2.4 2.4 0 0 1 4.8 0V24V11a2.4 2.4 0 0 1 4.8 0v13V14.5a2.4 2.4 0 0 1 4.8 0V32c0 5-3 8-6 9.5V44" fill="#c98a5c" stroke="#1d1d55" stroke-width="2.56" stroke-linejoin="round" stroke-linecap="round"/><rect x="13.5" y="42" width="18" height="9" fill="#f07f1a" stroke="#1d1d55" stroke-width="2.56"/></g><g transform="translate(13 42) rotate(17) scale(0.78) translate(-23 -44)"><path d="M15 44V35c-3-2-6-6-7-10-.6-2 1.8-3.2 3.2-1.7L15 27V12.5a2.4 2.4 0 0 1 4.8 0V24V9.5a2.4 2.4 0 0 1 4.8 0V24V11a2.4 2.4 0 0 1 4.8 0v13V14.5a2.4 2.4 0 0 1 4.8 0V32c0 5-3 8-6 9.5V44" fill="#f6c9a3" stroke="#1d1d55" stroke-width="2.56" stroke-linejoin="round" stroke-linecap="round"/><rect x="13.5" y="42" width="18" height="9" fill="#2b3bd8" stroke="#1d1d55" stroke-width="2.56"/></g></svg>';
 I.camera='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8.5A1.5 1.5 0 0 1 5.5 7h2.3l1.5-2.5h5.4L16.2 7h2.3A1.5 1.5 0 0 1 20 8.5v9a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 17.5z" fill="currentColor" fill-opacity=".2"/><circle cx="12" cy="12.8" r="3.4"/></svg>';
 I.image='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4.5" width="17" height="15" rx="2.5" fill="currentColor" fill-opacity=".2"/><circle cx="9" cy="10" r="1.8"/><path d="M4 17l5-4.5 4 3.5 2.5-2 4.5 3.5"/></svg>';
 document.getElementById('potico').innerHTML=I.shuttle;
@@ -715,7 +716,7 @@ if(synth){ loadVoices(); synth.onvoiceschanged=()=>{loadVoices(); if(cur.view===
 let speakingBtn=null;
 function spoken(text){
   return text.replace(/<[^>]+>/g,'').replace(/(\d+)\s*[–-]\s*(\d+)/g,'$1 $2').replace(/1,15 m\b/g,'1 meter 15').replace(/1,55 m\b/g,'1 meter 55').replace(/1,524 m\b/g,'1 meter 52')
-    .replace(/(\d+) s\b/g,'$1 seconden').replace(/\b[Ff]orehand/g,'forhend').replace(/\b[Bb]ackhand/g,'bekhend').replace(/ · /g,', ');
+    .replace(/(\d+) s\b/g,'$1 seconden').replace(/\b[Ff]orehand/g,'forhend').replace(/\b[Bb]ackhand/g,'bekhend').replace(/high-five/g,'haai faaiv').replace(/ · /g,', ');
 }
 function speak(text,btn,forced){
   if(!synth||!text) return;
@@ -1111,10 +1112,10 @@ const LEVELS=[
  L_('eerlijk','eerlijk-1','Netjes spelen',[
   CE('Roep niet en zwaai niet als de ander gaat slaan. De ander <strong>afleiden</strong> is niet eerlijk. En het is fout.',{scene:{k:'rally'}}),
   CE('Je doet altijd je <strong>best</strong>, en je wacht met serveren tot de ander klaar is.',{scene:{k:'serve'}}),
-  CE('Na het spelen geef je elkaar een hand of een boks. Goed gespeeld!',{icon:'handshake'})],
+  CE('Na het spelen geef je elkaar een <strong>high-five</strong> of een <strong>boks</strong>. Goed gespeeld!',{icon:'highfive'})],
   [{t:'wn',q:'Je mag hard roepen als de ander gaat slaan.',a:false,why:'De ander afleiden is fout. Dat is niet eerlijk.'},
    {t:'mc',q:'De ander is nog niet klaar. Wat doe je?',opts:['Wachten','Toch serveren','Weglopen'],pics:[{icon:'clock'},{icon:'serve'},{icon:'run'}],a:0,why:'Je wacht tot de ander klaar is.'},
-   {t:'wn',q:'Na het spelen geef je elkaar een hand of een boks.',a:true,why:'Zo bedank je elkaar voor het spel.'}],
+   {t:'wn',q:'Na het spelen geef je elkaar een high-five of een boks.',a:true,why:'Zo bedank je elkaar voor het spel.'}],
   'Wat is eerlijk? Denk aan hoe jij zou willen dat de ander met jou speelt.'),
  L_('slagen','slagen-1','Onderhands en bovenhands',[
   CE('Komt de shuttle <strong>laag</strong>? Dan sla je <strong>onderhands</strong>: je racket is onder de shuttle en je slaat hem omhoog.',{scene:{k:'onderhands'}}),
