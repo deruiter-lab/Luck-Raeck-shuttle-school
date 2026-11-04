@@ -825,6 +825,8 @@ function scene(o){
   const flight=(sx,sy,cx,cy,ex,ey,er,col)=>flightN([[sx,sy,cx,cy,ex,ey]],er,col);
   /* racket dat naar een plek beweegt (bijv. tegen het net) */
   const rkMove=(px,py,fx,fy,tx,ty)=>`<g class="rk" data-p="${[px,py,fx,fy,tx,ty].join(',')}"><line x1="${px}" y1="${py}" x2="${tx}" y2="${ty}" stroke="#1d1d55" stroke-width="3"/><ellipse cx="${tx}" cy="${ty}" rx="8" ry="11" fill="none" stroke="#1d1d55" stroke-width="3"/></g>`;
+  /* racket dat zwaait: hoek a0 → a1 (raakmoment th ms) → a2 */
+  const swing=(px,py,len,a0,a1,a2,th)=>`<g class="sw" data-p="${[px,py,a0,a1,a2,th].join(',')}" transform="rotate(${a2} ${px} ${py})"><line x1="${px}" y1="${py}" x2="${px}" y2="${py-len}" stroke="#1d1d55" stroke-width="3"/><ellipse cx="${px}" cy="${py-len-11}" rx="8" ry="11" fill="none" stroke="#1d1d55" stroke-width="3"/></g>`;
   const endMark=(x,y)=>`<circle class="endonly" cx="${x}" cy="${y}" r="14" fill="none" stroke="#c23b2b" stroke-width="3"/>`;
   const RL=racketL(96,96), RR=racketR(240,92), LY=80.7;
   if(k==='groundL') g+=RL+RR+flight(240,92,170,-22,120,151.5,LY);
@@ -839,7 +841,7 @@ function scene(o){
   if(k==='bodyL')   g+=RL+RR+flight(240,92,150,10,62,114,null);
   if(k==='bodyR')   g+=RL+RR+flight(96,96,190,8,278,114,null);
   if(k==='underL')  g+=racketL(98,134)+RR+flight(98,134,150,-78,205,146,null,'#c23b2b');
-  if(k==='onderhands') g+=racketL(98,134)+RR+flight(98,134,170,-10,240,92,null);
+  if(k==='onderhands') g+=swing(82,112,21.6,200,137.7,60,1000)+RR+flightN([[240,92,165,0,104,136],[104,136,170,-14,240,92]],null);
   if(k==='bovenhands') g+=racketL(100,62)+RR+flight(100,62,170,-10,240,92,null);
   if(k==='lob')     g+=racketL(98,134)+RR+flight(98,134,190,-70,278,151.5,-LY);
   if(k==='clear')   g+=racketL(100,62)+RR+flight(100,62,200,-70,278,151.5,-LY);
@@ -1995,7 +1997,7 @@ function quizView(){
 }
 function ensureReplay(){
   const a=document.getElementById('art'); if(!a||a.querySelector('.replay')) return;
-  if(!a.querySelector('.landing,.flight,.rk,.dlos,animate,animateTransform,animateMotion')) return;
+  if(!a.querySelector('.landing,.flight,.rk,.sw,.dlos,animate,animateTransform,animateMotion')) return;
   const b=document.createElement('button'); b.className='replay'; b.type='button'; b.setAttribute('aria-label','Animatie opnieuw afspelen'); b.title='Opnieuw afspelen'; b.innerHTML=I.redo;
   b.onclick=e=>{e.stopPropagation(); landAnim();}; a.appendChild(b);
 }
@@ -2004,10 +2006,10 @@ function landAnim(done){
   ensureReplay();
   const root=document.getElementById('art'); if(!root){done();return;}
   const dl=root.querySelector('.dlos'); if(dl){dlosAnim(dl,done);return;}
-  const gs=root.querySelectorAll('.landing'), fl=root.querySelectorAll('.flight'), rks=root.querySelectorAll('.rk'), ends=root.querySelectorAll('.endonly');
+  const gs=root.querySelectorAll('.landing'), fl=root.querySelectorAll('.flight'), rks=root.querySelectorAll('.rk'), sws=root.querySelectorAll('.sw'), ends=root.querySelectorAll('.endonly');
   root.querySelectorAll('svg').forEach(sv=>{ if(sv.querySelector('animate,animateTransform,animateMotion')&&sv.setCurrentTime){ try{sv.setCurrentTime(0);sv.unpauseAnimations();}catch(e){} } });
   if(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches){done();return;}
-  let left=gs.length+fl.length+rks.length; if(!left){done();return;}
+  let left=gs.length+fl.length+rks.length+sws.length; if(!left){done();return;}
   const fin=()=>{ if(--left===0){ ends.forEach(m=>m.style.opacity=1); done(); } };
   ends.forEach(m=>m.style.opacity=0);
   /* bovenaanzicht van de baan */
@@ -2037,6 +2039,16 @@ function landAnim(done){
         let d=`M${segs[0][0]} ${segs[0][1]}`; for(let j=0;j<si;j++) d+=` Q${segs[j][2]} ${segs[j][3]} ${segs[j][4]} ${segs[j][5]}`;
         const qx=q[0]+(q[2]-q[0])*t, qy=q[1]+(q[3]-q[1])*t; d+=` Q${qx.toFixed(1)} ${qy.toFixed(1)} ${x.toFixed(1)} ${y.toFixed(1)}`; tr.setAttribute('d',d);}
       if(K<1) requestAnimationFrame(step); else fin();
+    })(t0);
+  });
+  /* zwaaiend racket (onderhands) */
+  sws.forEach(g=>{
+    const [px,py,a0,a1,a2,th]=g.dataset.p.split(',').map(Number), t0=performance.now(), D=th+500;
+    const ez=x=>x<.5?2*x*x:1-Math.pow(-2*x+2,2)/2;
+    (function step(now){const e=now-t0; let a;
+      if(e<th-380) a=a0; else if(e<th) a=a0+(a1-a0)*ez((e-(th-380))/380); else if(e<th+320) a=a1+(a2-a1)*ez((e-th)/320); else a=a2;
+      g.setAttribute('transform',`rotate(${a.toFixed(1)} ${px} ${py})`);
+      if(e<D) requestAnimationFrame(step); else fin();
     })(t0);
   });
   /* racket dat het net raakt */
