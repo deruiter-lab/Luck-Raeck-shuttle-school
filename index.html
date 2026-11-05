@@ -717,6 +717,33 @@ body.testmode .tpill{display:inline-block}
 .m-racket .lk-al{animation:lkSwingL 2.4s ease-in-out infinite}
 @keyframes lkRacket{0%,100%{transform:rotate(0)}30%{transform:rotate(-16deg)}55%{transform:rotate(8deg)}}
 @media (max-height:700px){.lk-splash{width:86px;height:108px;top:-64px;right:-8px}.splash2 .spname{padding:12px 14px 14px}.splash2 .spname input{height:46px}}
+
+/* ===== uitleg- en toetsschermen in bento-stijl ===== */
+.lhero{position:relative;overflow:hidden;display:flex;align-items:center;gap:12px;padding:14px 16px;border-radius:24px;color:#fff;
+ background:radial-gradient(130% 160% at 90% 0%,color-mix(in srgb,var(--hc) 55%,#fff) 0%,var(--hc) 45%,color-mix(in srgb,var(--hc) 70%,#1d1d55) 100%);
+ box-shadow:0 14px 26px -14px color-mix(in srgb,var(--hc) 80%,transparent)}
+.lh-ic{flex:none;width:46px;height:46px;border-radius:15px;background:rgba(255,255,255,.22);display:grid;place-items:center;color:#fff}.lh-ic svg{width:26px;height:26px}
+.lh-t{min-width:0;flex:1;display:flex;flex-direction:column;gap:2px}
+.lh-k{font-family:var(--display);font-weight:600;font-size:12px;letter-spacing:.08em;text-transform:uppercase;opacity:.9}
+.lhero h2{color:#fff;margin:0;line-height:1.12;font-size:clamp(19px,2.9vh,24px)}
+.lh-bar{display:block;height:6px;border-radius:6px;background:rgba(255,255,255,.3);margin-top:6px;overflow:hidden}.lh-bar i{display:block;height:100%;background:#fff;border-radius:6px}
+.lesson-stage,.qstage{background:none;border:0;box-shadow:none;padding:0;gap:10px}
+.lesson-stage .art,.qstage .art{box-sizing:border-box;background:var(--blue-soft);border-radius:24px;padding:8px;box-shadow:var(--sh)}
+.lesson-stage .art>svg,.qstage .art>svg{max-height:100%}
+.lesson-stage .art>svg>rect:first-child[rx]{rx:0}
+.lesson-stage>.qrow{background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:14px;box-shadow:var(--sh);align-items:center}
+.qstage>.qrow:first-child{position:relative;padding:14px 16px;border-radius:24px;color:#fff;align-items:center;
+ background:radial-gradient(130% 160% at 90% 0%,color-mix(in srgb,var(--hc) 55%,#fff) 0%,var(--hc) 45%,color-mix(in srgb,var(--hc) 70%,#1d1d55) 100%);
+ box-shadow:0 14px 26px -14px color-mix(in srgb,var(--hc) 80%,transparent)}
+.qstage>.qrow:first-child .say{color:#fff;font-family:var(--display);font-weight:600}
+.qstage>.qrow:first-child .say strong{color:#fff;text-decoration:underline;text-decoration-color:rgba(255,255,255,.5);text-underline-offset:3px}
+.qstage>.qrow:first-child .label{color:rgba(255,255,255,.85)}
+.qstage>.qrow:first-child .speak{background:#fff;color:var(--hc)}
+.qstage>.qrow:first-child .hintbtn{background:rgba(255,255,255,.95)}
+.lesson-stage .say strong{color:var(--blue)}
+.qstage .opts .opt{background:var(--surface)}
+.qstage .hint,.qstage .note{margin:0}
+@media (max-height:760px){.lhero{padding:10px 12px;border-radius:20px}.lh-ic{width:38px;height:38px}.lhero h2{font-size:18px}}
 </style>
 
 <header class="bar"><div class="bar-in">
@@ -2180,8 +2207,8 @@ function lessonView(){
   const {n,li,i}=cur; const lv=LEVELS[n-1]; const le=lv.lessons[li]; const sl=le.slides[i]; const last=i===le.slides.length-1;
   const testOpen=levelOpen(n)&&lessonOpen(lv,li);
   app.innerHTML=`
-  <div class="topline"><button class="back" id="bk">${I.back} Niveau ${n}</button><div class="dots">${le.slides.map((_,k)=>`<i class="${k<=i?'on':''}"></i>`).join('')}</div></div>
-  <div class="ltitle"><span class="tic"${tcol(le.topic)}>${I[TOPICS[le.topic].icon]}</span><h2>${le.title}</h2></div>
+  <div class="topline"><button class="back" id="bk">${I.back} Niveau ${n}</button><span class="label">Les ${li+1} van ${lv.lessons.length}</span></div>
+  <div class="lhero" style="--hc:${TOPICS[le.topic].c||'#2b3bd8'}"><span class="lh-ic">${I[TOPICS[le.topic].icon]}</span><div class="lh-t"><span class="lh-k">${TOPICS[le.topic].name} · uitleg ${i+1} van ${le.slides.length}</span><h2>${le.title}</h2><span class="lh-bar"><i style="width:${Math.round((i+1)/le.slides.length*100)}%"></i></span></div></div>
   <div class="stage lesson-stage">
     <div class="art" id="art">${art(sl.art)}</div>
     <div class="qrow"><button class="speak" id="sp" aria-label="Lees voor">${I.speaker}</button><p class="say" id="say">${sentSpans(sl.say)}</p></div>
@@ -2205,7 +2232,7 @@ function slideReview(){
   app.innerHTML=`
   <div class="topline"><button class="back" id="bk">${I.back} Stoppen</button><span class="label">Scherm ${g+1} van ${tot}</span></div>
   <div class="revbar"><i style="width:${((g+1)/tot*100).toFixed(1)}%"></i></div>
-  <div class="ltitle"><span class="tic"${tcol(le.topic)}>${I[TOPICS[le.topic].icon]}</span><h2>${le.title}<small class="revsub">Niveau ${n} · les ${li+1} · uitleg ${i+1} van ${le.slides.length}</small></h2></div>
+  <div class="lhero" style="--hc:${TOPICS[le.topic].c||'#2b3bd8'}"><span class="lh-ic">${I[TOPICS[le.topic].icon]}</span><div class="lh-t"><span class="lh-k">Niveau ${n} · les ${li+1} · uitleg ${i+1} van ${le.slides.length}</span><h2>${le.title}</h2><span class="lh-bar"><i style="width:${Math.round((i+1)/le.slides.length*100)}%"></i></span></div></div>
   <div class="stage lesson-stage">
     <div class="art" id="art">${art(sl.art)}</div>
     <div class="qrow"><button class="speak" id="sp" aria-label="Lees voor">${I.speaker}</button><p class="say" id="say">${sentSpans(sl.say)}</p></div>
@@ -2253,7 +2280,7 @@ function quizView(){
   app.innerHTML=`
   <div class="topline"><button class="back" id="bk">${I.back} Stoppen</button>${S.testmode?`<button class="btn alt small" id="tskip">Sla over ${I.next}</button>`:''}<span class="label">${esc(c.title)} · ${c.k+1}/${c.qs.length}</span></div>
   <div class="qdots" aria-label="Voortgang: vraag ${c.k+1} van ${c.qs.length}">${c.qs.map((_,i)=>`<i class="${c.res&&c.res[i]===true?'ok':c.res&&c.res[i]===false?'no':i===c.k?'cur':''}"></i>`).join('')}</div>
-  <div class="stage${artHtml?'':' noart'}${ans!=null?' answered':''}">
+  <div class="stage qstage${artHtml?'':' noart'}${ans!=null?' answered':''}" style="--hc:${(c.kind==='lesson'&&LEVELS[c.n-1]&&LEVELS[c.n-1].lessons[c.li]&&TOPICS[LEVELS[c.n-1].lessons[c.li].topic].c)||'#2b3bd8'}">
     <div class="qrow"><button class="speak" id="sp" aria-label="Lees de vraag voor">${I.speaker}</button><p class="say">${q.pre?`<span class="label" style="display:block">${q.pre}</span>`:''}<span id="qtext">${sentSpans(q.q)}</span></p>${H?`<button class="hintbtn" id="hb" aria-label="Hint bekijken" title="Hint">${I.bulb}</button>`:''}</div>
     ${artHtml?`<div class="art" id="art">${artHtml}</div>`:''}
     ${H?`<div class="hintpanel" id="hp" hidden><div class="hph"><span class="hlab">${lucky('hint','lk-hint')} Hint van Lucky</span><button class="btn alt small" id="hpx">Terug naar de vraag</button></div>${H.art?`<div class="art hart">${art(H.art)}</div>`:''}<div class="qrow"><button class="speak" id="hsp" aria-label="Lees de hint voor">${I.speaker}</button><p class="say">${H.text}</p></div></div>`:''}
