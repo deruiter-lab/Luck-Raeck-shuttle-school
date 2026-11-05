@@ -629,6 +629,45 @@ body.testmode .tpill{display:inline-block}
 @keyframes lkPoint{0%,100%{transform:rotate(0)}50%{transform:rotate(-10deg) translateY(-2px)}}
 @keyframes lkGlow{0%,100%{transform:scale(1);opacity:.85}50%{transform:scale(1.15);opacity:1}}
 @media (prefers-reduced-motion:reduce){.lucky svg *{animation:none!important}}
+.hero.bnx{display:flex;align-items:center;gap:12px}.hero.bnx h1{margin:0;line-height:1.1}.hero.bnx p{margin:2px 0 0}
+.bento{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.bn{position:relative;overflow:hidden;border:1px solid var(--line);background:var(--surface);border-radius:22px;padding:14px;text-align:left;display:flex;flex-direction:column;gap:2px;color:var(--fg);font:inherit;box-shadow:0 6px 18px -10px rgba(29,29,85,.35)}
+.bn-go{grid-column:1/-1;border:0;color:#fff;padding:18px 18px 16px;min-height:168px;background:radial-gradient(120% 140% at 85% 20%,#ffb15e 0%,#f07f1a 45%,#d9630a 100%);box-shadow:0 14px 28px -14px rgba(240,127,26,.8)}
+.bn-k{font-family:var(--display);font-weight:600;font-size:13px;letter-spacing:.08em;text-transform:uppercase;opacity:.9}
+.bn-t{font-family:var(--display);font-weight:700;font-size:clamp(22px,3.4vh,28px);line-height:1.1;max-width:62%;margin-top:2px}
+.bn-s{font-size:13px;opacity:.85;margin-top:2px}
+.bn-go .bn-bar{display:block;width:58%;height:8px;border-radius:8px;background:rgba(255,255,255,.3);margin-top:auto;overflow:hidden}.bn-go .bn-bar i{display:block;height:100%;background:#fff;border-radius:8px}
+.bn-s2{font-size:12px;font-weight:700;opacity:.9;margin-top:4px}
+.bn-play{position:absolute;left:auto;right:16px;bottom:14px;width:46px;height:46px;border-radius:50%;background:#fff;color:#f07f1a;display:grid;place-items:center;box-shadow:0 4px 10px rgba(0,0,0,.18)}.bn-play svg{width:22px;height:22px;margin-left:3px}
+.lk-bento{position:absolute;right:8px;top:6px;width:96px;height:118px}
+.bn-ic{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;background:var(--blue-soft);color:var(--blue)}.bn-ic svg{width:22px;height:22px}
+.bn-pot .bn-ic{background:var(--orange-soft)}
+.bn-n{font-family:var(--display);font-weight:700;font-size:34px;line-height:1;margin-top:8px}
+.bn-l{font-size:13px;color:var(--muted)}
+.bn-route,.bn-top{grid-column:1/-1;gap:8px}
+.bn-h{font-family:var(--display);font-weight:700;font-size:16px;display:flex;justify-content:space-between}.bn-h b{color:var(--orange)}
+.rt{display:flex;align-items:center;padding:6px 4px 2px}
+.rt-ln{flex:1;height:4px;border-radius:4px;background:var(--line)}.rt-ln.on{background:var(--orange)}
+.rt-st{position:relative;flex:none;width:40px;height:40px;border-radius:50%;border:0;display:grid;place-items:center;font-family:var(--display);font-weight:700;font-size:18px;background:var(--blue-soft);color:var(--blue)}
+.rt-st svg{width:18px;height:18px}.rt-st.pass{background:var(--orange);color:#fff}.rt-st.lock{background:var(--line);color:var(--lock)}
+.rt-st.now{background:var(--blue);color:#fff;box-shadow:0 0 0 4px var(--blue-soft)}
+.rt-me{position:absolute;top:-16px;right:-12px;width:24px;height:24px}.rt-me svg{width:24px;height:24px;border-radius:50%;box-shadow:0 0 0 2px var(--surface)}
+.tp{display:grid;grid-template-columns:repeat(9,minmax(0,1fr));gap:4px}
+.tp-i{display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 0 4px;border-radius:12px;background:var(--blue-soft);color:var(--blue)}
+.tp-i[style*="--tc"]{color:var(--tc);background:color-mix(in srgb,var(--tc) 13%,var(--surface))}
+.tp-i.off{opacity:.55}.tp-i .tbi,.tp-i .tbi svg{width:18px;height:18px}.tp-i small{font-size:10px;font-weight:700;color:var(--muted)}
+@media (max-height:760px){
+ .bento{gap:8px}.bn{padding:10px 12px;border-radius:18px}
+ .bn-go{min-height:0;padding:14px 16px 12px}.lk-bento{width:80px;height:98px}
+ .bn-pot,.bn-game,.bn-bak{display:grid;grid-template-columns:auto 1fr;column-gap:10px;align-items:center}
+ .bn-pot .bn-ic,.bn-game .bn-ic,.bn-bak .bn-ic{grid-row:1/3}
+ .bn-n{font-size:24px;margin:0}.bn-l{font-size:12px}
+ .rt{padding-top:2px}.rt-st{width:34px;height:34px;font-size:16px}
+ .hero.bnx .heroav,.hero.bnx .heroav>svg{width:46px;height:46px}
+}
+
+.bento button.bn{cursor:pointer}.bn:active{transform:scale(.98)}.bn{transition:transform .12s}
+.bento .bn-go:focus-visible,.bento .bn:focus-visible{outline:3px solid var(--blue);outline-offset:3px}
 </style>
 
 <header class="bar"><div class="bar-in">
@@ -1965,26 +2004,40 @@ function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','
 
 function homeView(){
   const p=P(); const ns=nextStep(); const due=bakDue().length;
-  const conn=(lit)=>`<div class="conn ${lit?'lit':''}" aria-hidden="true"><svg viewBox="0 0 40 24"><path d="M5 3h30L20 21z" stroke-linejoin="round"/></svg></div>`;
+  const curL=LEVELS.find(l=>levelOpen(l.n)&&!p.passed[l.n])||LEVELS[LEVELS.length-1];
+  const d=lessonsDone(curL), t=curL.lessons.length, allDone=!ns;
+  const totStars=TOPIC_ORDER.reduce((a,x)=>a+topicStars(x),0);
   app.innerHTML=`
   <div class="hero"><button class="heroav" id="heroav" aria-label="Kies je figuurtje">${avatarFor(S.current)}<span class="avedit" aria-hidden="true">${I.pencil}</span></button><div style="min-width:0;flex:1">
     <div class="namerow" id="namerow"><h1>Hoi ${esc(S.current)}!</h1><button class="editbtn" id="edit" aria-label="Naam aanpassen" title="Naam aanpassen">${I.pencil}</button></div>
     <form class="namerow" id="nameform" hidden><label for="nm" class="sr">Je naam</label><input type="text" id="nm" maxlength="20" value="${esc(S.current)}"><button class="okbtn" type="submit" aria-label="Naam opslaan">${ic('check',20)}</button></form>
     <div class="avpick" id="avpick" hidden aria-label="Kies je figuurtje">${AVC.map((_,i)=>`<button type="button" data-av="${i}" class="${!P().photo&&avIndex(S.current)===i?'on':''}" aria-label="${AVN[i]}">${avatar(i)}</button>`).join('')}
       <div class="avphoto"><label class="btn alt small" for="avlib">${I.image} Foto kiezen</label><input type="file" id="avlib" accept="image/*" class="sr"><label class="btn alt small" for="avcam">${I.camera} Selfie maken</label><input type="file" id="avcam" accept="image/*" capture="user" class="sr">${P().photo?`<button type="button" class="linkbtn" id="avdel">Foto weghalen</button>`:''}</div><p class="note" id="avmsg" role="status"></p></div>
-    <p class="muted small" id="nmsg">Je hebt ${p.shuttles} ${p.shuttles===1?'shuttle':'shuttles'} gespaard</p></div>${lucky('happy','lk-home')}</div>
-  ${ns?`<button class="bigbtn" id="next"><span class="bb1">Verder leren</span><span class="bb2">${esc(ns.label)}</span>${I.play}</button>`:`<div class="card"><b>Alle niveaus gehaald!</b> <span class="muted">Speel de spelletjes om scherp te blijven.</span></div>`}
-  ${due?`<button class="item bak" id="bak"><span class="ic">${I.redo}</span><span class="t"><b>Foutenbak</b><span>${due} ${due===1?'vraag':'vragen'} om te herhalen</span></span>${ic('next')}</button>`:''}
-  <div class="path">${LEVELS.map((l,ix)=>{const open=levelOpen(l.n), pass=!!p.passed[l.n], d=lessonsDone(l), t=l.lessons.length;
-    return (ix?conn(!!p.passed[l.n-1]):'')+`<button class="stop ${open?'':'locked'} ${pass?'passed':''}" data-n="${l.n}" aria-label="Niveau ${l.n}${open?'':', op slot'}">
-      <span class="num">${open?l.n:I.lock}${open&&!pass&&LEVELS.find(z=>levelOpen(z.n)&&!p.passed[z.n])===l?`<span class="me" aria-label="Hier ben je">${avatarFor(S.current)}</span>`:''}</span>
-      <span class="txt"><b>${l.name}</b><span class="sub">${open?(pass?'foutloos gehaald':`${d} van ${t} lessen`):`eerst niveau ${l.n-1} foutloos`}</span>${open?`<span class="progress"><i style="width:${(d+(pass?1:0))/(t+1)*100}%"></i></span>`:''}</span>
-      ${pass?`<span class="medal">${I.medal}</span>`:''}</button>`;}).join('')}</div>
-  <div class="topics" aria-label="Onderwerp-badges">${TOPIC_ORDER.map(t=>{const s=topicStars(t);return `<span class="tb ${s?'':'off'}"${tcol(t)} title="${TOPICS[t].name}: ${s} van 5 sterren"><span class="tbi">${I[TOPICS[t].icon]}</span><span class="tbs">${'★'.repeat(s)}${'☆'.repeat(5-s)}</span></span>`;}).join('')}</div>
+    <p class="muted small" id="nmsg">Klaar om te leren?</p></div></div>
+  <div class="bento">
+    <button class="bn bn-go" id="next">
+      <span class="bn-k">${allDone?'Alles gehaald!':'Verder leren'}</span>
+      <span class="bn-t">${allDone?'Kampioen!':esc(ns.label.replace(/^Niveau \d+ · /,''))}</span>
+      <span class="bn-s">${allDone?'Speel de spelletjes om scherp te blijven':`Niveau ${curL.n} · ${esc(curL.name)}`}</span>
+      <span class="bn-bar"><i style="width:${allDone?100:Math.round(d/t*100)}%"></i></span>
+      <span class="bn-s2">${allDone?'5 van 5 niveaus':`${d} van ${t} lessen`}</span>
+      <span class="bn-play">${I.play}</span>
+      ${lucky(allDone?'cheer':'happy','lk-bento')}
+    </button>
+    <button class="bn bn-pot" id="bnpot"><span class="bn-ic">${I.shuttle}</span><span class="bn-n">${p.shuttles}</span><span class="bn-l">${p.shuttles===1?'shuttle':'shuttles'} gespaard</span></button>
+    ${due?`<button class="bn bn-bak" id="bak"><span class="bn-ic">${I.redo}</span><span class="bn-n">${due}</span><span class="bn-l">in de foutenbak</span></button>`
+         :`<button class="bn bn-game" id="bngame"><span class="bn-ic">${I.racketd}</span><span class="bn-n">${gamesFor(curL.n).length}</span><span class="bn-l">spelletjes</span></button>`}
+    <div class="bn bn-route"><span class="bn-h">Jouw route</span><div class="rt">${LEVELS.map((l,ix)=>{const open=levelOpen(l.n),pass=!!p.passed[l.n],now=l===curL&&!pass;
+      return (ix?`<i class="rt-ln ${p.passed[l.n-1]?'on':''}"></i>`:'')+`<button class="rt-st ${pass?'pass':''} ${now?'now':''} ${open?'':'lock'}" data-n="${l.n}" aria-label="Niveau ${l.n}: ${esc(l.name)}${pass?', gehaald':open?'':', op slot'}">${pass?I.check:open?l.n:I.lock}${now?`<span class="rt-me">${avatarFor(S.current)}</span>`:''}</button>`;}).join('')}</div>
+      <span class="bn-s">${allDone?'Alle niveaus foutloos gehaald':`Nu: niveau ${curL.n}, ${esc(curL.name)}`}</span></div>
+    <div class="bn bn-top"><span class="bn-h">Onderwerpen <b>${totStars} ★</b></span><div class="tp">${TOPIC_ORDER.map(x=>{const st=topicStars(x);return `<span class="tp-i ${st?'':'off'}"${tcol(x)} title="${TOPICS[x].name}: ${st} van 5 sterren"><span class="tbi">${I[TOPICS[x].icon]}</span><small>${st}★</small></span>`;}).join('')}</div></div>
+  </div>
   ${S.auto?voiceWarn():''}`;
-  const nb=document.getElementById('next'); if(nb) nb.onclick=()=>doStep(ns);
+  const nb=document.getElementById('next'); if(nb) nb.onclick=()=>{ if(ns) doStep(ns); else go({view:'level',n:5,tab:'spel'}); };
   const bb=document.getElementById('bak'); if(bb) bb.onclick=()=>startQuiz({n:1,title:'Foutenbak',kind:'bak',src:()=>bakDue().slice(0,8).map(b=>b.r)});
-  app.querySelectorAll('.stop').forEach(b=>b.onclick=()=>{const n=+b.dataset.n; if(levelOpen(n)) go({view:'level',n,tab:'les'}); else {const m=`Niveau ${n} is nog op slot. Haal eerst niveau ${n-1} foutloos.`; toast(m,true); if(S.auto) speak(m);}});
+  const bg=document.getElementById('bngame'); if(bg) bg.onclick=()=>go({view:'level',n:curL.n,tab:'spel'});
+  const bp=document.getElementById('bnpot'); if(bp) bp.onclick=()=>{const pt=document.getElementById('pot');pt.classList.remove('bump');void pt.offsetWidth;pt.classList.add('bump');kaching(.6);};
+  app.querySelectorAll('.rt-st').forEach(b=>b.onclick=()=>{const n=+b.dataset.n; if(levelOpen(n)) go({view:'level',n,tab:'les'}); else {const m=`Niveau ${n} is nog op slot. Haal eerst niveau ${n-1} foutloos.`; toast(m,true); if(S.auto) speak(m);}});
   const nr=document.getElementById('namerow'), nf=document.getElementById('nameform'), nm=document.getElementById('nm');
   const openEdit=()=>{nr.hidden=true;nf.hidden=false;document.getElementById('avpick').hidden=false;nm.focus();nm.select();};
   document.getElementById('edit').onclick=openEdit; document.getElementById('heroav').onclick=openEdit;
