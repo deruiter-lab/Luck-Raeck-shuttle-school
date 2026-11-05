@@ -2601,7 +2601,9 @@ function svgPoint(svg,e){
   return [p.x/s+(+svg.dataset.xmin), p.y/s+(+svg.dataset.ymin)];
 }
 function optLabel(q,o,i){
-  if(q.pics&&q.pics[i]&&q.pics[i].txt) return `<span class="onum">${o}</span>`;
+  /* alleen grote cijfers als álle keuzes een getal zijn; anders een plaatje met tekst, net als de andere keuzes */
+  if(q.pics&&q.pics[i]&&q.pics[i].txt&&q.pics.every(x=>x&&x.txt)) return `<span class="onum">${o}</span>`;
+  if(q.pics&&q.pics[i]&&q.pics[i].txt) return `<span class="opic"><svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="19" fill="#f07f1a" stroke="#1d1d55" stroke-width="2.6"/><text x="24" y="31.5" text-anchor="middle" font-family="Fredoka,sans-serif" font-weight="700" font-size="21" fill="#fff">${q.pics[i].txt}</text></svg></span><span>${o}</span>`;
   if(q.pics&&q.pics[i]) return `<span class="opic">${picArt(q.pics[i])}</span><span>${o}</span>`;
   if(q.t==='wn') return `${i===0?ic('check',20):ic('cross',20)} ${o}`;
   return o;
