@@ -465,6 +465,7 @@ body.bigtext .fb{font-size:clamp(18px,2.9vh,24px)}
 .catch{font-size:clamp(16px,2.4vh,22px);line-height:1.25}
 
 /* openingsscherm in de stijl van het linkvoorbeeld */
+body.onsplash{background:#1d1d55 radial-gradient(130% 85% at 30% 18%,#3a48e0 0%,#2b3bd8 42%,#1d1d55 100%) no-repeat fixed}
 
 .splash2{position:relative;flex:1 1 auto;min-height:100%;display:flex;flex-direction:column;align-items:center;justify-content:space-between;gap:clamp(10px,2vh,20px);text-align:center;padding-block:clamp(14px,4.5vh,44px) clamp(6px,1.5vh,16px);color:#fff}
 .sp-bg{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:0}
@@ -2482,35 +2483,27 @@ function fitLockup(){
   svg.setAttribute('viewBox','0 0 838 '+Math.ceil(y2+b*.3));
 }
 function splashView(){
-  const kid=(x,c)=>`<circle cx="${x}" cy="86" r="8" fill="${c}"/><rect x="${x-9}" y="96" width="18" height="26" rx="7" fill="${c}"/><rect x="${x-7}" y="118" width="5" height="14" rx="2" fill="${c}"/><rect x="${x+2}" y="118" width="5" height="14" rx="2" fill="${c}"/>`;
-  const racket=(px,py,vals,kt)=>`<g><animateTransform attributeName="transform" type="rotate" dur="3.2s" repeatCount="indefinite" values="${vals.map(v=>v+' '+px+' '+py).join(';')}" keyTimes="${kt}"/><line x1="${px}" y1="${py}" x2="${px}" y2="${py-24}" stroke="#fff" stroke-width="3" stroke-linecap="round"/><ellipse cx="${px}" cy="${py-32}" rx="6.5" ry="9" fill="none" stroke="#fff" stroke-width="2.6"/></g>`;
-  const fly=`<svg class="hero-svg" viewBox="0 0 320 150" aria-hidden="true">
-    <line x1="0" y1="132" x2="320" y2="132" stroke="#fff" stroke-opacity=".35" stroke-width="2"/>
-    <rect x="157" y="76" width="6" height="56" rx="2" fill="#fff" fill-opacity=".85"/><rect x="150" y="73" width="20" height="6" rx="2" fill="#fff"/>
-    <g stroke="#fff" stroke-opacity=".25">${[0,1,2,3,4].map(i=>`<line x1="152" y1="${84+i*9}" x2="168" y2="${84+i*9}"/>`).join('')}</g>
-    <path d="M49 74 Q160 -40 271 74" fill="none" stroke="#ffb06a" stroke-width="2" stroke-dasharray="5 7" stroke-opacity=".55"/>
-    ${kid(30,'#5b8cff')}${kid(290,'#ff9a3d')}
-    ${racket(38,104,[20,-40,-40,20],'0;0.14;0.86;1')}
-    ${racket(282,104,[40,40,-20,40,40],'0;0.36;0.5;0.64;1')}
-    <g><animateMotion dur="3.2s" repeatCount="indefinite" rotate="auto" path="M49 74 Q160 -40 271 74 Q160 -40 49 74"/>
-      <g transform="rotate(-90) scale(1.1) translate(-16 -22.5)">${SHUTTLE_INNER}</g></g>
+  const arc='M70 830 Q150 520 430 470';
+  const bg=`<svg class="sp-bg" viewBox="0 0 400 800" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+    <g transform="translate(250 380) rotate(28) scale(.8)" opacity=".12"><g fill="none" stroke="#fff" stroke-width="4"><rect x="0" y="0" width="305" height="670"/><path d="M23 0V670M282 0V670M0 38H305M0 632H305M0 236.0H305M0 434.0H305M152.5 0V236.0M152.5 434.0V670"/><path d="M-30 335.0H335" stroke-width="7" stroke-dasharray="3 5"/></g></g>
+    <path d="${arc}" fill="none" stroke="#ffb06a" stroke-width="3" stroke-dasharray="9 11" stroke-linecap="round" opacity=".55"/>
+    <g class="sp-fly" opacity="0"><animateMotion dur="3.6s" repeatCount="indefinite" rotate="auto" calcMode="spline" keyTimes="0;1" keyPoints="0;1" keySplines=".25 .1 .6 1" path="${arc}"/><animate attributeName="opacity" values="0;1;1;0" keyTimes="0;.08;.82;1" dur="3.6s" repeatCount="indefinite"/><g transform="rotate(-90) scale(1.9) translate(-16 -22.5)">${SHUTTLE_NAVY}</g></g>
   </svg>`;
   app.innerHTML=`
-  <div class="splash">
-    <div class="logo"><img src="${LOGO}" alt="Luck Raeck, badmintonvereniging Montfoort"></div>
-    <div class="hero-card">
-      ${fly}
-      <h1>Shuttle-school</h1>
-      <p class="tag">Word de baas over de spelregels!</p>
+  <div class="splash2">
+    ${bg}
+    <div class="sp-lock">
+      <svg id="splock" viewBox="0 0 838 520" role="img" aria-label="Luck Raeck, badmintonvereniging Montfoort. Shuttle-school. Word de baas over de spelregels!"><image href="${LOGO_W}" x="0" y="0" width="760" height="336"/><text id="sp-ss" x="79" y="446" font-family="Fredoka, 'Baloo 2', 'Trebuchet MS', sans-serif" font-weight="700" font-size="118" fill="#ff9a3d">Shuttle-school</text><text id="sp-tg" x="79" y="510" font-family="Fredoka, 'Baloo 2', 'Trebuchet MS', sans-serif" font-weight="600" font-size="46" fill="#ffffff">Word de baas over de spelregels!</text></svg>
     </div>
-    <p class="catch">Met Shuttle-school maak je <strong>spelenderwijs</strong> en <strong>stapje voor stapje</strong> kennis met de badmintonsport!</p>
+    <p class="sp-catch"><span>Met Shuttle-school maak je</span><strong>spelenderwijs en stapje voor stapje</strong><span>kennis met de badmintonsport!</span></p>
+    <form class="spname" id="spform"><label for="spn">Hoe heet je?</label><input type="text" id="spn" maxlength="20" value="${S.current&&S.current!=='Speler'?esc(S.current):''}" placeholder="Je voornaam" autocomplete="off"></form>
     <div class="spbot">
-      <form class="spname" id="spform"><label for="spn">Hoe heet je?</label><input type="text" id="spn" maxlength="20" value="${S.current&&S.current!=='Speler'?esc(S.current):''}" placeholder="Je voornaam" autocomplete="off"></form>
       <button class="bigbtn start pulse" id="start"><span class="bb1">Start</span>${I.play}</button>
       <div class="sprow"><label class="note"><input type="checkbox" id="nosplash" ${S.nosplash?'checked':''}> Dit scherm niet meer tonen</label><button class="linkbtn" id="splay">${I.speaker} Lees voor</button></div>
       <p class="copy">© BV LUCK RAECK</p>
     </div>
   </div>`;
+  fitLockup(); if(document.fonts){document.fonts.load('700 100px Fredoka').then(fitLockup).catch(()=>{}); document.fonts.ready.then(fitLockup); document.fonts.onloadingdone=()=>fitLockup();}
   const startNow=()=>{hush(); choosePlayer(document.getElementById('spn').value); if(!openFromHash()) go({view:'home'});};
   document.getElementById('start').onclick=startNow;
   document.getElementById('spform').onsubmit=e=>{e.preventDefault(); startNow();};
