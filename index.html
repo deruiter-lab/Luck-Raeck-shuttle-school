@@ -1036,82 +1036,295 @@ function court(o){
   return g+'</svg>';
 }
 
-/* zijaanzicht: twee spelers met het net ertussen (voor "wie krijgt het punt?") */
-function scene(o){
-  const sh=(x,y,r,sc)=>`<g transform="translate(${x} ${y}) rotate(${r}) scale(${sc||1.3}) translate(-16 -16)">${SHUTTLE_INNER}</g>`;
-  const kid=(x,c,flip)=>`<g><circle cx="${x}" cy="88" r="13" fill="${c}"/><rect x="${x-13}" y="104" width="26" height="40" rx="10" fill="${c}"/><rect x="${x-9}" y="140" width="7" height="18" rx="3" fill="${c}"/><rect x="${x+2}" y="140" width="7" height="18" rx="3" fill="${c}"/></g>`;
-  let g=`<svg viewBox="0 0 340 190" width="340" height="190" role="img" aria-label="Twee spelers aan weerszijden van het net"><rect width="340" height="190" rx="14" fill="var(--blue-soft)"/>`;
-  g+=`<rect x="0" y="158" width="340" height="32" fill="var(--court)"/><rect x="39" y="158" width="6" height="10" fill="var(--court-line)"/><rect x="295" y="158" width="6" height="10" fill="var(--court-line)"/>`;
-  g+=`<rect x="167" y="70" width="6" height="88" fill="var(--fg)"/><rect x="160" y="68" width="20" height="6" rx="2" fill="#fff" stroke="var(--fg)"/>`;
-  g+=`<g opacity=".35">`; for(let i=0;i<8;i++) g+=`<line x1="163" y1="${78+i*9}" x2="177" y2="${78+i*9}" stroke="var(--fg)"/>`; g+=`</g>`;
-  g+=kid(70,'#2b3bd8')+kid(270,'#f07f1a');
-  if(o.zzz) g+=`<g class="zzz" aria-hidden="true" font-family="Fredoka, sans-serif" font-weight="700" fill="var(--fg)">`+[0,1,2].map(i=>`<text x="0" y="0" font-size="18" text-anchor="middle" opacity="0">z<animate attributeName="opacity" values="0;1;1;0" keyTimes="0;.15;.7;1" dur="2.7s" begin="${i*.9}s" repeatCount="indefinite"/><animateTransform attributeName="transform" type="translate" values="282 74;291 63;285 52;295 42" dur="2.7s" begin="${i*.9}s" repeatCount="indefinite"/><animateTransform attributeName="transform" type="scale" additive="sum" values=".6;1.35" dur="2.7s" begin="${i*.9}s" repeatCount="indefinite"/></text>`).join('')+`</g>`;
-  g+=`<text x="70" y="182" text-anchor="middle" font-family="Fredoka, sans-serif" font-weight="700" font-size="15" fill="#fff">Blauw</text><text x="270" y="182" text-anchor="middle" font-family="Fredoka, sans-serif" font-weight="700" font-size="15" fill="#fff">Oranje</text>`;
-  const racketL=(x2,y2)=>`<line x1="82" y1="112" x2="${x2}" y2="${y2}" stroke="#1d1d55" stroke-width="3"/><ellipse cx="${x2}" cy="${y2}" rx="8" ry="11" fill="none" stroke="#1d1d55" stroke-width="3"/>`;
-  const racketR=(x2,y2)=>`<line x1="258" y1="112" x2="${x2}" y2="${y2}" stroke="#1d1d55" stroke-width="3"/><ellipse cx="${x2}" cy="${y2}" rx="8" ry="11" fill="none" stroke="#1d1d55" stroke-width="3"/>`;
-  const k=o.k;
-  /* vlucht: van (sx,sy) via controlepunt naar (ex,ey); eindhoek er (null = vlieghoek) */
-  /* vlucht in één of meer delen: [sx,sy,cx,cy,ex,ey] per deel; eindhoek er (null = vlieghoek) */
-  const flightN=(segs,er,col,durs)=>{
-    const L=segs[segs.length-1], ta=Math.atan2(L[5]-L[3],L[4]-L[2])*180/Math.PI-90, fa=(er==null?ta:er);
-    const d=segs.map((q,i)=>(i?'':`M${q[0]} ${q[1]} `)+`Q${q[2]} ${q[3]} ${q[4]} ${q[5]}`).join(' ');
-    return `<path class="ftrail" d="${d}" fill="none" stroke="${col||'#f07f1a'}" stroke-width="3" stroke-dasharray="6 6"/>`+
-      `<g class="flight" data-p="${segs.map(q=>q.join(',')).join(';')}"${durs?` data-t="${durs.join(',')}"`:''} data-er="${er==null?'':er}" transform="translate(${L[4]} ${L[5]}) rotate(${fa.toFixed(1)}) scale(1.3) translate(-16 -16)">${SHUTTLE_INNER}</g>`;};
-  const flight=(sx,sy,cx,cy,ex,ey,er,col)=>flightN([[sx,sy,cx,cy,ex,ey]],er,col);
-  /* racket dat naar een plek beweegt (bijv. tegen het net) */
-  const rkMove=(px,py,fx,fy,tx,ty)=>`<g class="rk" data-p="${[px,py,fx,fy,tx,ty].join(',')}"><line x1="${px}" y1="${py}" x2="${tx}" y2="${ty}" stroke="#1d1d55" stroke-width="3"/><ellipse cx="${tx}" cy="${ty}" rx="8" ry="11" fill="none" stroke="#1d1d55" stroke-width="3"/></g>`;
-  /* racket dat zwaait: hoek a0 → a1 (raakmoment th ms) → a2 */
-  const swing=(px,py,len,a0,a1,a2,th)=>`<g class="sw" data-p="${[px,py,a0,a1,a2,th].join(',')}" transform="rotate(${a2} ${px} ${py})"><line x1="${px}" y1="${py}" x2="${px}" y2="${py-len}" stroke="#1d1d55" stroke-width="3"/><ellipse cx="${px}" cy="${py-len-11}" rx="8" ry="11" fill="none" stroke="#1d1d55" stroke-width="3"/></g>`;
-  const bubble=(x,y,txt,col,cls)=>{const w=txt.length*10+22;return `<g${cls?` class="${cls}"`:''}><path d="M${x-w/2+8} ${y-30} H${x+w/2-8} Q${x+w/2} ${y-30} ${x+w/2} ${y-22} V${y-10} Q${x+w/2} ${y-2} ${x+w/2-8} ${y-2} H${x+6} L${x-2} ${y+7} L${x-2} ${y-2} H${x-w/2+8} Q${x-w/2} ${y-2} ${x-w/2} ${y-10} V${y-22} Q${x-w/2} ${y-30} ${x-w/2+8} ${y-30} Z" fill="#fff" stroke="#1d1d55" stroke-width="2" stroke-linejoin="round"/><text x="${x}" y="${y-10}" text-anchor="middle" font-family="Fredoka, sans-serif" font-weight="700" font-size="17" fill="${col||'#f07f1a'}">${txt}</text></g>`;};
-  const badge=(txt,col,cx)=>{const w=Math.round(txt.length*8.4+26), x0=cx?cx-w/2:12;return `<g class="endonly"><rect x="${x0}" y="10" width="${w}" height="28" rx="14" fill="${col||'#2b3bd8'}"/><text x="${x0+w/2}" y="29.5" text-anchor="middle" font-family="Fredoka, sans-serif" font-weight="700" font-size="15" fill="#fff">${txt}</text></g>`;};
-  const SWU=th=>swing(82,112,21.6,200,137.7,60,th);
-  const ARM=`<line x1="77" y1="108" x2="84" y2="82" stroke="#2b3bd8" stroke-width="8" stroke-linecap="round"/>`, SWO=th=>ARM+swing(84,80,23,-140,-3,28,th);
-  const serveSeg=(cx,cy,ex)=>flightN([[104,112,104,124,104,136],[104,136,cx,cy,ex,151.5]],-LY,null,[380,1100]);
-  const endMark=(x,y)=>`<circle class="endonly" cx="${x}" cy="${y}" r="14" fill="none" stroke="#c23b2b" stroke-width="3"/>`;
-  const RL=racketL(96,96), RR=racketR(240,92), LY=80.7;
-  if(k==='groundL') g+=RL+RR+flight(240,92,170,-22,120,151.5,LY);
-  if(k==='groundR') g+=RL+RR+flight(96,96,170,-26,220,151.5,-LY);
-  if(k==='outR')    g+=RL+RR+flight(96,96,215,-10,325,151.5,-LY);
-  if(k==='outL')    g+=RL+RR+flight(240,92,125,-10,15,151.5,LY);
-  if(k==='lineR')   g+=RL+RR+flight(96,96,200,-10,298,151.5,-LY);
-  if(k==='netL')    g+=RL+RR+flight(96,96,135,60,158,118,null);
-  if(k==='netR')    g+=RL+RR+flight(240,92,205,60,182,118,null);
-  if(k==='touchL')  g+=rkMove(82,112,96,96,160,76)+RR+flight(240,92,175,10,110,40,null)+endMark(164,74);
-  if(k==='touchR')  g+=RL+rkMove(258,112,240,92,180,76)+flight(96,96,165,10,230,40,null)+endMark(176,74);
-  if(k==='bodyL')   g+=RL+RR+flight(240,92,150,10,62,114,null);
-  if(k==='bodyR')   g+=RL+RR+flight(96,96,190,8,278,114,null);
-  if(k==='underL')  g+=rkMove(82,118,98,134,196,146)+RR+endMark(170,146)+`<text x="170" y="34" text-anchor="middle" font-family="Fredoka, sans-serif" font-weight="700" font-size="20" fill="#c23b2b">fout</text>`;
-  if(k==='netTerug') g+=RL+RR+flightN([[96,96,138,40,163,96],[163,96,150,110,140,151.5]],LY,'#c23b2b')+`<text class="endonly" x="170" y="34" text-anchor="middle" font-family="Fredoka, sans-serif" font-weight="700" font-size="20" fill="#c23b2b">fout</text>`;
-  if(k==='terug')   g+=RL+RR+flightN([[240,92,170,-20,96,96],[96,96,170,-20,240,92]],null);
-  if(k==='onderhands') g+=swing(82,112,21.6,200,137.7,60,1000)+RR+flightN([[240,92,165,0,104,136],[104,136,170,-14,240,92]],null);
-  if(k==='bovenhands') g+=`<line x1="77" y1="108" x2="84" y2="82" stroke="#2b3bd8" stroke-width="8" stroke-linecap="round"/>`+swing(84,80,23,-140,-3,28,1000)+RR+flightN([[240,92,165,-40,80,46],[80,46,170,-14,240,92]],null);
-  if(k==='lob')     g+=SWU(1000)+RR+flightN([[240,92,165,0,104,136],[104,136,190,-80,282,151.5]],-LY);
-  if(k==='clear')   g+=SWO(1000)+RR+flightN([[240,92,165,-40,80,46],[80,46,190,-60,284,151.5]],-LY);
-  if(k==='smash')   g+=`<line x1="78" y1="108" x2="88" y2="68" stroke="#2b3bd8" stroke-width="8" stroke-linecap="round"/>`+swing(88,66,27.8,-140,11.9,70,1000)+RR+flightN([[240,92,165,-36,96,26],[96,26,170,0,236,151.5]],-LY,null,[1000,550]);
-  if(k==='drop')    g+=SWO(1000)+RR+flightN([[240,92,165,-40,80,46],[80,46,175,-10,206,151.5]],-LY);
-  if(k==='drive')   g+=racketL(100,74)+racketR(240,74)+flight(100,74,170,40,240,74,null);
-  if(k==='netdrop') g+=racketL(140,116)+RR+flight(140,116,168,-54,192,151.5,-LY);
-  if(k==='svckort') g+=SWU(380)+RR+serveSeg(158,-52,210);
-  if(k==='svclang') g+=SWU(380)+RR+serveSeg(200,-70,278);
-  if(k==='rally')   g+=RL+RR+flightN([[96,96,170,-20,240,92],[240,92,205,36,169,37]],null);
-  if(k==='rallyPunt'&&o.punt) g+=RL+RR+flightN([[96,96,170,-26,240,92],[240,92,170,-20,96,96],[96,96,180,-30,222,151.5]],-LY)+`<circle class="endonly" cx="222" cy="151" r="16" fill="none" stroke="#c23b2b" stroke-width="3" stroke-dasharray="5 4"/>`+badge(o.punt);
-  else if(k==='rallyPunt') g+=RL+RR+flightN([[96,96,170,-26,240,92],[240,92,170,-20,96,96],[96,96,180,-30,222,151.5]],-LY)+`<circle class="endonly" cx="222" cy="151" r="16" fill="none" stroke="#c23b2b" stroke-width="3" stroke-dasharray="5 4"/><g class="endonly"><rect x="12" y="12" width="168" height="30" rx="15" fill="#2b3bd8"/><text x="96" y="32.5" text-anchor="middle" font-family="Fredoka, sans-serif" font-weight="700" font-size="16" fill="#fff">+1 punt voor Blauw</text></g>`;
-  if(k==='svchoog'||k==='svcgoed'||k==='svcvoet'){
-    const bad=k!=='svcgoed';
-    g+=`<line x1="20" y1="108" x2="160" y2="108" stroke="#f07f1a" stroke-width="2.5" stroke-dasharray="7 5"/><text x="24" y="102" font-family="Fredoka, sans-serif" font-weight="700" font-size="13" fill="var(--fg)">1,15 m</text>`;
-    if(k==='svchoog') g+=`<g><animateTransform attributeName="transform" type="rotate" values="70 82 112;0 82 112;70 82 112" dur="1.8s" repeatCount="1" fill="freeze"/><line x1="82" y1="112" x2="104" y2="76" stroke="#1d1d55" stroke-width="3"/><ellipse cx="104" cy="76" rx="8" ry="11" fill="none" stroke="#1d1d55" stroke-width="3"/></g>`+sh(114,72,0,1)+`<text x="165" y="30" text-anchor="middle" font-family="Fredoka, sans-serif" font-weight="700" font-size="18" fill="#c23b2b">te hoog: fout</text>`;
-    if(k==='svcgoed') g+=`<g><animateTransform attributeName="transform" type="rotate" values="-60 82 112;0 82 112;-60 82 112" dur="1.8s" repeatCount="1" fill="freeze"/><line x1="82" y1="112" x2="98" y2="132" stroke="#1d1d55" stroke-width="3"/><ellipse cx="98" cy="132" rx="8" ry="11" fill="none" stroke="#1d1d55" stroke-width="3"/></g><g><animateMotion dur="1.8s" repeatCount="1" fill="freeze" keyPoints="0;0;1" keyTimes="0;0.5;1" calcMode="linear" rotate="auto" path="M108 124 Q198 -6 298 146"/><g transform="rotate(-90) translate(-16 -22.5)">${SHUTTLE_INNER}</g></g><text x="165" y="30" text-anchor="middle" font-family="Fredoka, sans-serif" font-weight="700" font-size="18" fill="var(--good)">onder 1,15 m: goed</text>`;
-    if(k==='svcvoet') g+=racketL(98,128)+sh(108,122,0,1)+`<rect x="72" y="140" width="7" height="18" rx="3" fill="#c23b2b"><animate attributeName="x" values="72;90" dur="1.2s" repeatCount="1" fill="freeze"/></rect><text x="165" y="30" text-anchor="middle" font-family="Fredoka, sans-serif" font-weight="700" font-size="18" fill="#c23b2b">voet schuift: fout</text>`;
-  }
-  if(k==='serve') g+=SWU(380)+racketR(240,92)+serveSeg(195,-44,290);
-  if(k==='serveWait') g+=racketL(98,128)+racketR(240,92)+sh(110,118,0,1)+bubble(70,58,'Klaar?','#2b3bd8');
-  if(k==='serveKlaar') g+=bubble(70,58,'Klaar?','#2b3bd8')+bubble(250,58,'Ja!','#1f8a4c')+SWU(380)+racketR(240,92)+serveSeg(195,-44,290);
-  if(k==='buurbaan') g+=RL+RR+`<g><animateTransform attributeName="transform" type="translate" values="150 0;0 0" dur="1.4s" repeatCount="1" fill="freeze"/><path d="M226 146h22M232 138h16" stroke="#f07f1a" stroke-width="2.5" stroke-linecap="round"/>`+sh(212,151.5,-LY,1)+`</g><text x="200" y="30" text-anchor="middle" font-family="Fredoka, sans-serif" font-weight="700" font-size="14" fill="var(--fg)">van de buurbaan</text><path d="M232 38 q30 50 -10 96" fill="none" stroke="var(--fg)" stroke-width="2" stroke-dasharray="4 4" opacity=".6"/>`;
-  if(k==='afleiden') g+=`<g><animateTransform attributeName="transform" type="rotate" values="0 60 106;22 60 106;0 60 106" dur=".45s" repeatCount="indefinite"/><line x1="60" y1="106" x2="44" y2="78" stroke="#1d1d55" stroke-width="9" stroke-linecap="round"/><line x1="60" y1="106" x2="44" y2="78" stroke="#2b3bd8" stroke-width="5.5" stroke-linecap="round"/></g><g><animateTransform attributeName="transform" type="rotate" values="0 80 106;-22 80 106;0 80 106" dur=".45s" repeatCount="indefinite"/><line x1="80" y1="106" x2="96" y2="78" stroke="#1d1d55" stroke-width="9" stroke-linecap="round"/><line x1="80" y1="106" x2="96" y2="78" stroke="#2b3bd8" stroke-width="5.5" stroke-linecap="round"/></g>`+racketR(244,132)+sh(234,114,0,1)+bubble(70,58,'HÉ!','#c23b2b')+`<path d="M34 70l-8-5M30 84h-9M106 70l8-5M110 84h9" stroke="#c23b2b" stroke-width="2.5" stroke-linecap="round"/><text x="270" y="60" text-anchor="middle" font-family="Fredoka, sans-serif" font-weight="700" font-size="13" fill="var(--fg)">serveert</text>`+badge('fout: afleiden','#c23b2b',190);
-  if(k==='tweekeer') g+=RL+RR+flightN([[96,96,100,30,104,94],[104,94,170,-20,240,92]],null)+`<text class="endonly" x="112" y="52" font-family="Fredoka, sans-serif" font-weight="700" font-size="16" fill="#c23b2b">2×</text>`+badge('2 keer raken: fout','#c23b2b');
-  if(o.badge) g+=badge(o.badge[0],o.badge[1]);
-  return g+'</svg>';
+/* =========================================================
+   REALISTISCHE SPELERS (zijaanzicht) – één animatie-motor voor alle scènes
+   arm = bovenarm (om schouder 6,76) + onderarm met racket (om elleboog 6,63)
+   blad-midden = schouder + 13·richting(bovenarm) + 39·richting(onderarm)
+   ========================================================= */
+const PR_N='#1d1d55',PR_SK='#f3c39b',PR_SK2='#e3a97c';
+const PR_COL={
+ blue:{shirt:'#2b3bd8',shirt2:'#1f2ca8',shorts:'#1d1d55',hair:'#3b2a20',sole:'#2b3bd8'},
+ blue2:{shirt:'#4b63f0',shirt2:'#3347c8',shorts:'#1d1d55',hair:'#c99a4a',sole:'#4b63f0'},
+ orange:{shirt:'#f07f1a',shirt2:'#cf6410',shorts:'#1d1d55',hair:'#7a4524',sole:'#f07f1a',pony:1},
+ orange2:{shirt:'#f59a3c',shirt2:'#d97a1c',shorts:'#1d1d55',hair:'#2e211a',sole:'#f59a3c'}
+};
+const PR_UA=13,PR_FA=39,PR_FLOOR=152;
+const prRad=Math.PI/180;
+const prArmUpper=c=>`<path d="M6 76 L6 63" stroke="${c.shirt}" stroke-width="7.5" stroke-linecap="round"/><circle cx="6" cy="63" r="2.9" fill="${PR_SK}"/>`;
+const prArmFore=c=>`<path d="M6 63 L6 51" stroke="${PR_SK}" stroke-width="5.5" stroke-linecap="round"/><rect x="3.8" y="40" width="4.4" height="11" rx="2" fill="${PR_N}"/><path d="M6 40 V35.5" stroke="#9aa3b8" stroke-width="2" stroke-linecap="round"/><path d="M6 36 l-3 -1.5 M6 36 l3 -1.5" stroke="${PR_N}" stroke-width="1.5" stroke-linecap="round"/><ellipse cx="6" cy="24" rx="8.5" ry="11.5" fill="rgba(255,255,255,.8)" stroke="${PR_N}" stroke-width="2.4"/><path d="M2 14V34M6 12.5V35.5M10 14V34M-1.5 19H13.5M-2.4 24H14.4M-1.5 29H13.5" stroke="${PR_N}" stroke-width=".55" opacity=".6"/><circle cx="6" cy="50.5" r="3.3" fill="${PR_SK}"/>`;
+const prFreeArm=c=>`<path d="M-6 76 L-6 64" stroke="${c.shirt2}" stroke-width="7" stroke-linecap="round"/><path d="M-6 64 L-6 53" stroke="${PR_SK2}" stroke-width="5.2" stroke-linecap="round"/><circle cx="-6" cy="52.5" r="3" fill="${PR_SK2}"/>`;
+function prPlayer(id,x,d,c,pose){
+ const [a,b,f,lg]=pose, arm=`<g class="armR" transform="rotate(${a.toFixed(1)} 6 76)">${prArmUpper(c)}<g class="armF" transform="rotate(${(b-a).toFixed(1)} 6 63)">${prArmFore(c)}</g></g>`;
+ const behind=prBehind(a,b);
+ return `<g class="pl" data-id="${id}" transform="translate(${x} 0) scale(${d} 1)">
+ <ellipse cx="0" cy="160" rx="22" ry="4.5" fill="#0b2a1c" opacity=".25"/>
+ <path d="M-4 112 L-11 136 L-13 152" fill="none" stroke="${PR_SK}" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/>
+ <path d="M-15.5 148 h5 v5 h-5z" fill="#fff"/>
+ <path d="M-21 152.5 q0 -5 6 -5 h4 q4 0 5 5 z" fill="#fff" stroke="${PR_N}" stroke-width="1.4"/><path d="M-21 152.5 h15 v2.2 h-15z" fill="${c.sole}"/>
+ <g class="legF" transform="translate(${(lg||0).toFixed(1)} 0)"><path d="M4 112 L10 134 L16 151" fill="none" stroke="${PR_SK2}" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M13.5 147 h5 v5 h-5z" fill="#fff"/><path d="M11 151.5 q0 -5 6 -5 h4 q4 0 5 5 z" fill="#fff" stroke="${PR_N}" stroke-width="1.4"/><path d="M11 151.5 h15 v2.2 h-15z" fill="${c.sole}"/></g>
+ <path d="M-11 104 h22 l2 14 q-6 3 -12 0 q-6 3 -13 0z" fill="${c.shorts}"/>
+ <g class="slotB">${behind?arm:''}</g>
+ <g class="armB" transform="rotate(${f.toFixed(1)} -6 76)">${prFreeArm(c)}</g>
+ <path d="M-12 74 q12 -7 24 0 l2 32 q-14 4 -28 0z" fill="${c.shirt}"/>
+ <path d="M-12 74 q4 -3 8 -4 l-2 36 q-5 -1 -8 -2z" fill="${c.shirt2}" opacity=".6"/>
+ <path d="M-4 70 q4 4 8 0" fill="none" stroke="#fff" stroke-width="1.6" opacity=".8"/><path d="M-9 90 h18" stroke="#fff" stroke-width="2" opacity=".35"/>
+ <rect x="-3" y="62" width="6" height="9" rx="2" fill="${PR_SK2}"/>
+ <circle cx="2" cy="52" r="11.5" fill="${PR_SK}"/>
+ <path d="M-9.5 52 q-1 -14 11 -14.5 q11 0 12 10 q-6 -4 -12 -3 q-5 1 -7 7 z" fill="${c.hair}"/>
+ ${c.pony?`<path d="M-9 47 q-9 4 -8 14 q4 -6 8 -8z" fill="${c.hair}"/><circle cx="-8.5" cy="47.5" r="2" fill="#2b3bd8"/>`:''}
+ <circle cx="-2.5" cy="53" r="2.2" fill="${PR_SK2}"/>
+ <circle cx="8" cy="51" r="1.5" fill="${PR_N}"/><path d="M6.5 57.5 q2.5 1.5 5 -.5" fill="none" stroke="${PR_N}" stroke-width="1.2" stroke-linecap="round"/>
+ <path d="M6 46.8 l4 -.8" stroke="${c.hair}" stroke-width="1.4" stroke-linecap="round"/>
+ <g class="slotF">${behind?'':arm}</g>
+ </g>`;}
+const prBehind=(a,b)=>PR_UA*Math.sin(a*prRad)+PR_FA*Math.sin(b*prRad)<-6;
+function prHall(u){
+ let mesh='';for(let y=74;y<114;y+=5)mesh+=`M164 ${y}h12`;for(let x=165;x<176;x+=3)mesh+=`M${x} 73v40`;
+ return `<defs><clipPath id="${u}c"><rect width="340" height="190" rx="14"/></clipPath>
+ <linearGradient id="${u}w" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c9d6ee"/><stop offset="1" stop-color="#e7eef9"/></linearGradient>
+ <linearGradient id="${u}f" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3f9a6e"/><stop offset="1" stop-color="#2b7552"/></linearGradient>
+ <radialGradient id="${u}l" cx=".5" cy="0" r=".9"><stop offset="0" stop-color="#fff" stop-opacity=".7"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient></defs>
+ <rect width="340" height="190" fill="url(#${u}w)"/><rect width="340" height="120" fill="url(#${u}l)"/>
+ <path d="M0 18h340M0 22h340" stroke="#b4c3df" stroke-width="1"/>
+ <rect x="0" y="128" width="340" height="7" fill="#a9b9d6"/>
+ <path d="M0 135 L340 135 L340 190 L0 190Z" fill="url(#${u}f)"/>
+ <path d="M26 135 L10 190 M314 135 L330 190 M44 135 L34 190 M296 135 L306 190" stroke="#4a95ff" stroke-width="2.2" opacity=".9"/>
+ <path d="M18 160 H322" stroke="#4a95ff" stroke-width="2" opacity=".5"/>
+ <rect x="164" y="73" width="12" height="40" fill="rgba(255,255,255,.22)"/><path d="${mesh}" stroke="#1d1d55" stroke-width=".6" opacity=".55"/>
+ <rect x="163" y="70" width="14" height="4" rx="1.5" fill="#fff" stroke="#1d1d55" stroke-width="1"/>
+ <rect x="168.5" y="68" width="3" height="96" rx="1.5" fill="#1d1d55"/><ellipse cx="170" cy="164" rx="9" ry="2.6" fill="#0b2a1c" opacity=".3"/>`;}
+
+/* slagen: [bovenarm, onderarm] per fase; free = vrije arm */
+const PR_ST={
+ serve:{ready:[165,172],back:[200,218],hit:[150,150],fol:[45,30],free:118},
+ lob:  {ready:[160,170],back:[198,215],hit:[150,150],fol:[40,25],free:140},
+ svhigh:{ready:[100,100],back:[-60,-95],hit:[95,90],fol:[110,60],free:60},
+ net:  {ready:[140,125],back:[160,168],hit:[120,110],fol:[95,70],free:140},
+ drive:{ready:[70,50],back:[-40,-85],hit:[85,88],fol:[115,135],free:150},
+ clear:{ready:[-60,-15],back:[-20,-125],hit:[12,12],fol:[95,125],free:22},
+ drop: {ready:[-60,-15],back:[-20,-120],hit:[18,18],fol:[60,85],free:22},
+ smash:{ready:[-60,-15],back:[-25,-135],hit:[28,28],fol:[115,170],free:22}
+};
+const PR_NEUTRAL=[70,45],PR_FREE0=165,PR_SLEEP=[172,178];
+const PR_EASE={io:x=>x<.5?2*x*x:1-Math.pow(-2*x+2,2)/2,in:x=>x*x*x,out:x=>1-Math.pow(1-x,2),lin:x=>x};
+function prBlade(p,A){const lx=6+PR_UA*Math.sin(A[0]*prRad)+PR_FA*Math.sin(A[1]*prRad), ly=76-PR_UA*Math.cos(A[0]*prRad)-PR_FA*Math.cos(A[1]*prRad);return [p.x+p.d*lx,ly];}
+const prQ=(q,t)=>[(1-t)*(1-t)*q[0]+2*(1-t)*t*q[2]+t*t*q[4],(1-t)*(1-t)*q[1]+2*(1-t)*t*q[3]+t*t*q[5]];
+function prSolveT(a,b,c,x){let lo=0,hi=1;for(let i=0;i<30;i++){const m=(lo+hi)/2;const v=(1-m)**2*a+2*(1-m)*m*b+m*m*c;if((v<x)===(a<c))lo=m;else hi=m;}return (lo+hi)/2;}
+const PR_DUR={serve:1250,lob:1300,svhigh:1000,net:950,drive:700,clear:1350,drop:1150,smash:560};
+const PR_CY={serve:-20,lob:-40,svhigh:10,net:30,drive:null,clear:-14,drop:-10,smash:30};
+
+/* plan bouwen uit een scène-beschrijving
+   spec.pl = {id:{x,d,c,idle}}; spec.shots = [{who,st,dur,cy}, …, einde]
+   einde: {land:x} | {net:1} | {netTape:1} | {body:id} | {under:x} | {catch:{who,st}} */
+function prPlan(spec){
+ const P=spec.pl, flights=[], hits=[]; let t=spec.t0||600, hold=null;
+ const shots=spec.shots||[];
+ if(shots.length&&/^(serve|svhigh)$/.test(shots[0].st)) {hold=shots[0].who; t=Math.max(t,1000);}
+ for(let i=0;i<shots.length;i++){const s=shots[i]; if(!s.st) break;
+  const S=PR_ST[s.st], p=P[s.who], C1=prBlade(p,S.hit), nx=shots[i+1]||{};
+  hits.push({who:s.who,st:s.st,t});
+  let segs=[], dur=s.dur||PR_DUR[s.st], endAng=null, clear=true;
+  if(nx.st){const C2=prBlade(P[nx.who],PR_ST[nx.st].hit); segs=[[C1[0],C1[1],0,s.cy!=null?s.cy:PR_CY[s.st],C2[0],C2[1]]];}
+  else if(nx.catch){const C2=prBlade(P[nx.catch.who],PR_ST[nx.catch.st].hit); segs=[[C1[0],C1[1],0,s.cy!=null?s.cy:PR_CY[s.st],C2[0],C2[1]]];}
+  else if(nx.land!=null){segs=[[C1[0],C1[1],0,s.cy!=null?s.cy:PR_CY[s.st],nx.land,PR_FLOOR]]; endAng=nx.land>C1[0]?-80.7:80.7;}
+  else if(nx.body){const b=P[nx.body],bx=b.x-b.d*2,by=92; segs=[[C1[0],C1[1],0,s.cy!=null?s.cy:PR_CY[s.st],bx,by],[bx,by,bx-b.d*10,110,bx-b.d*16,PR_FLOOR]]; endAng=b.d>0?80.7:-80.7;}
+  else if(nx.net||nx.netTape){const side=C1[0]<170?-1:1, nxp=170+side*(nx.netTape?3:7), ny=nx.netTape?72:96;
+   segs=[[C1[0],C1[1],0,s.cy!=null?s.cy:(nx.netTape?20:70),nxp,ny],[nxp,ny,nxp+side*8,ny+18,170+side*(nx.netTape?24:12),PR_FLOOR]]; endAng=side<0?80.7:-80.7; clear=false;}
+  else if(nx.under!=null){segs=[[C1[0],C1[1],0,124,nx.under,PR_FLOOR]]; endAng=nx.under>C1[0]?-80.7:80.7; clear=false;}
+  const q=segs[0]; q[2]=(q[0]+q[4])/2;
+  if(q[3]==null) q[3]=(q[1]+q[5])/2-6;
+  if(clear&&(q[0]-170)*(q[4]-170)<0){for(let it=0;it<60;it++){const t2=prSolveT(q[0],q[2],q[4],170);const y=prQ(q,t2)[1];if(y<60)break;q[3]-=4;}}
+  const durs=segs.length>1?[dur,s.drop||480]:[dur];
+  flights.push({t,segs,durs,endAng,hit:true,drag:segs.length===1||true});
+  t+=durs.reduce((a,b)=>a+b,0);
+  if(nx.catch) hits.push({who:nx.catch.who,st:nx.catch.st,t:t-(durs[1]||0)});
+ }
+ (spec.extraFlights||[]).forEach(f=>flights.push(f));
+ let END=flights.length?Math.max(...flights.map(f=>f.t+f.durs.reduce((a,b)=>a+b,0))):(spec.dur||1600);
+ if(spec.dur) END=Math.max(END,spec.dur);
+ const caught=shots.some(s=>s.catch);
+ /* sleutelframes per speler */
+ const K={};
+ for(const id in P){const p=P[id], idle=p.idle||PR_NEUTRAL, my=hits.filter(h=>h.who===id);
+  const k=[[0, my.length&&/^(serve|svhigh)$/.test(my[0].st)&&my[0].t===hits[0].t?PR_ST[my[0].st].ready:idle, my.length&&/^(serve|svhigh)$/.test(my[0].st)?PR_ST[my[0].st].free:(p.free0!=null?p.free0:PR_FREE0),'io',0]];
+  const push=(tt,a,f,e)=>{const L=k[k.length-1]; if(tt<=L[0]) tt=L[0]+1; k.push([tt,a,f,e||'io',0]);};
+  my.forEach(h=>{const S=PR_ST[h.st], T=h.t, idx=hits.indexOf(h), opp=idx>0?hits[idx-1].t:0, L=k[k.length-1];
+   push(Math.max(opp+60,L[0]+1),L[1],L[2]);
+   push(Math.min(opp+520,T-470),S.ready,S.free);
+   push(T-450,S.ready,S.free);
+   push(T-200,S.back,S.free);
+   push(T,S.hit,S.free,'in');
+   push(T+240,S.fol,(S.free+PR_FREE0)/2,'out');
+   push(T+720,idle,p.free0!=null?p.free0:PR_FREE0);
+  });
+  (spec.keys&&spec.keys[id]||[]).forEach(x=>push(x[0],x[1],x[2]==null?k[k.length-1][2]:x[2],x[3]));
+  K[id]=k;}
+ const legs=spec.legs||{};
+ return {P,flights,hits,K,END,hold,caught,legs,spec};
 }
+function prArm(k,e){
+ const mix=(A,B,x)=>[A[0]+(B[0]-A[0])*x,A[1]+(B[1]-A[1])*x];
+ if(e<=k[0][0]) return [k[0][1],k[0][2]];
+ for(let i=1;i<k.length;i++){ if(e<=k[i][0]){const A=k[i-1],B=k[i],x=PR_EASE[B[3]]((e-A[0])/(B[0]-A[0]));return [mix(A[1],B[1],x),A[2]+(B[2]-A[2])*x];}}
+ const L=k[k.length-1]; return [L[1],L[2]];}
+const prDrag=t=>t*(1.55-0.55*t);
+function prShuttle(pl,e){
+ const F=pl.flights;
+ for(const f of F){const D=f.durs.reduce((a,b)=>a+b,0); if(e>=f.t&&e<f.t+D) return prFl(f,e-f.t);}
+ if(F.length&&e<F[0].t){
+  if(pl.hold){const p=pl.P[pl.hold],C=F[0].segs[0],fr=prArm(pl.K[pl.hold],e)[1]*prRad;
+   const hx=p.x+p.d*(-6+23.5*Math.sin(fr)), hy=76-23.5*Math.cos(fr)+9;
+   const k=Math.max(0,Math.min(1,(e-(F[0].t-230))/230)); return {x:hx+(C[0]-hx)*k*k,y:hy+(C[1]-hy)*k*k,a:180,v:1};}
+  if(F[0].pre) return {x:F[0].segs[0][0],y:F[0].segs[0][1],a:F[0].preA||0,v:1};
+  return {v:0};}
+ if(!F.length){ if(pl.spec.holdStatic){const id=pl.spec.holdStatic,p=pl.P[id],fr=prArm(pl.K[id],e)[1]*prRad; return {x:p.x+p.d*(-6+23.5*Math.sin(fr)),y:76-23.5*Math.cos(fr)+9,a:180,v:1};} return {v:0};}
+ let last=F[0]; F.forEach(f=>{if(f.t>=last.t) last=f;}); return prFl(last,1e9);
+}
+function prFl(f,el){
+ let si=0; while(si<f.segs.length-1&&el>f.durs[si]){el-=f.durs[si];si++;}
+ const q=f.segs[si], t0=Math.min(1,el/f.durs[si]), t=f.lin?t0:(si===0&&f.segs.length===1?prDrag(t0):si===0?prDrag(t0):t0*t0*(1.6-0.6*t0));
+ const [x,y]=prQ(q,t);
+ const dx=2*(1-t)*(q[2]-q[0])+2*t*(q[4]-q[2]), dy=2*(1-t)*(q[3]-q[1])+2*t*(q[5]-q[3]);
+ let a=f.fixA!=null?f.fixA:Math.atan2(dy,dx)/prRad-90;
+ if(f.spin) a=(1-Math.pow(1-Math.min(1,(el+(si?f.durs[0]:0))/f.durs.reduce((p,c)=>p+c,0)),2))*f.spin;
+ if(f.endAng!=null&&si===f.segs.length-1&&t0>.86&&f.fixA==null&&!f.spin){let d=((f.endAng-a+540)%360)-180; a=a+d*((t0-.86)/.14);}
+ return {x,y,a,v:1};}
+/* toestand op tijd e (voor zowel het stilstaande eindbeeld als de animatie) */
+function prState(pl,e){
+ const ee=pl.caught?Math.min(e,pl.END):e, arms={};
+ for(const id in pl.P){const [A,f]=prArm(pl.K[id],ee); let lg=0; const L=pl.legs[id]; if(L){const k=Math.max(0,Math.min(1,(e-L[0])/(L[1]-L[0])));lg=L[2]*PR_EASE.io(k);} arms[id]=[A[0],A[1],f,lg];}
+ return {arms,sh:prShuttle(pl,ee)};}
+
+let prUid=0;
+function prScene(spec,label){
+ const pl=prPlan(spec), u='pr'+(++prUid), st=prState(pl,pl.END+900);
+ let g=`<svg class="pro" viewBox="0 0 340 190" width="340" height="190" role="img" aria-label="${label||'Twee spelers spelen badminton'}" data-u="${u}"><g clip-path="url(#${u}c)">`+prHall(u);
+ g+=`<g class="trail"></g>`;
+ (spec.under||[]).forEach(x=>g+=x);
+ const order=Object.keys(pl.P).sort((a,b)=>(pl.P[a].z||0)-(pl.P[b].z||0));
+ order.forEach(id=>{const p=pl.P[id];g+=prPlayer(id,p.x,p.d,PR_COL[p.c],st.arms[id]);});
+ const s=st.sh;
+ g+=`<g class="hitfx" opacity="0"><circle r="9" fill="none" stroke="#fff" stroke-width="2.2"/><path d="M0 -14v-4M0 14v4M-14 0h-4M14 0h4M10 -10l3 -3M-10 10l-3 3M10 10l3 3M-10 -10l-3 -3" stroke="#fff" stroke-width="2" stroke-linecap="round"/></g>`;
+ g+=`<g class="psh"${s.v?'':' opacity="0"'} transform="translate(${(s.x||0).toFixed(1)} ${(s.y||0).toFixed(1)}) rotate(${(s.a||0).toFixed(1)}) translate(-16 -22.5)">${SHUTTLE_INNER}</g>`;
+ g+=`<g class="puff" opacity="0"><circle r="4" fill="#fff"/><circle cx="6" cy="-2" r="3" fill="#fff"/><circle cx="-6" cy="-1.5" r="3" fill="#fff"/></g>`;
+ (spec.over||[]).forEach(x=>g+=x);
+ if(spec.names!==false) g+=`<text x="${spec.nameB||62}" y="182" text-anchor="middle" font-family="Fredoka,sans-serif" font-weight="700" font-size="13" fill="#fff">Blauw</text><text x="${spec.nameO||278}" y="182" text-anchor="middle" font-family="Fredoka,sans-serif" font-weight="700" font-size="13" fill="#fff">Oranje</text>`;
+ g+='</g></svg>';
+ PR_PLANS[u]=pl;
+ return g;}
+const PR_PLANS={};
+function proAnim(sv,done){
+ done=done||function(){};
+ const pl=PR_PLANS[sv.dataset.u]; if(!pl){done();return;}
+ const $=s=>sv.querySelector(s), sh=$('.psh'), tr=$('.trail'), hf=$('.hitfx'), pf=$('.puff'), ends=sv.querySelectorAll('.endonly'), timed=sv.querySelectorAll('[data-at]');
+ const PLs={}; sv.querySelectorAll('.pl').forEach(g=>PLs[g.dataset.id]={g,R:g.querySelector('.armR'),F:g.querySelector('.armF'),B:g.querySelector('.armB'),L:g.querySelector('.legF'),sb:g.querySelector('.slotB'),sf:g.querySelector('.slotF')});
+ const END=pl.END, TOTAL=END+900, hist=[];
+ const apply=e=>{const st=prState(pl,e);
+  for(const id in st.arms){const [a,b,f,lg]=st.arms[id], o=PLs[id]; if(!o) continue;
+   o.R.setAttribute('transform',`rotate(${a.toFixed(1)} 6 76)`); o.F.setAttribute('transform',`rotate(${(b-a).toFixed(1)} 6 63)`); o.B.setAttribute('transform',`rotate(${f.toFixed(1)} -6 76)`);
+   if(o.L) o.L.setAttribute('transform',`translate(${lg.toFixed(1)} 0)`);
+   const bh=prBehind(a,b); if(bh&&o.R.parentNode!==o.sb) o.sb.appendChild(o.R); else if(!bh&&o.R.parentNode!==o.sf) o.sf.appendChild(o.R);}
+  const s=st.sh; sh.setAttribute('opacity',s.v?1:0);
+  if(s.v) sh.setAttribute('transform',`translate(${s.x.toFixed(1)} ${s.y.toFixed(1)}) rotate(${s.a.toFixed(1)}) translate(-16 -22.5)`);
+  const flying=pl.flights.some(f=>e>=f.t&&e<f.t+f.durs.reduce((p,c)=>p+c,0));
+  if(flying&&s.v){hist.push([s.x,s.y]); if(hist.length>12) hist.shift();} else if(hist.length) hist.shift();
+  tr.innerHTML=hist.map((p,i)=>`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="${(0.6+i*0.13).toFixed(2)}" fill="#fff" opacity="${(i/hist.length*.8).toFixed(2)}"/>`).join('');
+  const hv=pl.flights.find(f=>f.hit&&e>=f.t&&e<f.t+160);
+  if(hv){const q=(e-hv.t)/160;hf.setAttribute('opacity',(1-q).toFixed(2));hf.setAttribute('transform',`translate(${hv.segs[0][0].toFixed(1)} ${hv.segs[0][1].toFixed(1)}) scale(${(.5+q).toFixed(2)})`);} else hf.setAttribute('opacity',0);
+  const lf=pl.flights.filter(f=>f.endAng!=null&&!f.noPuff).map(f=>[f.t+f.durs.reduce((p,c)=>p+c,0),f.segs[f.segs.length-1]]).find(z=>e>=z[0]&&e<z[0]+500);
+  if(lf){const k=(e-lf[0])/500;pf.setAttribute('opacity',(1-k).toFixed(2));pf.setAttribute('transform',`translate(${lf[1][4]} ${PR_FLOOR+6-k*6}) scale(${(.6+k*1.2).toFixed(2)})`);} else pf.setAttribute('opacity',0);
+  ends.forEach(m=>m.style.opacity=e>END?Math.min(1,(e-END)/250):0);
+  timed.forEach(m=>{const a=+m.dataset.at, z=m.dataset.to?+m.dataset.to:1e9; m.style.opacity=e<a?0:e>z?Math.max(0,1-(e-z)/200):Math.min(1,(e-a)/200);});
+ };
+ if(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches){apply(TOTAL);done();return;}
+ const t0=performance.now(); sv.dataset.run=t0;
+ (function step(now){ if(sv.dataset.run!=String(t0)) return; const e=Math.max(0,now-t0); apply(Math.min(e,TOTAL)); if(e<TOTAL) requestAnimationFrame(step); else done(); })(t0);
+}
+
+/* ---------- alle scènes ---------- */
+const PR_B=(x,o)=>Object.assign({x:x||62,d:1,c:'blue'},o||{}), PR_O=(x,o)=>Object.assign({x:x||278,d:-1,c:'orange'},o||{});
+const prTxt=(x,y,t,col,sz,cls)=>`<text${cls?` class="${cls}"`:''} x="${x}" y="${y}" text-anchor="middle" font-family="Fredoka, sans-serif" font-weight="700" font-size="${sz||18}" fill="${col||'#1d1d55'}" stroke="#fff" stroke-width="4" paint-order="stroke">${t}</text>`;
+const prBadge=(txt,col,cx,cls)=>{const w=Math.round(txt.length*8.4+26), x0=cx?cx-w/2:12;return `<g class="${cls||'endonly'}"><rect x="${x0}" y="5" width="${w}" height="25" rx="12.5" fill="${col||'#2b3bd8'}"/><text x="${x0+w/2}" y="22.5" text-anchor="middle" font-family="Fredoka, sans-serif" font-weight="700" font-size="14" fill="#fff">${txt}</text></g>`;};
+const prBubble=(x,y,txt,col,at,to)=>{const w=txt.length*10+22;return `<g data-at="${at||0}"${to?` data-to="${to}" style="opacity:0"`:''}><path d="M${x-w/2+8} ${y-28} H${x+w/2-8} Q${x+w/2} ${y-28} ${x+w/2} ${y-20} V${y-10} Q${x+w/2} ${y-2} ${x+w/2-8} ${y-2} H${x+6} L${x-2} ${y+7} L${x-2} ${y-2} H${x-w/2+8} Q${x-w/2} ${y-2} ${x-w/2} ${y-10} V${y-20} Q${x-w/2} ${y-28} ${x-w/2+8} ${y-28} Z" fill="#fff" stroke="#1d1d55" stroke-width="2" stroke-linejoin="round"/><text x="${x}" y="${y-9}" text-anchor="middle" font-family="Fredoka, sans-serif" font-weight="700" font-size="16" fill="${col||'#f07f1a'}">${txt}</text></g>`;};
+const prMark=(x,y)=>`<circle class="endonly" cx="${x}" cy="${y}" r="14" fill="none" stroke="#c23b2b" stroke-width="3" stroke-dasharray="5 4"/>`;
+const prZzz=x=>`<g aria-hidden="true" font-family="Fredoka, sans-serif" font-weight="700" fill="#1d1d55">`+[0,1,2].map(i=>`<text x="0" y="0" font-size="16" text-anchor="middle" opacity="0">z<animate attributeName="opacity" values="0;1;1;0" keyTimes="0;.15;.7;1" dur="2.7s" begin="${i*.9}s" repeatCount="indefinite"/><animateTransform attributeName="transform" type="translate" values="${x} 40;${x+9} 29;${x+3} 18;${x+13} 8" dur="2.7s" begin="${i*.9}s" repeatCount="indefinite"/></text>`).join('')+`</g>`;
+const PR_LINE115=`<line x1="10" y1="100" x2="160" y2="100" stroke="#f07f1a" stroke-width="2.5" stroke-dasharray="7 5"/><text x="128" y="94" font-family="Fredoka, sans-serif" font-weight="700" font-size="12" fill="#1d1d55" stroke="#fff" stroke-width="3" paint-order="stroke">1,15 m</text>`;
+
+function scene(o){
+ const k=o.k, B=PR_B, O=PR_O; let sp=null, lab='';
+ const two=(b,oo)=>({b:b||B(),o:oo||O()});
+ switch(k){
+  case 'groundR': sp={pl:two(),shots:[{who:'o',st:'lob'},{who:'b',st:'smash'},{land:226}],over:[prMark(226,150)]}; lab='Blauw smasht. De shuttle valt bij Oranje op de grond.'; break;
+  case 'groundL': sp={pl:two(),shots:[{who:'b',st:'lob'},{who:'o',st:'smash'},{land:114}],over:[prMark(114,150)]}; lab='Oranje smasht. De shuttle valt bij Blauw op de grond.'; break;
+  case 'netL': sp={pl:two(),shots:[{who:'o',st:'drop',cy:30},{who:'b',st:'lob'},{net:1}],over:[prMark(164,100)]}; lab='Blauw slaat de shuttle in het net.'; break;
+  case 'netR': sp={pl:two(),shots:[{who:'b',st:'drop',cy:30},{who:'o',st:'lob'},{net:1}],over:[prMark(176,100)]}; lab='Oranje slaat de shuttle in het net.'; break;
+  case 'netTerug': sp={pl:two(),shots:[{who:'o',st:'drop',cy:30},{who:'b',st:'lob'},{netTape:1}],over:[prBadge('fout','#c23b2b',170)]}; lab='De shuttle raakt de netband en valt terug aan de kant van Blauw: fout.'; break;
+  case 'touchL': sp={pl:two(B(112),O()),shots:[{who:'o',st:'drop',cy:-10},{land:148}],keys:{b:[[1350,[60,30]],[1650,[95,100],null,'out'],[2500,[95,100]]]},over:[prMark(168,82)]}; lab='Blauw raakt met zijn racket het net.'; break;
+  case 'touchR': sp={pl:two(B(),O(228)),shots:[{who:'b',st:'drop',cy:-10},{land:192}],keys:{o:[[1350,[60,30]],[1650,[95,100],null,'out'],[2500,[95,100]]]},over:[prMark(172,82)]}; lab='Oranje raakt met haar racket het net.'; break;
+  case 'underL': sp={pl:two(),shots:[{who:'o',st:'drop',cy:30},{who:'b',st:'lob'},{under:232}],over:[prMark(170,128)]}; lab='Blauw slaat de shuttle onder het net door.'; break;
+  case 'underRk': sp={pl:two(B(140),O()),dur:2200,keys:{b:[[500,[60,30]],[1300,[165,140],150,'io'],[2200,[165,140]]]},over:[prMark(176,118),prBadge('fout','#c23b2b',170)]}; lab='Blauw komt met zijn racket onder het net door bij Oranje: fout.'; break;
+  case 'outR': sp={pl:two(B(),O(250)),shots:[{who:'o',st:'drop',cy:20},{who:'b',st:'lob',cy:-60},{land:332}],over:[prMark(330,150)]}; lab='Blauw slaat de shuttle achter de achterste lijn van Oranje: uit.'; break;
+  case 'outL': sp={pl:two(B(90),O()),shots:[{who:'b',st:'drop',cy:20},{who:'o',st:'lob',cy:-60},{land:8}],over:[prMark(10,150)]}; lab='Oranje slaat de shuttle achter de achterste lijn van Blauw: uit.'; break;
+  case 'lineR': sp={pl:two(B(),O(250)),shots:[{who:'o',st:'drop',cy:20},{who:'b',st:'lob',cy:-60},{land:319}],over:[prMark(319,150)]}; lab='Blauw slaat de shuttle precies op de achterste lijn van Oranje: in.'; break;
+  case 'bodyL': sp={pl:two(),shots:[{who:'b',st:'lob'},{who:'o',st:'smash'},{body:'b'}],over:[prMark(60,92)]}; lab='Oranje smasht de shuttle tegen het lichaam van Blauw.'; break;
+  case 'bodyR': sp={pl:two(),shots:[{who:'o',st:'lob'},{who:'b',st:'smash'},{body:'o'}],over:[prMark(280,92)]}; lab='Blauw smasht de shuttle tegen het lichaam van Oranje.'; break;
+  case 'terug': sp={pl:two(),shots:[{who:'o',st:'clear'},{who:'b',st:'clear'},{catch:{who:'o',st:'clear'}}]}; lab='Oranje slaat de shuttle naar Blauw en Blauw slaat hem terug.'; break;
+  case 'onderhands': sp={pl:two(),shots:[{who:'o',st:'drop'},{who:'b',st:'lob'},{catch:{who:'o',st:'clear'}}]}; lab='De shuttle komt laag bij Blauw. Blauw slaat hem onderhands omhoog terug.'; break;
+  case 'bovenhands': sp={pl:two(),shots:[{who:'o',st:'lob'},{who:'b',st:'clear'},{catch:{who:'o',st:'clear'}}]}; lab='De shuttle komt hoog bij Blauw. Blauw slaat hem bovenhands, boven zijn hoofd.'; break;
+  case 'lob': sp={pl:two(B(),O(292)),shots:[{who:'o',st:'drop'},{who:'b',st:'lob',cy:-55},{catch:{who:'o',st:'clear'}}]}; lab='Blauw slaat onderhands een hoge, verre lob naar achteren.'; break;
+  case 'clear': sp={pl:two(B(),O(292)),shots:[{who:'o',st:'lob'},{who:'b',st:'clear',cy:-30},{catch:{who:'o',st:'clear'}}]}; lab='Blauw slaat bovenhands een hoge, verre clear naar de achterlijn.'; break;
+  case 'smash': sp={pl:two(),shots:[{who:'o',st:'lob'},{who:'b',st:'smash'},{land:226}]}; lab='Blauw slaat bovenhands een harde, steile smash naar beneden.'; break;
+  case 'drop': sp={pl:two(B(),O(292)),shots:[{who:'o',st:'lob'},{who:'b',st:'drop',cy:0,dur:1200},{land:194}]}; lab='Blauw slaat bovenhands een zachte drop die net over het net valt.'; break;
+  case 'drive': sp={pl:two(),shots:[{who:'o',st:'drive'},{who:'b',st:'drive'},{catch:{who:'o',st:'drive'}}]}; lab='Blauw en Oranje slaan een harde, vlakke drive net over het net.'; break;
+  case 'netdrop': sp={pl:two(B(96),O(242)),shots:[{who:'o',st:'net',cy:40},{who:'b',st:'net',cy:42},{land:186}]}; lab='Blauw staat bij het net en tikt de shuttle zacht over het net.'; break;
+  case 'svckort': sp={pl:two(B(),O(262)),shots:[{who:'b',st:'serve',cy:40,dur:1000},{land:204}],over:[`<path class="endonly" d="M196 152h18" stroke="#fff" stroke-width="3" stroke-linecap="round"/>`]}; lab='Blauw serveert kort: de shuttle valt vlak achter de voorste serveerlijn.'; break;
+  case 'svclang': sp={pl:two(B(),O(250)),shots:[{who:'b',st:'serve',cy:-80,dur:1500},{land:306}]}; lab='Blauw serveert lang: de shuttle gaat hoog en ver naar achteren.'; break;
+  case 'serve': sp=o.zzz?{pl:two(B(),O(278,{idle:PR_SLEEP,free0:178})),shots:[{who:'b',st:'serve',cy:-10},{land:244}],over:[prZzz(286)]}:{pl:two(),shots:[{who:'b',st:'serve'},{catch:{who:'o',st:'clear'}}]}; lab=o.zzz?'Blauw serveert terwijl Oranje nog niet klaar is.':'Blauw serveert onderhands, van onder naar boven over het net.'; break;
+  case 'serveWait': sp={pl:two(B(62,{idle:PR_ST.serve.ready,free0:118}),O()),dur:1800,holdStatic:'b',over:[prBubble(62,30,'Klaar?','#2b3bd8',300)]}; lab='Blauw wacht met serveren en vraagt: klaar?'; break;
+  case 'serveKlaar': sp={pl:two(),t0:1900,shots:[{who:'b',st:'serve'},{catch:{who:'o',st:'clear'}}],over:[prBubble(62,30,'Klaar?','#2b3bd8',200,1500),prBubble(278,30,'Ja!','#1f8a4c',800,1700)]}; lab='Blauw vraagt of Oranje klaar is. Oranje zegt ja, dan serveert Blauw.'; break;
+  case 'svchoog': sp={pl:two(),shots:[{who:'b',st:'svhigh'},{land:290}],under:[PR_LINE115],over:[prBadge('te hoog: fout','#c23b2b',230),prMark(119,77)]}; lab='Blauw raakt de shuttle bij de service boven de 1,15 meter: fout.'; break;
+  case 'svcgoed': sp={pl:two(),shots:[{who:'b',st:'serve'},{land:290}],under:[PR_LINE115],over:[prBadge('onder 1,15 m: goed','#1f8a4c',230)]}; lab='Blauw raakt de shuttle onder de 1,15 meter en slaat hem omhoog over het net: goed.'; break;
+  case 'svcvoet': sp={pl:two(),shots:[{who:'b',st:'serve'},{land:290}],legs:{b:[700,1100,14]},under:[`<ellipse class="endonly" cx="94" cy="153" rx="16" ry="6" fill="none" stroke="#c23b2b" stroke-width="3"/>`],over:[prBadge('voet schuift: fout','#c23b2b',230)]}; lab='Blauw zet tijdens de service een stapje naar voren: fout.'; break;
+  case 'buurbaan': sp={pl:two(B(70),O(270)),extraFlights:[{t:300,segs:[[360,PR_FLOOR,290,PR_FLOOR,214,PR_FLOOR]],durs:[1400],fixA:-80.7,lin:1,noPuff:1}],over:[`<path class="endonly" d="M228 146h18M234 139h14" stroke="#f07f1a" stroke-width="2.5" stroke-linecap="round"/>`,prBadge('van de buurbaan','#1d1d55',200,'pbadge')]}; lab='Er rolt een shuttle van de buurbaan jullie baan op.'; break;
+  case 'afleiden': {const kb=[],w1=[-25,-10],w2=[35,50]; for(let i=0;i<9;i++) kb.push([400+i*260,i%2?w2:w1,i%2?-20:40]); kb.push([2900,PR_NEUTRAL,PR_FREE0]);
+   sp={pl:two(B(62),O(278,{idle:PR_ST.serve.ready,free0:118})),dur:2900,holdStatic:'o',keys:{b:kb},over:[prBubble(62,30,'HÉ!','#c23b2b',300),`<path d="M24 60l-8-5M22 76h-9M100 60l8-5M104 76h9" stroke="#c23b2b" stroke-width="2.5" stroke-linecap="round"/>`,prTxt(278,26,'serveert','#1d1d55',13),prBadge('fout: afleiden','#c23b2b',176)]}; lab='Blauw roept en zwaait met zijn armen terwijl Oranje gaat serveren: afleiden is fout.'; break;}
+  case 'tweekeer': sp={pl:two()}; lab='Blauw raakt de shuttle twee keer achter elkaar: eerst een tikje omhoog, dan over het net. Fout.'; break;
+  case 'rally': sp={pl:two(),shots:[{who:'b',st:'serve'},{who:'o',st:'clear'},{who:'b',st:'drop'},{who:'o',st:'lob'},{catch:{who:'b',st:'clear'}}]}; lab='Blauw en Oranje slaan de shuttle heen en weer over het net: een rally.'; break;
+  case 'rallyPunt': sp={pl:two(),shots:[{who:'b',st:'serve'},{who:'o',st:'clear'},{who:'b',st:'smash'},{land:226}],over:[prMark(226,150),prBadge(o.punt||'+1 punt voor Blauw','#2b3bd8')]}; lab='Een rally: Blauw serveert, Oranje slaat terug en Blauw smasht de shuttle bij Oranje op de grond. Punt voor Blauw.'; break;
+ }
+ if(!sp) sp={pl:two(),dur:800};
+ if(k==='tweekeer'){
+  // rally: oranje drop → blauw tikt omhoog (1) → blauw slaat over het net (2)
+  const pb=sp.pl.b, C=prBlade(pb,PR_ST.lob.hit), Co=prBlade(sp.pl.o,PR_ST.drop.hit);
+  const T0=600, T1=T0+1150, T2=T1+700;
+  sp={pl:sp.pl,dur:T2+1300,
+   extraFlights:[
+    {t:T0,segs:[[Co[0],Co[1],(Co[0]+C[0])/2,20,C[0],C[1]]],durs:[1150],hit:true},
+    {t:T1,segs:[[C[0],C[1],C[0]+2,C[1]-70,C[0],C[1]]],durs:[700],hit:true,lin:1},
+    {t:T2,segs:[[C[0],C[1],190,-40,290,PR_FLOOR]],durs:[1300],hit:true,endAng:-80.7}],
+   keys:{o:[[T0-650,PR_ST.drop.ready,22],[T0-450,PR_ST.drop.ready],[T0-200,PR_ST.drop.back],[T0,PR_ST.drop.hit,null,'in'],[T0+240,PR_ST.drop.fol,null,'out'],[T0+720,PR_NEUTRAL,PR_FREE0]],
+         b:[[T0+300,PR_ST.lob.ready,140],[T1-200,[175,190]],[T1,[150,150],null,'in'],[T1+160,[160,165],null,'out'],[T2-200,[198,215],null,'io'],[T2,[150,150],null,'in'],[T2+240,[40,25],null,'out'],[T2+900,PR_NEUTRAL,PR_FREE0]]},
+   over:[prTxt(C[0]+28,C[1]-60,'2×','#c23b2b',18,'endonly'),prBadge('2 keer raken: fout','#c23b2b')]};
+ }
+ if(o.badge) (sp.over=sp.over||[]).push(prBadge(o.badge[0],o.badge[1]));
+ return prScene(sp,lab);
+}
+
+/* dubbelspel: vier spelers, voorste blauwe laat gaan, achterste roept "Los!" en slaat */
+function dubbelLosArt(){
+ const pl={bb:PR_B(40),bf:PR_B(118,{c:'blue2',z:1}),of:PR_O(224,{c:'orange2',z:1}),ob:PR_O(300)};
+ const sp={pl,shots:[{who:'ob',st:'serve',cy:-40,dur:1300},{who:'bb',st:'smash'},{land:262}],
+  keys:{bf:[[1100,PR_NEUTRAL],[1450,[-60,-15],40,'io'],[1750,[-60,-15]],[2150,[120,150],165,'io']]},
+  over:[prBubble(40,30,'Los!','#f07f1a',1650),prMark(262,150),prBadge('Punt voor blauw!','#2b3bd8',190)],nameB:79,nameO:262};
+ return prScene(sp,'Dubbelspel. Oranje serveert naar blauw. De voorste blauwe speler laat de shuttle gaan, de achterste roept los en slaat terug. De shuttle landt binnen de lijnen bij oranje: punt voor blauw.');
+}
+/* toss: shuttle boven het net omhoog, valt met de dop naar Blauw */
+function tossArt(){
+ const sp={pl:{b:PR_B(96),o:PR_O(244)},extraFlights:[{t:400,segs:[[170,64,174,-30,148,PR_FLOOR]],durs:[1700],spin:1080+80.7,lin:1}],
+  over:[`<path class="endonly" d="M124 141 h-14 m6 -6 l-6 6 l6 6" fill="none" stroke="#2b3bd8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>`,prBadge('Dop naar Blauw: Blauw kiest','#2b3bd8',170)],nameB:96,nameO:244};
+ return prScene(sp,'Toss: de shuttle wordt boven het net opgegooid en valt met de dop naar Blauw. Blauw mag kiezen.');
+}
+
 function bigArt(t,sub){return `<div style="text-align:center"><div class="big">${t}</div>${sub?`<div class="label" style="margin-top:6px">${sub}</div>`:''}</div>`;}
 function iconArt(name){return `<div style="width:110px;height:110px">${ICP[name]||I[name]||''}</div>`;}
 function picArt(p){
@@ -1216,62 +1429,6 @@ if(document.addEventListener){
   const flip=e=>{const t=e.target.closest&&e.target.closest('.rokfig'); if(!t) return; if(e.type==='keydown'&&e.key!=='Enter'&&e.key!==' ') return; e.preventDefault(); t.classList.toggle('on'); if(t.classList.contains('on')) try{kaching(.5);}catch(x){}};
   document.addEventListener('click',flip); document.addEventListener('keydown',flip);
 }
-function dubbelLosArt(){
-  const N='#1d1d55';
-  const kid=(x,c)=>`<circle cx="${x}" cy="88" r="13" fill="${c}"/><rect x="${x-13}" y="104" width="26" height="40" rx="10" fill="${c}"/><rect x="${x-9}" y="140" width="7" height="18" rx="3" fill="${c}"/><rect x="${x+2}" y="140" width="7" height="18" rx="3" fill="${c}"/>`;
-  const rk=(cls,px,py,len,ang)=>`<g class="${cls}" data-px="${px}" data-py="${py}" data-a="${ang}" transform="rotate(${ang} ${px} ${py})"><line x1="${px}" y1="${py}" x2="${px}" y2="${py-len}" stroke="${N}" stroke-width="3"/><ellipse cx="${px}" cy="${py-len-11}" rx="8" ry="11" fill="none" stroke="${N}" stroke-width="3"/></g>`;
-  return `<svg class="dlos" viewBox="0 0 340 190" width="340" height="190" role="img" aria-label="Dubbelspel. Oranje serveert naar blauw. De voorste blauwe speler laat de shuttle gaan, de achterste roept los en slaat terug. De shuttle landt binnen de lijnen bij oranje: punt voor blauw.">
-  <rect width="340" height="190" rx="14" fill="var(--blue-soft)"/>
-  <rect x="0" y="158" width="340" height="32" fill="var(--court)"/><rect x="18" y="158" width="4" height="7" fill="var(--court-line)"/><rect x="318" y="158" width="4" height="7" fill="var(--court-line)"/>
-  <rect x="167" y="70" width="6" height="88" fill="var(--fg)"/><rect x="160" y="68" width="20" height="6" rx="2" fill="#fff" stroke="var(--fg)"/>
-  <g opacity=".35">${[0,1,2,3,4,5,6,7].map(i=>`<line x1="163" y1="${78+i*9}" x2="177" y2="${78+i*9}" stroke="var(--fg)"/>`).join('')}</g>
-  ${kid(52,'#2b3bd8')}${rk('rkB',62,110,18,22)}
-  ${kid(114,'#5566ee')}${rk('rkA',124,110,18,30)}
-  ${kid(236,'#f39a4a')}${rk('rkO1',226,112,18,-30)}
-  ${kid(298,'#f07f1a')}${rk('rkO2',288,112,18,-70)}
-  <path class="dl-t1" d="M278 136 Q190 -14 74 80" fill="none" stroke="#f07f1a" stroke-width="2.5" stroke-dasharray="5 6" opacity="0"/>
-  <path class="dl-t2" d="M74 80 Q170 -40 266 151.5" fill="none" stroke="#2b3bd8" stroke-width="3" stroke-dasharray="6 6"/>
-  <g class="dl-bub" style="transform-box:fill-box;transform-origin:30% 100%"><path d="M36 20 H80 Q88 20 88 28 V42 Q88 50 80 50 H64 L56 59 L56 50 H36 Q28 50 28 42 V28 Q28 20 36 20 Z" fill="#fff" stroke="${N}" stroke-width="2.2" stroke-linejoin="round"/>
-  <text x="58" y="41.5" text-anchor="middle" font-family="Fredoka, sans-serif" font-weight="700" font-size="19" fill="#f07f1a">Los!</text></g>
-  <g class="dl-sh" transform="translate(266 151.5) rotate(-80.7) scale(1.3) translate(-16 -16)">${SHUTTLE_INNER}</g>
-  <g class="dl-pt"><rect x="128" y="10" width="124" height="28" rx="14" fill="#2b3bd8"/><text x="190" y="29.5" text-anchor="middle" font-family="Fredoka, sans-serif" font-weight="700" font-size="15" fill="#fff">Punt voor blauw!</text></g>
-  <text x="83" y="182" text-anchor="middle" font-family="Fredoka, sans-serif" font-weight="700" font-size="15" fill="#fff">Blauw</text>
-  <text x="267" y="182" text-anchor="middle" font-family="Fredoka, sans-serif" font-weight="700" font-size="15" fill="#fff">Oranje</text>
-  </svg>`;
-}
-function dlosAnim(sv,done){
-  done=done||function(){};
-  const $=c=>sv.querySelector(c), sh=$('.dl-sh'), t1=$('.dl-t1'), t2=$('.dl-t2'), bub=$('.dl-bub'), pt=$('.dl-pt');
-  const rot=(g,a)=>{const px=+g.dataset.px,py=+g.dataset.py;g.setAttribute('transform',`rotate(${a} ${px} ${py})`);};
-  const rA=$('.rkA'), rB=$('.rkB'), rO=$('.rkO2');
-  const qb=(p0,c,p1,t)=>(1-t)*(1-t)*p0+2*(1-t)*t*c+t*t*p1;
-  const qd=(p0,c,p1,t)=>2*(1-t)*(c-p0)+2*t*(p1-c);
-  const S1=[278,136,190,-14,74,80], S2=[74,80,170,-40,266,151.5];
-  const place=(S,t,endA)=>{const x=qb(S[0],S[2],S[4],t),y=qb(S[1],S[3],S[5],t);let a=Math.atan2(qd(S[1],S[3],S[5],t),qd(S[0],S[2],S[4],t))*180/Math.PI-90;
-    if(endA!=null&&t>.85){const k=(t-.85)/.15;a=a+(endA-a)*k;}
-    sh.setAttribute('transform',`translate(${x.toFixed(1)} ${y.toFixed(1)}) rotate(${a.toFixed(1)}) scale(1.3) translate(-16 -16)`);};
-  if(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches){done();return;}
-  const T={serve:[0,1300],hit:[1300,2400],pts:2550,end:2900};
-  bub.style.opacity=0; pt.style.opacity=0; t2.style.opacity=0; t1.style.opacity=0;
-  const t0=performance.now(); sv.dataset.run=t0;
-  const ease=x=>x<.5?2*x*x:1-Math.pow(-2*x+2,2)/2;
-  const step=now=>{ if(sv.dataset.run!=String(t0)) return; const e=now-t0;
-    // oranje serveert (onderhands)
-    rot(rO, e<450?-150+ease(e/450)*80:-70);
-    if(e<T.serve[1]){const t=e/T.serve[1]; place(S1,t,null); t1.style.opacity=.55;}
-    // voorste blauwe speler wil bijna slaan (racket omhoog en weer terug)
-    const aT=(e-550)/650; rot(rA, aT<0?30:aT<.5?30-ease(aT*2)*65:aT<1?-35+ease((aT-.5)*2)*65:30);
-    // Los!
-    if(e>850){const k=Math.min(1,(e-850)/220); bub.style.opacity=k; bub.style.transform=`scale(${.6+.4*k})`;}
-    // achterste blauwe speler slaat terug
-    const bT=(e-1150)/350; rot(rB, bT<0?22:bT<.4?22-ease(bT/.4)*40:bT<1?-18+ease((bT-.4)/.6)*40:22);
-    if(e>=T.hit[0]&&e<T.hit[1]){const t=(e-T.hit[0])/(T.hit[1]-T.hit[0]); place(S2,t,-80.7); t2.style.opacity=.8; t1.style.opacity=.25;}
-    if(e>=T.hit[1]){place(S2,1,-80.7);}
-    if(e>T.pts){pt.style.opacity=Math.min(1,(e-T.pts)/250);}
-    if(e<T.end) requestAnimationFrame(step); else {t1.style.opacity=0; done();}
-  };
-  requestAnimationFrame(step);
-}
 function nylSh(cx,cy,rot,sc,broken){
   const N='#1d1d55';let r='';
   [-36,-24,-12,0,12,24,36].forEach((d,i)=>{const bx=d*.4, tx=d*1.15;
@@ -1301,38 +1458,6 @@ function dopRaakArt(){
   <g transform="translate(250 140)"><path d="M-14 4 A15 15 0 1 1 6 14" fill="none" stroke="var(--fg)" stroke-width="3" stroke-linecap="round"/><path d="M6 14 l-8 1 l3 -8" fill="none" stroke="var(--fg)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><path d="M-20 -20 L20 20 M20 -20 L-20 20" stroke="#c23b2b" stroke-width="4" stroke-linecap="round"/></g>
   <text x="250" y="184" text-anchor="middle" font-family="Fredoka, sans-serif" font-weight="700" font-size="15" fill="#c23b2b">geen draai</text>
   </svg>`;
-}
-function tossArt(){
-  const kid=(x,c)=>`<circle cx="${x}" cy="88" r="13" fill="${c}"/><rect x="${x-13}" y="104" width="26" height="40" rx="10" fill="${c}"/><rect x="${x-9}" y="140" width="7" height="18" rx="3" fill="${c}"/><rect x="${x+2}" y="140" width="7" height="18" rx="3" fill="${c}"/>`;
-  return `<svg class="tossart" viewBox="0 0 340 190" width="340" height="190" role="img" aria-label="Toss: de shuttle wordt boven het net opgegooid en valt met de dop naar Blauw. Blauw mag kiezen.">
-  <rect width="340" height="190" rx="14" fill="var(--blue-soft)"/>
-  <rect x="0" y="158" width="340" height="32" fill="var(--court)"/>
-  <rect x="167" y="70" width="6" height="88" fill="var(--fg)"/><rect x="160" y="68" width="20" height="6" rx="2" fill="#fff" stroke="var(--fg)"/>
-  <g opacity=".35">${[0,1,2,3,4,5,6,7].map(i=>`<line x1="163" y1="${78+i*9}" x2="177" y2="${78+i*9}" stroke="var(--fg)"/>`).join('')}</g>
-  ${kid(96,'#2b3bd8')}${kid(244,'#f07f1a')}
-  <path class="ts-dots" d="M170 60 Q170 -10 150 151" fill="none" stroke="#f07f1a" stroke-width="2.5" stroke-dasharray="4 6" opacity=".55"/>
-  <g class="ts-sh" transform="translate(150 151.5) rotate(80.7) scale(1.3) translate(-16 -16)">${SHUTTLE_INNER}</g>
-  <g class="ts-end"><path d="M126 140 h-14 m6 -6 l-6 6 l6 6" fill="none" stroke="#2b3bd8" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-  <rect x="28" y="10" width="216" height="28" rx="14" fill="#2b3bd8"/><text x="136" y="29.5" text-anchor="middle" font-family="Fredoka, sans-serif" font-weight="700" font-size="15" fill="#fff">Dop naar Blauw: Blauw kiest</text></g>
-  <text x="96" y="182" text-anchor="middle" font-family="Fredoka, sans-serif" font-weight="700" font-size="15" fill="#fff">Blauw</text>
-  <text x="244" y="182" text-anchor="middle" font-family="Fredoka, sans-serif" font-weight="700" font-size="15" fill="#fff">Oranje</text>
-  </svg>`;
-}
-function tossAnim(sv,done){
-  done=done||function(){};
-  if(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches){done();return;}
-  const sh=sv.querySelector('.ts-sh'), end=sv.querySelector('.ts-end'), dots=sv.querySelector('.ts-dots');
-  end.style.opacity=0; dots.style.opacity=0; const t0=performance.now(); sv.dataset.run=t0;
-  const qb=(a,b,c,t)=>(1-t)*(1-t)*a+2*(1-t)*t*b+t*t*c;
-  const step=now=>{ if(sv.dataset.run!=String(t0)) return; const e=Math.max(0,now-t0), D=1700, k=Math.min(1,e/D);
-    const t=k<.4?(1-Math.pow(1-k/.4,2))*.4:(.4+.6*Math.pow((k-.4)/.6,1.6));
-    const x=qb(170,170,150,t), y=qb(60,-10,151.5,t);
-    const a=(1-Math.pow(1-k,2))*(1080+80.7);
-    sh.setAttribute('transform',`translate(${x.toFixed(1)} ${y.toFixed(1)}) rotate(${a.toFixed(1)}) scale(1.3) translate(-16 -16)`);
-    if(e>D+150) end.style.opacity=Math.min(1,(e-D-150)/250);
-    if(e<D+450) requestAnimationFrame(step); else done();
-  };
-  requestAnimationFrame(step);
 }
 function boardArt(b){
   return `<div class="board" aria-label="Scorebord">${b.map(r=>`<span>${r[0]}</span><span class="sv">${r[2]?I.shuttle:''}</span><span class="sc">${r[1]}</span>`).join('')}</div>`;
@@ -1737,7 +1862,7 @@ const LEVELS=[
   'De telling tot 15 werkt net als die tot 21, maar alles is een stukje lager.'),
  L_('fouten','fouten-5','Lastige foutgevallen',[
   CE('Raakt de shuttle het net of de paal en valt hij <strong>terug</strong> aan de kant van wie sloeg? Dan is hij niet over het net: <strong>fout</strong>.',{scene:{k:'netTerug'}}),
-  CE('Hinderen kan ook <strong>onder</strong> het net: met je voet of racket onder het net door bij de ander komen en hem storen is fout.',{scene:{k:'underL'}}),
+  CE('Hinderen kan ook <strong>onder</strong> het net: met je voet of racket onder het net door bij de ander komen en hem storen is fout.',{scene:{k:'underRk'}}),
   CE('Zwaaien over het net mag alleen als je de shuttle aan je <strong>eigen kant</strong> raakte. Dat is het verschil tussen doorzwaaien en over het net slaan.',{net:'over'})],
   [{t:'ref',q:'Blauw slaat de shuttle tegen de netpaal. Hij valt terug aan de kant van Blauw.',a:'Fout',why:'De shuttle ging niet over het net: fout van Blauw.'},
    {t:'ref',q:'Oranje schuift met een voet onder het net door en hindert Blauw.',a:'Fout',why:'Onder het net de tegenstander hinderen is fout.'},
@@ -2328,7 +2453,7 @@ function quizView(){
 }
 function ensureReplay(){
   const a=document.getElementById('art'); if(!a||a.querySelector('.replay')) return;
-  if(!a.querySelector('.landing,.flight,.rk,.sw,.dlos,.tossart,animate,animateTransform,animateMotion')) return;
+  if(!a.querySelector('.landing,.flight,.rk,.sw,svg.pro,animate,animateTransform,animateMotion')) return;
   const b=document.createElement('button'); b.className='replay'; b.type='button'; b.setAttribute('aria-label','Animatie opnieuw afspelen'); b.title='Opnieuw afspelen'; b.innerHTML=I.redo;
   b.onclick=e=>{e.stopPropagation(); landAnim();}; a.appendChild(b);
 }
@@ -2336,8 +2461,7 @@ function landAnim(done){
   done=done||function(){};
   ensureReplay();
   const root=document.getElementById('art'); if(!root){done();return;}
-  const dl=root.querySelector('.dlos'); if(dl){dlosAnim(dl,done);return;}
-  const ta=root.querySelector('.tossart'); if(ta){tossAnim(ta,done);return;}
+  const pr=root.querySelector('svg.pro'); if(pr){proAnim(pr,done);return;}
   const gs=root.querySelectorAll('.landing'), fl=root.querySelectorAll('.flight'), rks=root.querySelectorAll('.rk'), sws=root.querySelectorAll('.sw'), ends=root.querySelectorAll('.endonly');
   root.querySelectorAll('svg').forEach(sv=>{ if(sv.querySelector('animate,animateTransform,animateMotion')&&sv.setCurrentTime){ try{sv.setCurrentTime(0);sv.unpauseAnimations();}catch(e){} } });
   if(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches){done();return;}
