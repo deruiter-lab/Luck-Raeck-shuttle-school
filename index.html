@@ -1098,7 +1098,7 @@ function prHall(u){
 const PR_ST={
  serve:{ready:[165,172],back:[200,218],hit:[150,150],fol:[45,30],free:118},
  lob:  {ready:[160,170],back:[198,215],hit:[150,150],fol:[40,25],free:140},
- svhigh:{ready:[100,100],back:[-60,-95],hit:[95,90],fol:[110,60],free:60},
+ svhigh:{ready:[110,172],back:[115,218],hit:[40,120],fol:[5,25],free:60}, // onderhands, maar raakpunt te hoog
  net:  {ready:[140,125],back:[160,168],hit:[120,110],fol:[95,70],free:140},
  drive:{ready:[70,50],back:[-40,-85],hit:[85,88],fol:[115,135],free:150},
  clear:{ready:[-60,-15],back:[-20,-125],hit:[12,12],fol:[95,125],free:22},
@@ -1289,7 +1289,7 @@ function scene(o){
   case 'serve': sp=o.zzz?{pl:two(B(),O(278,{idle:PR_SLEEP,free0:178})),shots:[{who:'b',st:'serve',cy:-10},{land:244}],over:[prZzz(286)]}:{pl:two(),shots:[{who:'b',st:'serve'},{catch:{who:'o',st:'clear'}}]}; lab=o.zzz?'Blauw serveert terwijl Oranje nog niet klaar is.':'Blauw serveert onderhands, van onder naar boven over het net.'; break;
   case 'serveWait': sp={pl:two(B(62,{idle:PR_ST.serve.ready,free0:118}),O()),dur:1800,holdStatic:'b',over:[prBubble(62,30,'Klaar?','#2b3bd8',300)]}; lab='Blauw wacht met serveren en vraagt: klaar?'; break;
   case 'serveKlaar': sp={pl:two(),t0:1900,shots:[{who:'b',st:'serve'},{catch:{who:'o',st:'clear'}}],over:[prBubble(62,30,'Klaar?','#2b3bd8',200,1500),prBubble(278,30,'Ja!','#1f8a4c',800,1700)]}; lab='Blauw vraagt of Oranje klaar is. Oranje zegt ja, dan serveert Blauw.'; break;
-  case 'svchoog': sp={pl:two(),shots:[{who:'b',st:'svhigh'},{land:290}],under:[PR_LINE115],over:[prBadge('te hoog: fout','#c23b2b',230),prMark(119,77)]}; lab='Blauw raakt de shuttle bij de service boven de 1,15 meter: fout.'; break;
+  case 'svchoog': sp={pl:two(),shots:[{who:'b',st:'svhigh'},{land:290}],under:[PR_LINE115],over:[prBadge('te hoog: fout','#c23b2b',230),prMark(110,86)]}; lab='Blauw raakt de shuttle bij de service boven de 1,15 meter: fout.'; break;
   case 'svcgoed': sp={pl:two(),shots:[{who:'b',st:'serve'},{land:290}],under:[PR_LINE115],over:[prBadge('onder 1,15 m: goed','#1f8a4c',230)]}; lab='Blauw raakt de shuttle onder de 1,15 meter en slaat hem omhoog over het net: goed.'; break;
   case 'svcvoet': sp={pl:two(),shots:[{who:'b',st:'serve'},{land:290}],legs:{b:[700,1100,14]},under:[`<ellipse class="endonly" cx="94" cy="153" rx="16" ry="6" fill="none" stroke="#c23b2b" stroke-width="3"/>`],over:[prBadge('voet schuift: fout','#c23b2b',230)]}; lab='Blauw zet tijdens de service een stapje naar voren: fout.'; break;
   case 'buurbaan': sp={pl:two(B(70),O(270)),extraFlights:[{t:300,segs:[[360,PR_FLOOR,290,PR_FLOOR,214,PR_FLOOR]],durs:[1400],fixA:-80.7,lin:1,noPuff:1}],over:[`<path class="endonly" d="M228 146h18M234 139h14" stroke="#f07f1a" stroke-width="2.5" stroke-linecap="round"/>`,prBadge('van de buurbaan','#1d1d55',200,'pbadge')]}; lab='Er rolt een shuttle van de buurbaan jullie baan op.'; break;
