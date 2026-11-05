@@ -1088,7 +1088,7 @@ function prHall(u){
  <path d="M0 18h340M0 22h340" stroke="#b4c3df" stroke-width="1"/>
  <rect x="0" y="128" width="340" height="7" fill="#a9b9d6"/>
  <path d="M0 135 L340 135 L340 190 L0 190Z" fill="url(#${u}f)"/>
- <path d="M26 135 L10 190 M314 135 L330 190 M44 135 L34 190 M296 135 L306 190" stroke="#4a95ff" stroke-width="2.2" opacity=".9"/>
+ <path d="M26 135 L10 190 M314 135 L330 190 M44 135 L34 190 M296 135 L306 190 M127.5 135 L122.7 190 M212.5 135 L217.3 190" stroke="#4a95ff" stroke-width="2.2" opacity=".9"/>
  <path d="M18 160 H322" stroke="#4a95ff" stroke-width="2" opacity=".5"/>
  <rect x="164" y="73" width="12" height="40" fill="rgba(255,255,255,.22)"/><path d="${mesh}" stroke="#1d1d55" stroke-width=".6" opacity=".55"/>
  <rect x="163" y="70" width="14" height="4" rx="1.5" fill="#fff" stroke="#1d1d55" stroke-width="1"/>
@@ -1277,7 +1277,7 @@ function scene(o){
   case 'drop': sp={pl:two(B(),O(292)),shots:[{who:'o',st:'lob'},{who:'b',st:'drop',cy:0,dur:1200},{land:194}]}; lab='Blauw slaat bovenhands een zachte drop die net over het net valt.'; break;
   case 'drive': sp={pl:two(),shots:[{who:'o',st:'drive'},{who:'b',st:'drive'},{catch:{who:'o',st:'drive'}}]}; lab='Blauw en Oranje slaan een harde, vlakke drive net over het net.'; break;
   case 'netdrop': sp={pl:two(B(96),O(242)),shots:[{who:'o',st:'net',cy:40},{who:'b',st:'net',cy:42},{land:186}]}; lab='Blauw staat bij het net en tikt de shuttle zacht over het net.'; break;
-  case 'svckort': sp={pl:two(B(),O(262)),shots:[{who:'b',st:'serve',cy:40,dur:1000},{land:204}],over:[`<path class="endonly" d="M196 152h18" stroke="#fff" stroke-width="3" stroke-linecap="round"/>`]}; lab='Blauw serveert kort: de shuttle valt vlak achter de voorste serveerlijn.'; break;
+  case 'svckort': sp={pl:two(B(),O(262)),shots:[{who:'b',st:'serve',cy:40,dur:1000},{land:226}]}; lab='Blauw serveert kort: de shuttle valt vlak achter de voorste serveerlijn.'; break;
   case 'svclang': sp={pl:two(B(),O(250)),shots:[{who:'b',st:'serve',cy:-80,dur:1500},{land:306}]}; lab='Blauw serveert lang: de shuttle gaat hoog en ver naar achteren.'; break;
   case 'serve': sp=o.zzz?{pl:two(B(),O(278,{idle:PR_SLEEP,free0:178})),shots:[{who:'b',st:'serve',cy:-10},{land:244}],over:[prZzz(286)]}:{pl:two(),shots:[{who:'b',st:'serve'},{catch:{who:'o',st:'clear'}}]}; lab=o.zzz?'Blauw serveert terwijl Oranje nog niet klaar is.':'Blauw serveert onderhands, van onder naar boven over het net.'; break;
   case 'serveWait': sp={pl:two(B(62,{idle:PR_ST.serve.ready,free0:118}),O()),dur:1800,holdStatic:'b',over:[prBubble(62,30,'Klaar?','#2b3bd8',300)]}; lab='Blauw wacht met serveren en vraagt: klaar?'; break;
