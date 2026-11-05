@@ -668,6 +668,40 @@ body.testmode .tpill{display:inline-block}
 
 .bento button.bn{cursor:pointer}.bn:active{transform:scale(.98)}.bn{transition:transform .12s}
 .bento .bn-go:focus-visible,.bento .bn:focus-visible{outline:3px solid var(--blue);outline-offset:3px}
+
+/* ===== Bento look-and-feel voor alle schermen ===== */
+:root{--sh:0 6px 18px -10px rgba(29,29,85,.35);--sh2:0 10px 24px -12px rgba(29,29,85,.45)}
+.stage,.card,.tile,.item,.opt,.tb,.board{box-shadow:var(--sh)}
+.stage{border-radius:24px}
+.card{border-radius:22px}
+.tile{border-radius:18px;border-width:1px;transition:transform .12s,box-shadow .12s}
+.tile:active:not(:disabled),.item:active:not(:disabled),.opt:active:not(:disabled){transform:scale(.98)}
+.tile.now{box-shadow:0 0 0 3px var(--blue-soft),var(--sh2)}
+.tile .tn{border-radius:12px}
+.item{border-radius:20px;border-width:1px;transition:transform .12s}
+.item.exam:not(:disabled){background:linear-gradient(135deg,color-mix(in srgb,var(--orange) 14%,var(--surface)),var(--surface));border-color:color-mix(in srgb,var(--orange) 45%,var(--line))}
+.opt{border-radius:18px;border-width:1px;transition:transform .12s,border-color .12s}
+.opt.right{border-width:2px}.opt.wrong{border-width:2px}
+.tabs{border-radius:999px;padding:4px}.tab{border-radius:999px}
+.back{background:var(--surface);border-radius:999px;padding:6px 14px 6px 10px;box-shadow:var(--sh);min-height:40px}
+.topline .label{background:var(--blue-soft);color:var(--blue);border-radius:999px;padding:4px 12px;font-size:11px}
+.qdots{gap:5px}.qdots i{border-radius:999px;height:7px}
+.ltitle{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:8px 12px;box-shadow:var(--sh)}
+.ltitle .tic{width:38px;height:38px;border-radius:12px}.ltitle .tic svg{width:22px;height:22px}
+.ltitle h2{line-height:1.15}
+.fb{border-radius:20px}
+.hintpanel{border-radius:22px}
+.toast{box-shadow:var(--sh2)}
+/* niveau-kop */
+.lvhero{position:relative;overflow:hidden;border-radius:24px;padding:16px 18px;color:#fff;background:radial-gradient(120% 150% at 85% 10%,#4a58f0 0%,#2b3bd8 45%,#1d1d55 100%);box-shadow:0 14px 28px -14px rgba(43,59,216,.75);display:flex;align-items:center;min-height:120px}
+.lvh-t{position:relative;z-index:1;display:flex;flex-direction:column;gap:2px;max-width:68%}
+.lvhero h1{color:#fff;margin:0;line-height:1.1}
+.lvhero .bn-bar{display:block;width:100%;height:8px;border-radius:8px;background:rgba(255,255,255,.28);margin-top:8px;overflow:hidden}.lvhero .bn-bar i{display:block;height:100%;background:#ff9a3d;border-radius:8px}
+.lvhero .bn-k{color:#ffb06a}
+.lvh-b{display:flex;gap:6px;flex-wrap:nowrap;margin-top:8px}.lvh-b .btn{padding:6px 12px;font-size:14px;white-space:nowrap}
+.lvh-dip{background:#fff;color:#1d1d55}
+.lk-lv{position:absolute;right:6px;bottom:-6px;width:92px;height:112px}
+@media (max-height:760px){.lvhero{min-height:0;padding:12px 14px}.lk-lv{width:74px;height:90px}.back{min-height:36px;padding:4px 12px 4px 8px}}
 </style>
 
 <header class="bar"><div class="bar-in">
@@ -2058,9 +2092,10 @@ function levelView(n){
   const l=LEVELS[n-1]; const p=P(); const eo=examOpen(l), pass=!!p.passed[n]; const tab=cur.tab||'les'; const of=opfrisNeeded(n);
   app.innerHTML=`
   <div class="topline"><button class="back" id="bk">${I.back} Route</button><span class="label">Niveau ${n} · ${l.age}</span></div>
-  <div class="row" style="justify-content:space-between"><h1>${l.name}</h1>${pass?`<button class="btn alt small" id="dipl">${ic('medal',18)} Diploma</button>`:''}</div>
-  ${pass&&n<5?`<button class="btn go small" id="gonext">Gehaald! Door naar niveau ${n+1} ${I.next}</button>`:''}
-  ${tab==='les'?stepBar(l):''}
+  <div class="lvhero"><div class="lvh-t"><span class="bn-k">Niveau ${n}</span><h1>${l.name}</h1>
+    ${pass?`<span class="bn-s2">✓ Foutloos gehaald!</span>`:`<span class="bn-bar"><i style="width:${Math.round(lessonsDone(l)/l.lessons.length*100)}%"></i></span><span class="bn-s2">${lessonsDone(l)} van ${l.lessons.length} lessen</span>`}
+    ${pass?`<div class="lvh-b">${n<5?`<button class="btn go small" id="gonext">Naar niveau ${n+1} ${I.next}</button>`:''}<button class="btn small lvh-dip" id="dipl">${ic('medal',18)} Diploma</button></div>`:''}</div>
+    ${lucky(pass?'cheer':'happy','lk-lv')}</div>
   <div class="tabs" role="tablist"><button role="tab" class="tab ${tab==='les'?'on':''}" data-tab="les" aria-selected="${tab==='les'}">Lessen</button><button role="tab" class="tab ${tab==='spel'?'on':''}" data-tab="spel" aria-selected="${tab==='spel'}">Spelletjes</button></div>
   ${tab==='les'?`
   <div class="tiles">
