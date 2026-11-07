@@ -1142,6 +1142,7 @@ function prHairBack(c){const h=c.hair;
  if(c.style==='long') return `<path d="M-9.5 46 q-5 9 -3 22 q6 3 11 -1 l-3 -17z" fill="${h}"/>`;
  return '';}
 function prHairTop(c){const h=c.hair;
+ if(c.style==='bald') return `<ellipse cx="5" cy="44.5" rx="4.5" ry="2.2" fill="#fff" opacity=".4" transform="rotate(-18 5 44.5)"/>`;
  if(c.style==='buzz') return `<path d="M-9.6 50 q0 -12 11.6 -12.4 q10 0 11.4 8.4 q-6 -3 -11.4 -2.6 q-6 .6 -11.6 6.6z" fill="${h}" opacity=".9"/>`;
  if(c.style==='spiky') return `<path d="M-9.5 52 l-2.5 -6 l4 -1.5 l-1.5 -6 l5 1.5 l1 -5.5 l4 3.5 l3.5 -4 l2.5 5 l5 -1.5 l-.5 5.5 l2.5 3.5 q-6 -4 -12 -3 q-5 1 -7 7z" fill="${h}"/>`;
  if(c.style==='curly') return `<g fill="${h}"><circle cx="-7.5" cy="46" r="5"/><circle cx="-4" cy="40.5" r="5"/><circle cx="2" cy="38.2" r="5"/><circle cx="8" cy="39.5" r="4.4"/><circle cx="11.5" cy="43.5" r="3.4"/><circle cx="-9.5" cy="52" r="3.8"/></g>`;
@@ -1153,8 +1154,11 @@ function prKnee(hx,hy,ax,ay){const dx=ax-hx,dy=ay-hy,D=Math.hypot(dx,dy);
  return [hx+dx/D*al+dy/D*hg, hy+dy/D*al-dx/D*hg];}
 function prLegs(B){const hy=112+B.cr, ba=[-13,152], fa=[16+B.lu,151];
  const kb=prKnee(-4,hy,ba[0],ba[1]), kf=prKnee(4,hy,fa[0],fa[1]);
- return {b:`M-4 ${hy.toFixed(1)} L${kb[0].toFixed(1)} ${kb[1].toFixed(1)} L${ba[0]} ${ba[1]}`, f:`M4 ${hy.toFixed(1)} L${kf[0].toFixed(1)} ${kf[1].toFixed(1)} L${fa[0].toFixed(1)} ${fa[1]}`, ft:`translate(${B.lu.toFixed(1)} 0)`};}
+ const u=(ax,ay,bx,by)=>{const l=Math.hypot(bx-ax,by-ay)||1;return [(bx-ax)/l,(by-ay)/l];}, ut=u(4,hy,kf[0],kf[1]), us=u(kf[0],kf[1],fa[0],fa[1]);
+ const br=`M${(kf[0]-ut[0]*5).toFixed(1)} ${(kf[1]-ut[1]*5).toFixed(1)} L${kf[0].toFixed(1)} ${kf[1].toFixed(1)} L${(kf[0]+us[0]*5).toFixed(1)} ${(kf[1]+us[1]*5).toFixed(1)}`;
+ return {b:`M-4 ${hy.toFixed(1)} L${kb[0].toFixed(1)} ${kb[1].toFixed(1)} L${ba[0]} ${ba[1]}`, f:`M4 ${hy.toFixed(1)} L${kf[0].toFixed(1)} ${kf[1].toFixed(1)} L${fa[0].toFixed(1)} ${fa[1]}`, ft:`translate(${B.lu.toFixed(1)} 0)`, br, kx:kf[0], ky:kf[1]};}
 function prPlayer(id,x,d,c,st){
+ const sc=c.sc||1; if(sc!==1) return `<g transform="translate(${x} 152) scale(${sc}) translate(${-x} -152)">`+prPlayer(id,x,d,Object.assign({},c,{sc:1}),st)+`</g>`;
  const [a,b,f,B]=st, L=prLegs(B), arm=`<g class="armR" transform="rotate(${a.toFixed(1)} 6 76)">${prArmUpper(c)}<g class="armF" transform="rotate(${(b-a).toFixed(1)} 6 63)">${prArmFore(c)}</g></g>`;
  const behind=prBehind(a,b);
  return `<g class="pl" data-id="${id}" transform="translate(${(x+d*B.dx).toFixed(1)} ${B.dy.toFixed(1)}) scale(${d} 1)">
@@ -1162,6 +1166,7 @@ function prPlayer(id,x,d,c,st){
  <path class="lgB" d="${L.b}" fill="none" stroke="${c.sk}" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/>
  <path d="M-15.5 148 h5 v5 h-5z" fill="#fff"/><path d="M-21 152.5 q0 -5 6 -5 h4 q4 0 5 5 z" fill="#fff" stroke="${PR_N}" stroke-width="1.4"/><path d="M-21 152.5 h15 v2.2 h-15z" fill="${c.sole}"/>
  <path class="lgF" d="${L.f}" fill="none" stroke="${c.sk2}" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/>
+ ${c.brace?`<path class="brc" d="${L.br}" fill="none" stroke="#111" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/><circle class="brk" cx="${L.kx.toFixed(1)}" cy="${L.ky.toFixed(1)}" r="1.6" fill="#555"/>`:''}
  <g class="shF" transform="${L.ft}"><path d="M13.5 147 h5 v5 h-5z" fill="#fff"/><path d="M11 151.5 q0 -5 6 -5 h4 q4 0 5 5 z" fill="#fff" stroke="${PR_N}" stroke-width="1.4"/><path d="M11 151.5 h15 v2.2 h-15z" fill="${c.sole}"/></g>
  <g class="up" transform="translate(0 ${B.cr.toFixed(1)})">
  <path d="M-11 104 h22 l2 14 q-6 3 -12 0 q-6 3 -13 0z" fill="${c.shorts}"/>
@@ -1214,7 +1219,7 @@ const PR_ST={
 const PR_MV={serve:{dx:0,cr:1,lu:0},svhigh:{dx:0,cr:0,lu:0},tap:{dx:2,cr:3,lu:3},lob:{dx:9,cr:7,lu:11},net:{dx:12,cr:9,lu:16},drive:{dx:3,cr:4,lu:5},clear:{dx:-8,cr:1,lu:-5},drop:{dx:-8,cr:1,lu:-5},smash:{dx:-5,cr:2,lu:-2,jump:13}};
 const PR_NEUTRAL=[70,45],PR_FREE0=165,PR_SLEEP=[172,178],PR_B0={dx:0,dy:0,cr:0,lu:0};
 const PR_EASE={io:x=>x<.5?2*x*x:1-Math.pow(-2*x+2,2)/2,in:x=>x*x*x,out:x=>1-Math.pow(1-x,2),lin:x=>x};
-function prBlade(p,A,B){B=B||PR_B0;const lx=6+PR_UA*Math.sin(A[0]*prRad)+PR_FA*Math.sin(A[1]*prRad), ly=76-PR_UA*Math.cos(A[0]*prRad)-PR_FA*Math.cos(A[1]*prRad);return [p.x+p.d*(lx+B.dx),ly+B.cr+B.dy];}
+function prBlade(p,A,B){B=B||PR_B0;const sc=p.sc||1,lx=6+PR_UA*Math.sin(A[0]*prRad)+PR_FA*Math.sin(A[1]*prRad), ly=76-PR_UA*Math.cos(A[0]*prRad)-PR_FA*Math.cos(A[1]*prRad);return [p.x+p.d*sc*(lx+B.dx),152+sc*(ly+B.cr+B.dy-152)];}
 const prQ=(q,t)=>[(1-t)*(1-t)*q[0]+2*(1-t)*t*q[2]+t*t*q[4],(1-t)*(1-t)*q[1]+2*(1-t)*t*q[3]+t*t*q[5]];
 function prSolveT(a,b,c,x){let lo=0,hi=1;for(let i=0;i<30;i++){const m=(lo+hi)/2;const v=(1-m)**2*a+2*(1-m)*m*b+m*m*c;if((v<x)===(a<c))lo=m;else hi=m;}return (lo+hi)/2;}
 const PR_DUR={tap:700,serve:1250,lob:1300,svhigh:1000,net:950,drive:700,clear:1350,drop:1150,smash:560};
@@ -1226,7 +1231,10 @@ const PR_CY={tap:null,serve:-20,lob:-40,svhigh:10,net:30,drive:null,clear:-14,dr
 function prPlan(spec){
  const P=spec.pl, shots=spec.shots||[], hits=[], pend=[]; let t=spec.t0||600, hold=null;
  const seed=prHash(spec.seed||'x');
- for(const id in P){const p=P[id]; if(!p.look) p.look=prLook(p.c,seed+prHash(id)*7,/^orange$|^blue2$/.test(p.c));}
+ for(const id in P){const p=P[id]; if(!p.look) p.look=prLook(p.c,seed+prHash(id)*7,/^orange$|^blue2$/.test(p.c));
+  /* speler "Mik": Blauw is altijd een lange kale man met een zwarte brace om zijn knie */
+  if(typeof S!=='undefined'&&S.current==='Mik'&&p.c==='blue') p.look=Object.assign({},p.look,{sk:'#eab68e',sk2:'#d39a6e',hair:'#5a3a28',style:'bald',brace:1,sc:1.1});
+  p.sc=p.look.sc||1;}
  if(shots.length&&/^(serve|svhigh)$/.test(shots[0].st)) {hold=shots[0].who; t=Math.max(t,1000);}
  /* 1. tijden */
  for(let i=0;i<shots.length;i++){const s=shots[i]; if(!s.st) break; const nx=shots[i+1]||{};
@@ -1280,12 +1288,14 @@ function prPlan(spec){
   if(nx.st){const C2=prBlade(P[nx.who],PR_ST[nx.st].hit,bodyAt(nx.who,arr)); segs=[[C1[0],C1[1],0,cy,C2[0],C2[1]]];}
   else if(nx.catch){const C2=prBlade(P[nx.catch.who],PR_ST[nx.catch.st].hit,bodyAt(nx.catch.who,arr)); segs=[[C1[0],C1[1],0,cy,C2[0],C2[1]]];}
   else if(nx.land!=null){segs=[[C1[0],C1[1],0,cy,nx.land,PR_FLOOR]]; endAng=nx.land>C1[0]?-80.7:80.7;}
-  else if(nx.body){const b=P[nx.body],B=bodyAt(nx.body,arr),bx=b.x+b.d*(B.dx-2),by=92+B.cr; segs=[[C1[0],C1[1],0,cy,bx,by],[bx,by,bx-b.d*10,110,bx-b.d*16,PR_FLOOR]]; endAng=b.d>0?80.7:-80.7;}
+  else if(nx.body){const b=P[nx.body],B=bodyAt(nx.body,arr),bsc=b.sc||1,bx=b.x+b.d*bsc*(B.dx-2),by=152+bsc*(92+B.cr-152); segs=[[C1[0],C1[1],0,cy,bx,by],[bx,by,bx-b.d*10,110,bx-b.d*16,PR_FLOOR]]; endAng=b.d>0?80.7:-80.7;}
   else if(nx.net||nx.netTape){const side=C1[0]<170?-1:1, nxp=170+side*(nx.netTape?3:7), ny=nx.netTape?72:96;
    segs=[[C1[0],C1[1],0,s.cy!=null?s.cy:(nx.netTape?20:70),nxp,ny],[nxp,ny,nxp+side*8,ny+18,170+side*(nx.netTape?24:12),PR_FLOOR]]; endAng=side<0?80.7:-80.7; clear=false;}
   else if(nx.under!=null){segs=[[C1[0],C1[1],0,124,nx.under,PR_FLOOR]]; endAng=nx.under>C1[0]?-80.7:80.7; clear=false;}
   const q=segs[0]; q[2]=(q[0]+q[4])/2;
   if(q[3]==null) q[3]=(q[1]+q[5])/2-6;
+  /* hoogste punt van de vlucht blijft in beeld */
+  { let pk=Math.min(...[0.1,.2,.3,.4,.5,.6,.7,.8,.9].map(t=>prQ(q,t)[1])); while(pk<10&&q[3]<q[1]){q[3]+=3; pk=Math.min(...[0.1,.2,.3,.4,.5,.6,.7,.8,.9].map(t=>prQ(q,t)[1]));} }
   if(clear&&(q[0]-170)*(q[4]-170)<0){for(let it=0;it<60;it++){const t2=prSolveT(q[0],q[2],q[4],170);const y=prQ(q,t2)[1];if(y<60)break;q[3]-=4;}}
   flights.push({t:f.t,segs,durs,endAng,hit:true});
  }
@@ -1305,8 +1315,8 @@ function prArm(k,e){
  for(let i=1;i<k.length;i++){ if(e<=k[i][0]){const A=k[i-1],B=k[i],x=PR_EASE[B[3]]((e-A[0])/(B[0]-A[0]));return [mix(A[1],B[1],x),A[2]+(B[2]-A[2])*x];}}
  const L=k[k.length-1]; return [L[1],L[2]];}
 const prDrag=t=>t*(1.55-0.55*t);
-function prHand(pl,id,e){const p=pl.P[id],fr=prArm(pl.K[id],e)[1]*prRad,B=prBody(pl.BK[id],e);
- return [p.x+p.d*(B.dx-6+23.5*Math.sin(fr)), 76+B.cr+B.dy-23.5*Math.cos(fr)+9];}
+function prHand(pl,id,e){const p=pl.P[id],sc=p.sc||1,fr=prArm(pl.K[id],e)[1]*prRad,B=prBody(pl.BK[id],e);
+ return [p.x+p.d*sc*(B.dx-6+23.5*Math.sin(fr)), 152+sc*(76+B.cr+B.dy-23.5*Math.cos(fr)+9-152)];}
 function prShuttle(pl,e){
  const F=pl.flights;
  for(const f of F){const D=f.durs.reduce((a,b)=>a+b,0); if(e>=f.t&&e<f.t+D) return prFl(f,e-f.t);}
@@ -1355,13 +1365,13 @@ function proAnim(sv,done){
  done=done||function(){};
  const pl=PR_PLANS[sv.dataset.u]; if(!pl){done();return;}
  const $=s=>sv.querySelector(s), sh=$('.psh'), tr=$('.trail'), hf=$('.hitfx'), pf=$('.puff'), ends=sv.querySelectorAll('.endonly'), timed=sv.querySelectorAll('[data-at]');
- const PLs={}; sv.querySelectorAll('.pl').forEach(g=>{const q=c=>g.querySelector(c);PLs[g.dataset.id]={g,R:q('.armR'),F:q('.armF'),B:q('.armB'),lb:q('.lgB'),lf:q('.lgF'),sf2:q('.shF'),up:q('.up'),sd:q('.pls'),sb:q('.slotB'),sf:q('.slotF')};});
+ const PLs={}; sv.querySelectorAll('.pl').forEach(g=>{const q=c=>g.querySelector(c);PLs[g.dataset.id]={g,R:q('.armR'),F:q('.armF'),B:q('.armB'),lb:q('.lgB'),lf:q('.lgF'),br:q('.brc'),bk:q('.brk'),sf2:q('.shF'),up:q('.up'),sd:q('.pls'),sb:q('.slotB'),sf:q('.slotF')};});
  const END=pl.END, TOTAL=END+900, hist=[];
  const apply=e=>{const st=prState(pl,e);
   for(const id in st.arms){const [a,b,f,B]=st.arms[id], o=PLs[id], p=pl.P[id]; if(!o) continue;
    o.g.setAttribute('transform',`translate(${(p.x+p.d*B.dx).toFixed(1)} ${B.dy.toFixed(1)}) scale(${p.d} 1)`);
    o.sd.setAttribute('transform',`translate(0 ${(-B.dy).toFixed(1)})`); o.sd.setAttribute('rx',(22+B.dy*.6).toFixed(1));
-   const L=prLegs(B); o.lb.setAttribute('d',L.b); o.lf.setAttribute('d',L.f); o.sf2.setAttribute('transform',L.ft); o.up.setAttribute('transform',`translate(0 ${B.cr.toFixed(1)})`);
+   const L=prLegs(B); o.lb.setAttribute('d',L.b); o.lf.setAttribute('d',L.f); if(o.br){o.br.setAttribute('d',L.br);o.bk.setAttribute('cx',L.kx.toFixed(1));o.bk.setAttribute('cy',L.ky.toFixed(1));} o.sf2.setAttribute('transform',L.ft); o.up.setAttribute('transform',`translate(0 ${B.cr.toFixed(1)})`);
    o.R.setAttribute('transform',`rotate(${a.toFixed(1)} 6 76)`); o.F.setAttribute('transform',`rotate(${(b-a).toFixed(1)} 6 63)`); o.B.setAttribute('transform',`rotate(${f.toFixed(1)} -6 76)`);
    const bh=prBehind(a,b); if(bh&&o.R.parentNode!==o.sb) o.sb.appendChild(o.R); else if(!bh&&o.R.parentNode!==o.sf) o.sf.appendChild(o.R);}
   const s=st.sh; sh.setAttribute('opacity',s.v?1:0);
