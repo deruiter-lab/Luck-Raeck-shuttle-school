@@ -1164,7 +1164,8 @@ function prLegs(B){const hy=112+B.cr, ba=[-13,152], fa=[16+B.lu,151];
  const tt=[mid(-4,hy,kb[0],kb[1],.5),mid(kb[0],kb[1],ba[0],ba[1],.45),mid(4,hy,kf[0],kf[1],.5),mid(kf[0],kf[1],fa[0],fa[1],.45)];
  const sk=(kx,ky,ax,ay)=>{const l=Math.hypot(kx-ax,ky-ay)||1;return `M${ax} ${ay-1} L${(ax+(kx-ax)/l*9).toFixed(1)} ${(ay-1+(ky-ay)/l*9).toFixed(1)}`;};
  const so=[sk(kb[0],kb[1],ba[0],ba[1]),sk(kf[0],kf[1],fa[0],fa[1])];
- return {tt,so,b:`M-4 ${hy.toFixed(1)} L${kb[0].toFixed(1)} ${kb[1].toFixed(1)} L${ba[0]} ${ba[1]}`, f:`M4 ${hy.toFixed(1)} L${kf[0].toFixed(1)} ${kf[1].toFixed(1)} L${fa[0].toFixed(1)} ${fa[1]}`, ft:`translate(${B.lu.toFixed(1)} 0)`, br, kx:kf[0], ky:kf[1]};}
+ const ls=(hx,kx,ky)=>`M${hx} ${(hy-2).toFixed(1)} L${(hx+(kx-hx)*.82).toFixed(1)} ${(hy+(ky-hy)*.82).toFixed(1)}`, lsh=[ls(-4,kb[0],kb[1]),ls(4,kf[0],kf[1])];
+ return {tt,so,lsh,b:`M-4 ${hy.toFixed(1)} L${kb[0].toFixed(1)} ${kb[1].toFixed(1)} L${ba[0]} ${ba[1]}`, f:`M4 ${hy.toFixed(1)} L${kf[0].toFixed(1)} ${kf[1].toFixed(1)} L${fa[0].toFixed(1)} ${fa[1]}`, ft:`translate(${B.lu.toFixed(1)} 0)`, br, kx:kf[0], ky:kf[1]};}
 /* tatoeages die met de benen meebewegen: ster, hartje, roos, band */
 function prTat(tt,i){const [x,y,a]=tt[i], m=['<path d="M0 -3.4 L1 -1 L3.4 -1 L1.4 .5 L2.1 3 L0 1.5 L-2.1 3 L-1.4 .5 L-3.4 -1 L-1 -1Z" fill="#1d1d55"/>',
   '<path d="M0 2.8 C-3.6 .4 -3 -2.8 -1.2 -2.8 C-.4 -2.8 0 -2 0 -1.6 C0 -2 .4 -2.8 1.2 -2.8 C3 -2.8 3.6 .4 0 2.8Z" fill="#c2185b"/>',
@@ -1179,24 +1180,24 @@ function prPlayer(id,x,d,c,st){
  <ellipse class="pls" cx="0" cy="160" rx="22" ry="4.5" fill="#0b2a1c" opacity=".25" transform="translate(0 ${(-B.dy).toFixed(1)})"/>
  <path class="lgB" d="${L.b}" fill="none" stroke="${c.sk}" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/>
  <path d="M-15.5 148 h5 v5 h-5z" fill="#fff"/><path d="M-21 152.5 q0 -5 6 -5 h4 q4 0 5 5 z" fill="#fff" stroke="${PR_N}" stroke-width="1.4"/><path d="M-21 152.5 h15 v2.2 h-15z" fill="${c.sole}"/>
- ${c.tattoo?prTat(L.tt,0)+prTat(L.tt,1):''}${c.socks?`<path class="sokB" d="${L.so[0]}" stroke="#fff" stroke-width="7.6" stroke-linecap="round"/>`:''}
+ ${c.tattoo?prTat(L.tt,0)+prTat(L.tt,1):''}${c.longshorts?`<path class="lsB" d="${L.lsh[0]}" stroke="${c.shorts}" stroke-width="10.5" stroke-linecap="round"/>`:''}${c.socks?`<path class="sokB" d="${L.so[0]}" stroke="${c.socks===1?'#fff':c.socks}" stroke-width="7.6" stroke-linecap="round"/>`:''}
  <path class="lgF" d="${L.f}" fill="none" stroke="${c.sk2}" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/>
- ${c.tattoo?prTat(L.tt,2)+prTat(L.tt,3):''}${c.socks?`<path class="sokF" d="${L.so[1]}" stroke="#f4f4f4" stroke-width="7.6" stroke-linecap="round"/>`:''}
+ ${c.tattoo?prTat(L.tt,2)+prTat(L.tt,3):''}${c.longshorts?`<path class="lsF" d="${L.lsh[1]}" stroke="${c.shorts}" stroke-width="10.5" stroke-linecap="round"/>`:''}${c.socks?`<path class="sokF" d="${L.so[1]}" stroke="${c.socks===1?'#f4f4f4':c.socks}" stroke-width="7.6" stroke-linecap="round"/>`:''}
  ${c.brace?`<path class="brc" d="${L.br}" fill="none" stroke="#111" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/><circle class="brk" cx="${L.kx.toFixed(1)}" cy="${L.ky.toFixed(1)}" r="1.6" fill="#555"/>`:''}
- <g class="shF" transform="${L.ft}"><path d="M13.5 147 h5 v5 h-5z" fill="#fff"/><path d="M11 151.5 q0 -5 6 -5 h4 q4 0 5 5 z" fill="#fff" stroke="${PR_N}" stroke-width="1.4"/><path d="M11 151.5 h15 v2.2 h-15z" fill="${c.sole}"/></g>
+ <g class="shF" transform="${L.ft}"><path d="M13.5 147 h5 v5 h-5z" fill="#fff"/><path d="M11 151.5 q0 -5 6 -5 h4 q4 0 5 5 z" fill="#fff" stroke="${PR_N}" stroke-width="1.4"/><path d="M11 151.5 h15 v2.2 h-15z" fill="${c.sole}"/>${c.laces?`<path d="M15 148 l3 -.6 M16.5 149.6 l3 -.6" stroke="${c.laces}" stroke-width="1.2" stroke-linecap="round"/>`:''}</g>
  <g class="up" transform="translate(0 ${B.cr.toFixed(1)})">
  ${c.skirt?`<path d="M-12 101 h24 l6 15 q-18 4.5 -36 0z" fill="${c.skirt}"/><path d="M-6 102 l-3 13 M0 102 v14 M6 102 l3 13" stroke="#e0218a" stroke-width="1" opacity=".8"/>`:`<path d="M-11 104 h22 l2 14 q-6 3 -12 0 q-6 3 -13 0z" fill="${c.shorts}"/>${c.stripe?'<path d="M9.5 105 l2 12" stroke="#fff" stroke-width="2.2"/>':''}`}
  <g class="slotB">${behind?arm:''}</g>
  <g class="armB" transform="rotate(${f.toFixed(1)} -6 76)">${prFreeArm(c)}</g>
  ${c.lady?`<path d="M-11 92 h22 l1 11 h-24z" fill="${c.sk}"/><path d="M-12 74 q12 -7 24 0 l1 20 q-13 3 -26 0z" fill="${c.shirt}"/><path d="M-12 74 q4 -3 8 -4 l-1.5 24 q-4 -.5 -7 -1z" fill="${c.shirt2}" opacity=".6"/><circle cx="1" cy="98" r=".9" fill="${c.sk2}"/>`:`<path d="M-12 74 q12 -7 24 0 l2 32 q-14 4 -28 0z" fill="${c.shirt}"/>
  <path d="M-12 74 q4 -3 8 -4 l-2 36 q-5 -1 -8 -2z" fill="${c.shirt2}" opacity=".6"/>`}
- ${c.trim?`<path d="M-5 70.5 q5 5 10 0" fill="none" stroke="${c.trim}" stroke-width="2.4"/><path d="M4 71 l7 3" stroke="${c.trim}" stroke-width="2" opacity=".9"/>`:`<path d="M-4 70 q4 4 8 0" fill="none" stroke="#fff" stroke-width="1.6" opacity=".8"/>`}<path d="M-9 90 h18" stroke="#fff" stroke-width="2" opacity=".35"/>
+ ${c.trim?`<path d="M-5 70.5 q5 5 10 0" fill="none" stroke="${c.trim}" stroke-width="2.4"/><path d="M4 71 l7 3" stroke="${c.trim}" stroke-width="2" opacity=".9"/>`:`<path d="M-4 70 q4 4 8 0" fill="none" stroke="#fff" stroke-width="1.6" opacity=".8"/>`}${c.panel?`<path d="M3 73 q5 -.5 9 1 l2 31.5 q-5.5 1.3 -11 .8z" fill="${c.panel}"/><text x="-5" y="96" text-anchor="middle" font-family="Fredoka,sans-serif" font-weight="700" font-size="10" fill="#fff">${c.num}</text>`:''}${c.num?'':'<path d="M-9 90 h18" stroke="#fff" stroke-width="2" opacity=".35"/>'}
  <rect x="-3" y="62" width="6" height="9" rx="2" fill="${c.sk2}"/>
  ${prHairBack(c)}
  <circle cx="2" cy="52" r="11.5" fill="${c.sk}"/>
  ${prHairTop(c)}
  <circle cx="-2.5" cy="53" r="2.2" fill="${c.sk2}"/>
- <circle cx="8" cy="51" r="1.5" fill="${PR_N}"/>${c.lady?`<path d="M7.2 49.3 l1.6 -2 M8.8 49.6 l2 -1.5 M9.8 50.4 l2 -.8" stroke="${PR_N}" stroke-width=".8" stroke-linecap="round"/><path d="M6.5 57.3 q2.5 1.8 5 -.3" fill="none" stroke="#e0218a" stroke-width="1.8" stroke-linecap="round"/>`:`<path d="M6.5 57.5 q2.5 1.5 5 -.5" fill="none" stroke="${PR_N}" stroke-width="1.2" stroke-linecap="round"/>`}
+ <circle cx="8" cy="51" r="1.5" fill="${PR_N}"/>${c.glasses?'<rect x="5" y="48.2" width="7" height="5.2" rx="1.3" fill="rgba(255,255,255,.25)" stroke="#111" stroke-width="1.3"/><path d="M5 49.6 L-1.5 48.6" stroke="#111" stroke-width="1.1"/>':''}${c.lady?`<path d="M7.2 49.3 l1.6 -2 M8.8 49.6 l2 -1.5 M9.8 50.4 l2 -.8" stroke="${PR_N}" stroke-width=".8" stroke-linecap="round"/><path d="M6.5 57.3 q2.5 1.8 5 -.3" fill="none" stroke="#e0218a" stroke-width="1.8" stroke-linecap="round"/>`:`<path d="M6.5 57.5 q2.5 1.5 5 -.5" fill="none" stroke="${PR_N}" stroke-width="1.2" stroke-linecap="round"/>`}
  <path d="M6 46.8 l4 -.8" stroke="${c.hair}" stroke-width="1.4" stroke-linecap="round"/>
  <g class="slotF">${behind?'':arm}</g>
  </g></g>`;}
@@ -1254,6 +1255,8 @@ function prPlan(spec){
   if(typeof S!=='undefined'&&S.current==='barbie'&&p.c==='orange') p.look=Object.assign({},p.look,{sk:'#f6d2b5',sk2:'#e8bb98',hair:'#f3d36b',style:'barbie',shirt:'#ff3fa4',shirt2:'#e0218a',sleeve:'#f6d2b5',sleeve2:'#e8bb98',skirt:'#ff3fa4',tattoo:1,lady:1,sc:1.06,sole:'#ff3fa4'});
   /* speler "Joey": Blauw is een jongen met blonde krulletjes, grijs petje, donkerrood shirt, zwarte broek en witte sokken */
   if(typeof S!=='undefined'&&S.current==='Joey'&&p.c==='blue') p.look=Object.assign({},p.look,{sk:'#f3c9a8',sk2:'#e2b08a',hair:'#e8c66e',style:'joey',shirt:'#8c2a2c',shirt2:'#6f1f22',trim:'#dd3a2f',shorts:'#1b1b1f',stripe:1,socks:1,sole:'#1b1b1f',sc:1.03});
+  /* speler "Sylvian": Blauw in een donkerblauw shirt met bordeauxrode mouwen en zijpanden (nummer 21), lange zwarte broek, donkere sokken en een bril */
+  if(typeof S!=='undefined'&&S.current==='Sylvian'&&p.c==='blue') p.look=Object.assign({},p.look,{sk:'#f3c9a8',sk2:'#e2b08a',hair:'#6b4a2e',style:'short',shirt:'#1f2a4d',shirt2:'#161e38',sleeve:'#9b2335',sleeve2:'#7e1b2b',panel:'#9b2335',num:'21',shorts:'#141416',longshorts:1,socks:'#1c2340',laces:'#2fb7b0',glasses:1,sole:'#e9edf2',sc:1.04});
   p.sc=p.look.sc||1;}
  if(shots.length&&/^(serve|svhigh)$/.test(shots[0].st)) {hold=shots[0].who; t=Math.max(t,1000);}
  /* 1. tijden */
@@ -1385,13 +1388,14 @@ function proAnim(sv,done){
  done=done||function(){};
  const pl=PR_PLANS[sv.dataset.u]; if(!pl){done();return;}
  const $=s=>sv.querySelector(s), sh=$('.psh'), tr=$('.trail'), hf=$('.hitfx'), pf=$('.puff'), ends=sv.querySelectorAll('.endonly'), timed=sv.querySelectorAll('[data-at]');
- const PLs={}; sv.querySelectorAll('.pl').forEach(g=>{const q=c=>g.querySelector(c);PLs[g.dataset.id]={g,R:q('.armR'),F:q('.armF'),B:q('.armB'),lb:q('.lgB'),lf:q('.lgF'),br:q('.brc'),bk:q('.brk'),tats:[...g.querySelectorAll('.tat')],sB:q('.sokB'),sF:q('.sokF'),pony:q('.pony'),sf2:q('.shF'),up:q('.up'),sd:q('.pls'),sb:q('.slotB'),sf:q('.slotF')};});
+ const PLs={}; sv.querySelectorAll('.pl').forEach(g=>{const q=c=>g.querySelector(c);PLs[g.dataset.id]={g,R:q('.armR'),F:q('.armF'),B:q('.armB'),lb:q('.lgB'),lf:q('.lgF'),br:q('.brc'),bk:q('.brk'),tats:[...g.querySelectorAll('.tat')],sB:q('.sokB'),sF:q('.sokF'),lB:q('.lsB'),lF:q('.lsF'),pony:q('.pony'),sf2:q('.shF'),up:q('.up'),sd:q('.pls'),sb:q('.slotB'),sf:q('.slotF')};});
  const END=pl.END, TOTAL=END+900, hist=[];
  const apply=e=>{const st=prState(pl,e);
   for(const id in st.arms){const [a,b,f,B]=st.arms[id], o=PLs[id], p=pl.P[id]; if(!o) continue;
    o.g.setAttribute('transform',`translate(${(p.x+p.d*B.dx).toFixed(1)} ${B.dy.toFixed(1)}) scale(${p.d} 1)`);
    o.sd.setAttribute('transform',`translate(0 ${(-B.dy).toFixed(1)})`); o.sd.setAttribute('rx',(22+B.dy*.6).toFixed(1));
    const L=prLegs(B); o.lb.setAttribute('d',L.b); o.lf.setAttribute('d',L.f); if(o.sB){o.sB.setAttribute('d',L.so[0]);o.sF.setAttribute('d',L.so[1]);}
+   if(o.lB){o.lB.setAttribute('d',L.lsh[0]);o.lF.setAttribute('d',L.lsh[1]);}
    if(o.tats.length) o.tats.forEach(t=>{const v=L.tt[+t.dataset.i];t.setAttribute('transform',`translate(${v[0].toFixed(1)} ${v[1].toFixed(1)}) rotate(${v[2].toFixed(1)}) scale(1.3)`);});
    if(o.pony){const va=(a-(o.pa0==null?a:o.pa0)), vy=B.dy-(o.py0==null?B.dy:o.py0); o.pa0=a; o.py0=B.dy;
      o.pv=(o.pv||0)*0.86+(-va*0.9+vy*2.2)*0.5-(o.pr||0)*0.12; o.pr=Math.max(-55,Math.min(40,(o.pr||0)+o.pv)); o.pony.setAttribute('transform',`rotate(${o.pr.toFixed(1)} -8 45)`);}
