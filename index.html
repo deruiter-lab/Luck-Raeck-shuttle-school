@@ -3086,11 +3086,11 @@ function fitLockup(){
   svg.setAttribute('viewBox','0 0 838 '+Math.ceil(y2+b*.3));
 }
 function splashView(){
-  const arc='M70 830 Q150 520 430 470';
+  const arc='M60 870 Q150 520 455 465';
   const bg=`<svg class="sp-bg" viewBox="0 0 400 800" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
     <g transform="translate(250 380) rotate(28) scale(.8)" opacity=".12"><g fill="none" stroke="#fff" stroke-width="4"><rect x="0" y="0" width="305" height="670"/><path d="M23 0V670M282 0V670M0 38H305M0 632H305M0 236.0H305M0 434.0H305M152.5 0V236.0M152.5 434.0V670"/><path d="M-30 335.0H335" stroke-width="7" stroke-dasharray="3 5"/></g></g>
     <path d="${arc}" fill="none" stroke="#ffb06a" stroke-width="3" stroke-dasharray="9 11" stroke-linecap="round" opacity=".55"/>
-    <g class="sp-fly"><animateMotion dur="6s" repeatCount="indefinite" rotate="auto" calcMode="spline" keyTimes="0;.5;1" keyPoints=".14;1;.14" keySplines=".45 0 .55 1;.45 0 .55 1" path="${arc}"/><g transform="rotate(-90) scale(1.9) translate(-16 -22.5)">${SHUTTLE_NAVY}</g></g>
+    <g class="sp-fly"><animateMotion dur="5.2s" repeatCount="indefinite" rotate="auto" calcMode="spline" keyTimes="0;.5;1" keyPoints="0;.5;1" keySplines=".3 .15 .6 .9;.3 .15 .6 .9" path="${arc} Q150 520 60 870"/><g transform="rotate(-90) scale(1.9) translate(-16 -22.5)">${SHUTTLE_NAVY}</g></g>
   </svg>`;
   app.innerHTML=`
   <div class="splash2">
