@@ -812,6 +812,20 @@ body.onsplash .tbar{display:none}
 
 @media (max-height:860px){body.hastbar .bento:not(.mijn) .bn-top{display:none}}
 .tiles .tile.opf:only-child{grid-column:1/-1}
+
+/* splash: logo met Lucky ernaast */
+.sp-top{display:flex;align-items:center;justify-content:center;gap:2px;width:100%;max-width:460px}
+.splash2 .sp-top .sp-lock{width:auto;flex:1 1 0;min-width:0;max-width:255px}
+.sp-top .sp-lock svg{max-height:26vh}
+.sp-mascot{flex:none;width:clamp(118px,35vw,158px);display:flex;flex-direction:column;align-items:center;margin-right:2px}
+.splash2 .lk-splash{position:relative;right:auto;top:auto;width:100%;height:auto;aspect-ratio:110/138;transform:rotate(14deg);transform-origin:50% 80%}
+.lk-tag{position:relative;z-index:2;margin-top:-14px;display:flex;flex-direction:column;align-items:center;line-height:1;padding:5px 14px 6px;border-radius:14px;background:#fff;color:#1d1d55;border:3px solid #ff9a3d;box-shadow:0 8px 16px -8px rgba(0,0,30,.6);transform:rotate(-6deg);animation:tagIn .6s .3s both cubic-bezier(.3,1.6,.5,1)}
+.lk-tag small{font-family:var(--display);font-weight:600;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:#f07f1a}
+.lk-tag b{font-family:var(--display);font-weight:700;font-size:24px;letter-spacing:.01em}
+.lk-tag::after{content:"";position:absolute;top:-9px;left:50%;width:2px;height:9px;background:#ff9a3d;transform:translateX(-50%)}
+@keyframes tagIn{from{opacity:0;transform:rotate(-6deg) scale(.6)}to{opacity:1;transform:rotate(-6deg) scale(1)}}
+@media (max-height:700px){.splash2 .lk-splash{width:100%;height:auto;top:auto;right:auto}.sp-mascot{width:clamp(96px,27vw,120px)}.lk-tag b{font-size:20px}}
+@media (prefers-reduced-motion:reduce){.lk-tag{animation:none}}
 </style>
 
 <header class="bar"><div class="bar-in">
@@ -3076,16 +3090,17 @@ function splashView(){
   const bg=`<svg class="sp-bg" viewBox="0 0 400 800" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
     <g transform="translate(250 380) rotate(28) scale(.8)" opacity=".12"><g fill="none" stroke="#fff" stroke-width="4"><rect x="0" y="0" width="305" height="670"/><path d="M23 0V670M282 0V670M0 38H305M0 632H305M0 236.0H305M0 434.0H305M152.5 0V236.0M152.5 434.0V670"/><path d="M-30 335.0H335" stroke-width="7" stroke-dasharray="3 5"/></g></g>
     <path d="${arc}" fill="none" stroke="#ffb06a" stroke-width="3" stroke-dasharray="9 11" stroke-linecap="round" opacity=".55"/>
-    <g class="sp-fly" opacity="0"><animateMotion dur="3.6s" repeatCount="indefinite" rotate="auto" calcMode="spline" keyTimes="0;1" keyPoints="0;1" keySplines=".25 .1 .6 1" path="${arc}"/><animate attributeName="opacity" values="0;1;1;0" keyTimes="0;.08;.82;1" dur="3.6s" repeatCount="indefinite"/><g transform="rotate(-90) scale(1.9) translate(-16 -22.5)">${SHUTTLE_NAVY}</g></g>
+    <g class="sp-fly"><animateMotion dur="6s" repeatCount="indefinite" rotate="auto" calcMode="spline" keyTimes="0;.5;1" keyPoints=".14;1;.14" keySplines=".45 0 .55 1;.45 0 .55 1" path="${arc}"/><g transform="rotate(-90) scale(1.9) translate(-16 -22.5)">${SHUTTLE_NAVY}</g></g>
   </svg>`;
   app.innerHTML=`
   <div class="splash2">
     ${bg}
-    <div class="sp-lock">
+    <div class="sp-top"><div class="sp-lock">
       <svg id="splock" viewBox="0 0 838 520" role="img" aria-label="Luck Raeck, badmintonvereniging Montfoort. Shuttle-school. Word de baas over de spelregels!"><image href="${LOGO_W}" x="0" y="0" width="760" height="336"/><text id="sp-ss" x="79" y="446" font-family="Fredoka, 'Baloo 2', 'Trebuchet MS', sans-serif" font-weight="700" font-size="118" fill="#ff9a3d">Shuttle-school</text><text id="sp-tg" x="79" y="510" font-family="Fredoka, 'Baloo 2', 'Trebuchet MS', sans-serif" font-weight="600" font-size="46" fill="#ffffff">Word de baas over de spelregels!</text></svg>
     </div>
+    <div class="sp-mascot">${lucky('racket','lk-splash')}<span class="lk-tag" aria-label="Dit is Lucky, de mascotte"><small>Hoi, ik ben</small><b>Lucky</b></span></div></div>
     <p class="sp-catch"><span>Met Shuttle-school maak je</span><strong>spelenderwijs en stapje voor stapje</strong><span>kennis met de badmintonsport!</span></p>
-    <form class="spname" id="spform">${lucky('racket','lk-splash')}<label for="spn">Hoe heet je?</label><input type="text" id="spn" maxlength="20" value="${S.current&&S.current!=='Speler'?esc(S.current):''}" placeholder="Je voornaam" autocomplete="off"></form>
+    <form class="spname" id="spform"><label for="spn">Hoe heet je?</label><input type="text" id="spn" maxlength="20" value="${S.current&&S.current!=='Speler'?esc(S.current):''}" placeholder="Je voornaam" autocomplete="off"></form>
     <div class="spbot">
       <button class="bigbtn start pulse" id="start"><span class="bb1">Start</span>${I.play}</button>
       <div class="sprow"><label class="note"><input type="checkbox" id="nosplash" ${S.nosplash?'checked':''}> Dit scherm niet meer tonen</label><button class="linkbtn" id="splay">${I.speaker} Lees voor</button></div>
