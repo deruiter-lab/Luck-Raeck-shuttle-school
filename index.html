@@ -817,14 +817,14 @@ body.onsplash .tbar{display:none}
 .sp-top{display:flex;align-items:center;justify-content:center;gap:2px;width:100%;max-width:460px}
 .splash2 .sp-top .sp-lock{width:auto;flex:1 1 0;min-width:0;max-width:255px}
 .sp-top .sp-lock svg{max-height:26vh}
-.sp-mascot{flex:none;width:clamp(118px,35vw,158px);display:flex;flex-direction:column;align-items:center;margin-right:2px}
+.sp-mascot{--mw:clamp(118px,35vw,158px);flex:none;width:var(--mw);display:flex;flex-direction:column;align-items:center;margin-right:2px;margin-top:calc(var(--mw) * -0.265)}
 .splash2 .lk-splash{position:relative;right:auto;top:auto;width:100%;height:auto;aspect-ratio:110/138;transform:rotate(14deg);transform-origin:50% 80%}
 .lk-tag{position:relative;z-index:2;margin-top:-14px;display:flex;flex-direction:column;align-items:center;line-height:1;padding:5px 14px 6px;border-radius:14px;background:#fff;color:#1d1d55;border:3px solid #ff9a3d;box-shadow:0 8px 16px -8px rgba(0,0,30,.6);transform:rotate(-6deg);animation:tagIn .6s .3s both cubic-bezier(.3,1.6,.5,1)}
 .lk-tag small{font-family:var(--display);font-weight:600;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:#f07f1a}
 .lk-tag b{font-family:var(--display);font-weight:700;font-size:24px;letter-spacing:.01em}
 .lk-tag::after{content:"";position:absolute;top:-9px;left:50%;width:2px;height:9px;background:#ff9a3d;transform:translateX(-50%)}
 @keyframes tagIn{from{opacity:0;transform:rotate(-6deg) scale(.6)}to{opacity:1;transform:rotate(-6deg) scale(1)}}
-@media (max-height:700px){.splash2 .lk-splash{width:100%;height:auto;top:auto;right:auto}.sp-mascot{width:clamp(96px,27vw,120px)}.lk-tag b{font-size:20px}}
+@media (max-height:700px){.splash2 .lk-splash{width:100%;height:auto;top:auto;right:auto}.sp-mascot{--mw:clamp(96px,27vw,120px)}.lk-tag b{font-size:20px}}
 @media (prefers-reduced-motion:reduce){.lk-tag{animation:none}}
 
 /* splash: bovenkant met logo links en Lucky rechts, daaronder de titel */
