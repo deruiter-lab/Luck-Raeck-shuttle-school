@@ -543,6 +543,12 @@ body.testmode .tpill{display:inline-block}
 .avedit{position:absolute;right:-4px;bottom:-4px;width:22px;height:22px;border-radius:50%;background:var(--orange);color:#fff;display:grid;place-items:center;box-shadow:0 0 0 2px var(--surface)}
 .avedit svg{width:12px;height:12px}
 .hav svg{box-shadow:0 0 0 2px #ff9a3d}
+/* naam van de actieve speler altijd in beeld */
+.hplayer{flex:0 1 auto;min-width:0;display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.25);border-radius:999px;padding:3px 10px 3px 3px;color:#fff;font:inherit;cursor:pointer}
+.hplayer .hav,.hplayer .hav svg{width:30px;height:30px}
+.hname{font-family:var(--display);font-weight:600;font-size:16px;line-height:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:110px}
+@media (max-width:440px){.hname{font-size:15px;max-width:84px}.hplayer{gap:5px;padding-right:8px}}
+@media (max-width:400px){.bname{display:none}}
 /* uitslag */
 .resstage{flex:1 1 auto;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(8px,1.8vh,16px);text-align:center;padding:8px 4px}
 .ring{position:relative;width:clamp(120px,22vh,176px);aspect-ratio:1;max-width:100%}
@@ -857,7 +863,7 @@ body.onsplash .tbar{display:none}
 
 <header class="bar"><div class="bar-in">
   <button class="brand" id="home-btn" aria-label="Naar het begin"><img class="blogo" id="blogo" alt="Luck Raeck"><span class="bname">Shuttle-school<span class="tpill">TEST</span></span></button>
-  <span class="hav" id="hav" aria-hidden="true"></span><div class="pot" id="pot" aria-label="Gespaarde shuttles"><span id="potico"></span><span id="potn">0</span></div>
+  <button class="hplayer" id="hpl" aria-label="Speler wisselen"><span class="hav" id="hav" aria-hidden="true"></span><span class="hname" id="hname"></span></button><div class="pot" id="pot" aria-label="Gespaarde shuttles"><span id="potico"></span><span id="potn">0</span></div>
   <button class="iconbtn" id="set-btn" aria-label="Instellingen"></button>
 </div></header>
 <main id="app"></main>
@@ -1042,7 +1048,7 @@ function setPhoto(file){
 }
 function avatarFor(nm){const p=S.profiles[nm];if(p&&p.photo){const id='avp'+(++avUid);return `<svg viewBox="0 0 24 24" role="img" aria-label="Foto van ${esc(nm)}"><defs><clipPath id="${id}"><circle cx="12" cy="12" r="12"/></clipPath></defs><image href="${p.photo}" x="0" y="0" width="24" height="24" preserveAspectRatio="xMidYMid slice" clip-path="url(#${id})"/></svg>`;}return avatar(avIndex(nm));}
 function avatar(i){return `<svg viewBox="0 0 24 24" role="img" aria-label="${AVN[i]}" style="color:${AVC[i]}"><circle cx="12" cy="12" r="12" fill="${AVC[i]}"/><g transform="translate(3.6 3.6) scale(.7)">${AVG[i]}</g></svg>`;}
-function setPot(){document.body.classList.toggle('testmode',!!S.testmode);document.getElementById('potn').textContent=P().shuttles;const h=document.getElementById('hav');if(h)h.innerHTML=avatarFor(S.current);}
+function setPot(){document.body.classList.toggle('testmode',!!S.testmode);document.getElementById('potn').textContent=P().shuttles;const h=document.getElementById('hav');if(h)h.innerHTML=avatarFor(S.current);const hn=document.getElementById('hname');if(hn){hn.textContent=S.current||'';const b=document.getElementById('hpl');b.hidden=!S.current;b.setAttribute('aria-label','Speler: '+(S.current||'')+'. Tik om te wisselen');}}
 
 /* =========================================================
    STEM: alleen Nederlandse stemmen, vrouwenstem voorkeur
@@ -2538,6 +2544,7 @@ window.addEventListener('popstate',()=>{
   doIt();
 });
 document.getElementById('home-btn').onclick=()=>nav({view:'home'},'back');
+document.getElementById('hpl').onclick=()=>{ if(cur.view==='settings'){cur.tab='spelers';render();return;} nav({view:'settings',tab:'spelers'}); };
 document.getElementById('set-btn').onclick=()=>{ if(cur.view==='settings'){cur.tab='algemeen';render();return;} nav({view:'settings',tab:'algemeen'}); };
 function migrateRate(){ if(!S.r1){ if(S.rate===0.9) S.rate=1; S.r1=1; try{save();}catch(e){} } }
 function render(){ migrateRate(); guard=null;
