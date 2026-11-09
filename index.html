@@ -548,6 +548,12 @@ body.testmode .tpill{display:inline-block}
 .avedit{position:absolute;right:-4px;bottom:-4px;width:22px;height:22px;border-radius:50%;background:var(--orange);color:#fff;display:grid;place-items:center;box-shadow:0 0 0 2px var(--surface)}
 .avedit svg{width:12px;height:12px}
 .hav svg{box-shadow:0 0 0 2px #ff9a3d}
+/* testomgeving: duidelijk anders dan de echte app */
+.envpill{display:none}
+.envtest .brand{position:relative}
+.envtest .envpill{display:block;position:absolute;left:-4px;bottom:-9px;z-index:2;font:700 9px/14px var(--body);letter-spacing:1.4px;padding:0 6px;border-radius:999px;background:#ffd34d;color:#1d1d55;box-shadow:0 0 0 2px #1d1d55}
+.envtest .bar{background:repeating-linear-gradient(135deg,#1d1d55 0 14px,#262a6e 14px 28px)!important}
+.envsp{color:#ffd34d;letter-spacing:1.5px}
 /* splash: plaatje kiezen naast de naam, en een geluidsschakelaar */
 .splash2 .sp-in{display:flex;align-items:center;gap:10px;width:100%}
 .splash2 .sp-in input{flex:1 1 auto;min-width:0;width:auto}
@@ -901,7 +907,7 @@ body.onsplash .tbar{display:none}
 </style>
 
 <header class="bar"><div class="bar-in">
-  <button class="brand" id="home-btn" aria-label="Naar het begin"><img class="blogo" id="blogo" alt="Luck Raeck"><span class="bname">Shuttle-school<span class="tpill">TEST</span></span></button>
+  <button class="brand" id="home-btn" aria-label="Naar het begin"><img class="blogo" id="blogo" alt="Luck Raeck"><span class="envpill" aria-label="Testversie">TEST</span><span class="bname">Shuttle-school<span class="tpill">TEST</span></span></button>
   <button class="hplayer" id="hpl" aria-label="Speler wisselen"><span class="hav" id="hav" aria-hidden="true"></span><span class="hname" id="hname"></span></button><div class="pot" id="pot" aria-label="Gespaarde shuttles"><span id="potico"></span><span id="potn">0</span></div>
   <button class="iconbtn" id="set-btn" aria-label="Instellingen"></button>
 </div></header>
@@ -1049,7 +1055,10 @@ const ic=(n,w)=>I[n].replace('<svg',`<svg width="${w||22}" height="${w||22}"`);
 /* =========================================================
    OPSLAG (per apparaat, per speler)
    ========================================================= */
-const KEY='shuttleschool-v1';
+const APP_VERSION='1.0';
+const IS_TEST=/-test(\/|$)/i.test(location.pathname)||/^test[.-]/i.test(location.hostname);
+const KEY=IS_TEST?'shuttleschool-test-v1':'shuttleschool-v1';
+if(IS_TEST){document.documentElement.classList.add('envtest');try{document.title='TEST · '+document.title;}catch(e){}}
 const TRAINER_CODE='luckraeck';
 let S={profiles:{},current:null,voice:'',rate:1,auto:false};
 try{const raw=localStorage.getItem(KEY); if(raw) S=Object.assign(S,JSON.parse(raw));}catch(e){}
@@ -3223,7 +3232,8 @@ function settingsView(){
     <p class="small"><b>Foutloos = verder.</b> Een les gaat pas open als de toets van de vorige les helemaal goed is. Zo blijft niets half hangen. Fout? Dan ziet je kind wat er misging en probeert het opnieuw.</p>
     <p class="small"><b>Hulp:</b> met de oranje luidspreker laat je elke tekst voorlezen (of zet automatisch voorlezen aan bij Algemeen), en het gloeilampje geeft een hint zonder het antwoord te verklappen. Foute vragen komen later terug in de foutenbak.</p>
     <p class="small"><b>Als app op je telefoon of tablet:</b> open de Shuttle-school in Safari (iPhone/iPad) of Chrome (Android). Kies <b>Deel › Zet op beginscherm</b> of <b>⋮ › App installeren</b>. Daarna start je de app met het shuttle-icoon, ook zonder internet.</p>
-    <p class="small"><b>Gegevens:</b> voortgang, shuttles en een eventuele foto van je kind staan alleen op dit apparaat, per voornaam. Er gaat niets naar de club of naar internet.</p>`;
+    <p class="small"><b>Gegevens:</b> voortgang, shuttles en een eventuele foto van je kind staan alleen op dit apparaat, per voornaam. Er gaat niets naar de club of naar internet.</p>
+    <p class="small muted">Versie ${APP_VERSION}${IS_TEST?' · testversie':''}</p>`;
   if(tab==='trainer'){
     if(!trainerOk) body=`<form class="row" id="tf"><label for="tc" class="note">Trainerscode</label><input type="password" id="tc" autocomplete="off" style="width:150px"><button class="btn alt small" type="submit">Open</button></form><p class="note" id="tmsg" role="status"></p>`;
     else body=`
@@ -3335,7 +3345,7 @@ function splashView(){
     <div class="spbot">
       <button class="bigbtn start pulse" id="start"><span class="bb1">Start</span>${I.play}</button>
       <div class="sprow sprow2"><span class="sp-r"><button type="button" class="linkbtn spsnd ${S.auto?'on':''}" id="spsnd" role="switch" aria-checked="${S.auto?'true':'false'}" aria-label="Geluid">${I.speaker}<span>Geluid</span><i class="sw" aria-hidden="true"></i></button><button class="linkbtn" id="splay">${I.speaker} Lees voor</button></span><label class="note"><input type="checkbox" id="nosplash" ${S.nosplash?'checked':''}> Dit scherm niet meer tonen</label></div>
-      <p class="copy">© BV LUCK RAECK</p>
+      <p class="copy">© BV LUCK RAECK · versie ${APP_VERSION}${IS_TEST?' · <b class="envsp">TESTVERSIE</b>':''}</p>
     </div>
   </div>`;
   fitLockup(); if(document.fonts){document.fonts.load('700 100px Fredoka').then(fitLockup).catch(()=>{}); document.fonts.ready.then(fitLockup); document.fonts.onloadingdone=()=>fitLockup();}
