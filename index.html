@@ -825,6 +825,9 @@ body.onsplash .tbar{display:none}
 .lk-tag::after{content:"";position:absolute;top:-9px;left:50%;width:2px;height:9px;background:#ff9a3d;transform:translateX(-50%)}
 @keyframes tagIn{from{opacity:0;transform:rotate(-6deg) scale(.6)}to{opacity:1;transform:rotate(-6deg) scale(1)}}
 @media (max-height:700px){.splash2 .lk-splash{width:100%;height:auto;top:auto;right:auto}.sp-mascot{--mw:clamp(96px,27vw,120px)}.lk-tag b{font-size:20px}}
+/* splash: Lucky 50% groter, zwevend boven het scherm met schaduw */
+.splash2 .sp-mascot{transform:scale(1.5);transform-origin:88% 22%;position:relative;z-index:2;margin-bottom:calc(var(--mw) * .5)}
+.splash2 .lk-splash{filter:drop-shadow(0 16px 10px rgba(5,8,50,.5)) drop-shadow(0 4px 3px rgba(5,8,50,.3))}
 @media (prefers-reduced-motion:reduce){.lk-tag{animation:none}}
 
 /* splash: bovenkant met logo links en Lucky rechts, daaronder de titel */
