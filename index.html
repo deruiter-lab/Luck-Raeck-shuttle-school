@@ -839,6 +839,17 @@ body.onsplash .tbar{display:none}
 .lhero{overflow:visible;padding-right:52px}
 .lk-les{right:-14px;bottom:-30px;width:73px;height:88px;z-index:3;filter:drop-shadow(0 14px 10px rgba(12,20,70,.36)) drop-shadow(0 4px 3px rgba(12,20,70,.22))}
 @media (max-height:760px){.lhero{padding-right:54px}.lk-les{width:60px;height:73px;bottom:-24px;right:-10px}}
+
+/* keuze voorleesstem */
+.vmode{border:0;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.vmode legend{padding:0;margin-bottom:6px}
+.vmrow{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.vm{display:flex;align-items:center;justify-content:center;text-align:center;min-height:54px;padding:8px 6px;border-radius:14px;background:var(--blue-soft);color:var(--fg);font-family:var(--display);font-weight:600;font-size:14px;line-height:1.15;cursor:pointer;border:2px solid transparent}
+.vm small{display:block;font-family:var(--body,inherit);font-weight:500;font-size:11px;opacity:.75;margin-top:2px}
+.vm input{position:absolute;opacity:0;pointer-events:none}
+.vm.on{border-color:var(--blue);background:var(--surface);box-shadow:0 3px 0 color-mix(in srgb,var(--blue) 25%,transparent)}
+.vm:has(input:focus-visible){outline:3px solid var(--orange);outline-offset:2px}
+.vmode .btn{align-self:flex-start}
 </style>
 
 <header class="bar"><div class="bar-in">
@@ -1060,19 +1071,19 @@ function decodeEnt(t){return t.replace(/&nbsp;/g,' ').replace(/&amp;/g,'&').repl
 function splitSents(html){return html.replace(/([.!?])\s+(?=[A-ZÀ-Ý0-9<"'(])/g,'$1\u0001').split('\u0001');}
 function sayKey(t){return spoken(decodeEnt(String(t))).replace(/\s+/g,' ').trim();}
 function sayHash(k){let h=0x811c9dc5;for(let i=0;i<k.length;i++){h^=k.charCodeAt(i);h=Math.imul(h,0x01000193)>>>0;}return ('0000000'+h.toString(16)).slice(-8);}
-function screenVoice(){ try{ const c=cur||{}; let n=0;
+function screenVoice(){ if(S.vmode==='man') return 'm'; if(S.vmode==='vrouw') return 'v'; try{ const c=cur||{}; let n=0;
   if(c.view==='lesson'||c.view==='review') n=(c.li||0)+(c.i||0);
   else if(c.view==='quiz') n=(c.k||0)+(c.n||0);
   else if(c.view==='splash') n=1;
   return n%2?'v':'m'; }catch(e){return 'm';} }
-function clipUrl(t){ if(!player) return null; const k=sayKey(t); if(!k) return null; const h=sayHash(k);
-  const pref=screenVoice(), other=pref==='m'?'v':'m';
+function clipUrl(t,w){ if(!player) return null; const k=sayKey(t); if(!k) return null; const h=sayHash(k);
+  const pref=w||screenVoice(), other=pref==='m'?'v':'m';
   for(const w of [pref,other]){ const set=AUDIO_SETS[w]; if(set&&set.has(h)) return VOICES[w]+h+'.mp3'; }
   return null; }
 try{ if(typeof fetch!=='undefined'&&location.protocol!=='file:') Object.keys(VOICES).forEach(w=>fetch(VOICES[w]+'index.json').then(r=>r.ok?r.json():null).then(j=>{if(j&&j.h){AUDIO_SETS[w]=new Set(j.h); AUDIO=true;}}).catch(()=>{})); }catch(e){}
 /* speel een rij fragmenten achter elkaar; geeft false terug als er één ontbreekt */
 function playClips(items,btn,force){
-  const urls=items.map(it=>clipUrl(it.t)); if(!urls.length) return false;
+  const urls=items.map(it=>clipUrl(it.t,it.w)); if(!urls.length) return false;
   const have=urls.filter(Boolean).length; if(!have) return false;
   if(!force&&have<urls.length&&!synth) return false;
   hush(); const id=++playId; let i=0;
@@ -3051,8 +3062,13 @@ function settingsView(){
     <label class="row note"><input type="checkbox" id="snd" ${S.nosound?'':'checked'}> Appgeluiden (kassageluid en foutgeluid)</label>
     <label class="row note"><input type="checkbox" id="bg" ${S.big?'checked':''}> Grotere letters</label>
     <div class="row"><label class="row note"><input type="checkbox" id="sps" ${S.nosplash?'':'checked'}> Openingsscherm tonen bij het starten</label><button class="btn alt small" id="spv">Bekijk</button></div>
-    <details class="vdet" id="vdet" ${S.vopen?'open':''}><summary>Voorleesstem en snelheid</summary><div class="stack">`+(opts.length?`
-    <label for="vs" class="note">Voorleesstem</label>
+    <fieldset class="vmode"><legend class="note">Wie leest er voor?</legend>
+      <div class="vmrow">${[['wissel','Afwisselend','man en vrouw om de beurt'],['man','Mannenstem',''],['vrouw','Vrouwenstem','']].map(([k,t,sub])=>`<label class="vm ${(S.vmode||'wissel')===k?'on':''}"><input type="radio" name="vm" value="${k}" ${(S.vmode||'wissel')===k?'checked':''}><span>${t}${sub?`<small>${sub}</small>`:''}</span></label>`).join('')}</div>
+      <button class="btn go small" id="vmhear" type="button">${I.speaker} Luister</button>
+    </fieldset>
+    <details class="vdet" id="vdet" ${S.vopen?'open':''}><summary>Stem van dit apparaat en snelheid</summary><div class="stack">
+    <p class="note">De meeste teksten zijn ingesproken. Teksten met wisselende getallen of namen leest de stem van dit apparaat voor.</p>`+(opts.length?`
+    <label for="vs" class="note">Stem van dit apparaat</label>
     <select id="vs">${opts.map((v,i)=>`<option value="${i}" ${chosen&&v.name===chosen.name?'selected':''}>${esc(v.name)} · ${/^nl/i.test(v.lang)?(/nl[-_]BE/i.test(v.lang)?'Vlaams':'Nederlands'):esc(v.lang)}${MALE.test(v.name)?' · man':FEMALE.test(v.name)?' · vrouw':''}</option>`).join('')}</select>
     <div class="row"><button class="btn go small" id="hear">${I.speaker} Luister</button><button class="btn alt small" id="rescan">Opnieuw zoeken</button></div>`
     :`<div class="warn">Geen Nederlandse stem gevonden. iPad/iPhone: Instellingen › Toegankelijkheid › Gesproken materiaal › Stemmen › Nederlands › Claire. Windows: Instellingen › Tijd en taal › Spraak › stem toevoegen › Nederlands.</div><div><button class="btn alt small" id="rescan">Opnieuw zoeken</button></div>`)+`
@@ -3090,6 +3106,9 @@ function settingsView(){
   app.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{cur.tab=b.dataset.tab;render();});
   app.querySelectorAll('[data-p]').forEach(b=>b.onclick=()=>{S.current=b.dataset.p;save();render();});
   const pf=document.getElementById('pf'); if(pf) pf.onsubmit=e=>{e.preventDefault();const nm=document.getElementById('pn').value.trim();if(!nm)return;S.profiles[nm]=S.profiles[nm]||newProfile();S.current=nm;save();render();};
+  app.querySelectorAll('input[name=vm]').forEach(r=>r.onchange=()=>{S.vmode=r.value;save();app.querySelectorAll('.vm').forEach(l=>l.classList.toggle('on',l.querySelector('input').checked));});
+  const vmh=document.getElementById('vmhear'); if(vmh) vmh.onclick=()=>{const a='Bij badminton sla je de shuttle met je racket over het net naar de ander.', b='De ander slaat hem terug.'; const m=S.vmode||'wissel';
+    const its=m==='wissel'?[{t:a,w:'m'},{t:b,w:'v'}]:[{t:a,w:m==='man'?'m':'v'},{t:b,w:m==='man'?'m':'v'}]; if(!playClips(its,vmh)) speakSynth(a+' '+b,vmh);};
   const vs=document.getElementById('vs'); if(vs) vs.onchange=()=>{S.voice=opts[+vs.value].name;save();speak('Hoi! Zal ik jou de spelregels van badminton uitleggen?',null,opts[+vs.value]);};
   const hb=document.getElementById('hear'); if(hb) hb.onclick=()=>speak('Hoi! Zal ik jou de spelregels van badminton uitleggen? De lijn is in!',hb,opts[+vs.value]);
   const rs=document.getElementById('rescan'); if(rs) rs.onclick=()=>{if(synth){try{synth.cancel();speak(' ');synth.getVoices();}catch(e){}} setTimeout(render,600); setTimeout(render,1800);};
