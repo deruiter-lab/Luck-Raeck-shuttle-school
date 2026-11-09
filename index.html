@@ -442,6 +442,11 @@ body.bigtext .fb{font-size:clamp(18px,2.9vh,24px)}
 .avpick button{width:44px;height:44px;padding:0;border:3px solid transparent;border-radius:50%;background:none;cursor:pointer}
 .avpick button.on{border-color:var(--fg)}
 .avpick button svg{width:100%;height:100%}
+.avpick button{position:relative}
+.avb.avlock>svg{filter:grayscale(1) brightness(1.15) opacity(.5)}
+.avlk{position:absolute;right:-4px;bottom:-4px;width:19px;height:19px;border-radius:50%;background:#1d1d55;color:#fff;display:grid;place-items:center;box-shadow:0 0 0 2px #fff}
+.avlk svg{width:11px;height:11px}
+.toast .tav{flex:none;display:inline-block;width:30px;height:30px;vertical-align:middle;margin-right:6px}.toast .tav svg{width:34px;height:34px;border-radius:50%;padding:0;background:none}.toast .tav{width:34px;height:34px}.toast.plain{width:max-content}
 .chip .cav{display:inline-block;width:22px;height:22px;vertical-align:-6px;margin-right:6px}.chip .cav svg{width:22px;height:22px}
 .stop .me{position:absolute;right:-10px;top:-10px;width:30px;height:30px;border-radius:50%;box-shadow:0 0 0 3px var(--bg);animation:mebob 2.4s ease-in-out infinite}
 .stop .me svg{width:30px;height:30px;display:block}
@@ -558,9 +563,9 @@ body.testmode .tpill{display:inline-block}
 @keyframes sppIn{from{opacity:0;transform:translateY(8px) scale(.97)}to{opacity:1;transform:none}}
 .spp-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;font-family:var(--display);font-size:17px}
 .spp-x{width:32px;height:32px;border-radius:50%;border:0;background:#eef1fb;color:#1d1d55;display:grid;place-items:center;cursor:pointer}.spp-x svg{width:16px;height:16px}
-.spp-g{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;justify-items:center}
-.spp-g button{width:48px;height:48px;padding:0;border:0;border-radius:50%;background:none;cursor:pointer;transition:transform .12s}
-.spp-g button:active{transform:scale(.9)}.spp-g svg{width:48px;height:48px}
+.spp-g{display:grid;grid-template-columns:repeat(6,1fr);gap:7px 4px;justify-items:center}
+.spp-g button{position:relative;width:44px;height:44px;padding:0;border:0;border-radius:50%;background:none;cursor:pointer;transition:transform .12s}
+.spp-g button:active{transform:scale(.9)}.spp-g button>svg{width:44px;height:44px;display:block}
 .spp-f{display:flex;gap:8px;margin-top:10px}
 .spp-b{flex:1;display:inline-flex;align-items:center;justify-content:center;gap:6px;height:40px;border-radius:14px;background:#eef1fb;color:#2b3bd8;font:600 15px var(--display);cursor:pointer}
 .spp-b svg{width:18px;height:18px}
@@ -1052,17 +1057,79 @@ function P(){
   if(!S.current||!S.profiles[S.current]){ S.profiles['Speler']=S.profiles['Speler']||newProfile(); S.current='Speler'; }
   const p=S.profiles[S.current]; if(!p.lessons) p.lessons={}; if(!p.passed) p.passed={}; if(!p.best) p.best={}; if(!p.unlock) p.unlock=1; if(!p.opfris) p.opfris={}; if(!p.bak) p.bak=[]; if(!p.passedAt) p.passedAt={}; return p;
 }
-const AVC=['#2b3bd8','#f07f1a','#2f7d5b','#7b4bc4','#c23b2b','#0b8aa3','#c13a7c','#a77400'];
-const AVN=['Ster','Hart','Bliksem','Maan','Bloem','Kroon','Smiley','Racket'];
-const AVG=['<path d="M12 3.2l2.7 5.5 6 .9-4.35 4.25 1 6L12 17l-5.35 2.85 1-6L3.3 9.6l6-.9z" fill="#fff"/>',
-'<path d="M12 20.5s-8-4.9-8-10.6C4 7 6.1 5 8.5 5c1.5 0 2.7.8 3.5 2 .8-1.2 2-2 3.5-2C17.9 5 20 7 20 9.9c0 5.7-8 10.6-8 10.6z" fill="#fff"/>',
-'<path d="M13.5 2.5L5.5 13.5h5.8l-1.3 8 8.5-11.5h-6z" fill="#fff"/>',
-'<path d="M15 3.5a8.5 8.5 0 1 0 5.5 13.6A7.2 7.2 0 0 1 15 3.5z" fill="#fff"/>',
-'<g fill="#fff"><circle cx="12" cy="6.3" r="3.3"/><circle cx="17.4" cy="10.3" r="3.3"/><circle cx="15.4" cy="16.6" r="3.3"/><circle cx="8.6" cy="16.6" r="3.3"/><circle cx="6.6" cy="10.3" r="3.3"/></g><circle cx="12" cy="12" r="2.6" fill="#ffd34d"/>',
-'<path d="M3.5 18.5h17l1-11-5.5 4.5L12 4.5 8 12 2.5 7.5z" fill="#fff" stroke="#fff" stroke-width="1" stroke-linejoin="round"/>',
-'<circle cx="12" cy="12" r="8.5" fill="none" stroke="#fff" stroke-width="2.2"/><circle cx="9" cy="10" r="1.4" fill="#fff"/><circle cx="15" cy="10" r="1.4" fill="#fff"/><path d="M8.3 14.2a4.4 4.4 0 0 0 7.4 0" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/>',
-'<ellipse cx="14.2" cy="8.8" rx="5.2" ry="6.6" transform="rotate(40 14.2 8.8)" fill="#fff" fill-opacity=".25" stroke="#fff" stroke-width="2.2"/><path d="M11.2 6.8l6 5M10.4 9.6l4.6 3.9M13.6 4.6l4.4 3.7M16.8 6.4l-4.9 5.8M14.4 4.9l-4.3 5.1M18 8.8l-3.6 4.3" stroke="#fff" stroke-width=".8"/><path d="M10.4 13.3L4.6 20" stroke="#fff" stroke-width="3" stroke-linecap="round"/>'];
-function avIndex(nm){const p=S.profiles[nm];if(p&&p.av!=null)return p.av;let h=0;for(const ch of (nm||''))h=(h*31+ch.charCodeAt(0))>>>0;return h%8;}
+/* avatars: twaalf sportieve dieren + vier die je kunt verdienen */
+const AVS=(()=>{
+const O='#1d1d55';
+const eyes=(a,b,y,r=4.2)=>[a,b].map(x=>`<circle cx="${x}" cy="${y}" r="${r}" fill="${O}"/><circle cx="${x+1.4}" cy="${y-1.6}" r="${r*.36}" fill="#fff"/>`).join('');
+const cheeks=(a,b,y)=>`<ellipse cx="${a}" cy="${y}" rx="5" ry="3" fill="#ff8fa3" opacity=".75"/><ellipse cx="${b}" cy="${y}" rx="5" ry="3" fill="#ff8fa3" opacity=".75"/>`;
+const mouth=(y,w=5)=>`<path d="M${50-w} ${y} Q50 ${y+w*.9} ${50+w} ${y}" fill="none" stroke="${O}" stroke-width="2.6" stroke-linecap="round"/>`;
+const band=(x1,x2,y,c,s='#fff')=>`<path d="M${x1} ${y} Q50 ${y-9} ${x2} ${y} L${x2} ${y+8} Q50 ${y-1} ${x1} ${y+8}Z" fill="${c}" stroke="${O}" stroke-width="2.4" stroke-linejoin="round"/><path d="M${x1+1} ${y+4} Q50 ${y-5} ${x2-1} ${y+4}" fill="none" stroke="${s}" stroke-width="1.6"/>`;
+const cap=(c,b)=>`<path d="M23 42 Q24 15 50 15 Q76 15 77 42Z" fill="${c}" stroke="${O}" stroke-width="2.6" stroke-linejoin="round"/><path d="M50 15 L50 41" stroke="${O}" stroke-width="1.4" opacity=".35"/><path d="M20 42 Q50 34 88 40 Q90 47 80 47 Q50 41 20 46Z" fill="${b}" stroke="${O}" stroke-width="2.6" stroke-linejoin="round"/><circle cx="50" cy="15" r="2.6" fill="${b}" stroke="${O}" stroke-width="1.6"/>`;
+const sh=(x,y,s,r)=>`<g transform="translate(${x} ${y}) rotate(${r}) scale(${s})"><path d="M-7 -15 L7 -15 L4 1 L-4 1Z" fill="#fff" stroke="${O}" stroke-width="1.8" stroke-linejoin="round"/><path d="M-2.4 -15 L-1.4 1 M2.4 -15 L1.4 1" stroke="${O}" stroke-width="1"/><rect x="-4.6" y="0.6" width="9.2" height="2.8" fill="#3f9a6e"/><path d="M-4.6 3.4 A4.6 4.6 0 0 0 4.6 3.4Z" fill="#fff" stroke="${O}" stroke-width="1.8"/></g>`;
+const rk=(x,y,r,s=1)=>`<g transform="translate(${x} ${y}) rotate(${r}) scale(${s})"><rect x="-2.2" y="5" width="4.4" height="17" rx="2.2" fill="${O}"/><ellipse cx="0" cy="-7" rx="9" ry="12" fill="#fff" fill-opacity=".5" stroke="${O}" stroke-width="2.6"/><path d="M-4.5 -17 V3 M0 -19 V5 M4.5 -17 V3 M-8 -11 H8 M-9 -6 H9 M-8 -1 H8" stroke="${O}" stroke-width=".9" opacity=".6"/></g>`;
+const st=`stroke="${O}" stroke-width="2.6" stroke-linejoin="round"`;
+const A={
+vos:['Vos','#2b3bd8',`<path d="M22 46 L25 11 L45 29Z" fill="#f07f1a" ${st}/><path d="M78 46 L75 11 L55 29Z" fill="#f07f1a" ${st}/><path d="M28 36 L28 20 L38 29Z" fill="#ffe3c7"/><path d="M72 36 L72 20 L62 29Z" fill="#ffe3c7"/>
+ <path d="M20 48 Q20 27 50 27 Q80 27 80 48 Q80 72 50 85 Q20 72 20 48Z" fill="#f07f1a" ${st}/><path d="M24 57 Q37 61 50 63 Q63 61 76 57 Q71 75 50 84 Q29 75 24 57Z" fill="#fff"/>
+ ${band(21,79,35,'#fff','#2b3bd8')}${eyes(38,62,51)}<ellipse cx="50" cy="64" rx="4.6" ry="3.4" fill="${O}"/><path d="M46 70 Q50 73 54 70" fill="none" stroke="${O}" stroke-width="2.2" stroke-linecap="round"/>${cheeks(30,70,61)}`],
+panda:['Panda','#3f9a6e',`<circle cx="27" cy="31" r="11" fill="${O}"/><circle cx="73" cy="31" r="11" fill="${O}"/><circle cx="50" cy="55" r="30" fill="#fff" ${st}/>
+ ${band(22,78,38,'#ff9a3d','#fff')}<ellipse cx="38" cy="54" rx="8" ry="10.5" transform="rotate(-28 38 54)" fill="${O}"/><ellipse cx="62" cy="54" rx="8" ry="10.5" transform="rotate(28 62 54)" fill="${O}"/>
+ <circle cx="39" cy="53" r="3.4" fill="#fff"/><circle cx="61" cy="53" r="3.4" fill="#fff"/><ellipse cx="50" cy="65" rx="5" ry="3.6" fill="${O}"/>${mouth(70,4.5)}${cheeks(30,70,66)}`],
+uil:['Uil','#7b3fbf',`<path d="M25 36 L21 13 L40 27Z" fill="#a0673a" ${st}/><path d="M75 36 L79 13 L60 27Z" fill="#a0673a" ${st}/><ellipse cx="50" cy="56" rx="30" ry="29" fill="#a0673a" ${st}/>
+ <circle cx="38" cy="51" r="12.5" fill="#f3dcb8"/><circle cx="62" cy="51" r="12.5" fill="#f3dcb8"/>${eyes(38,62,51,6.2)}<path d="M45.5 60 L54.5 60 L50 69Z" fill="#f0a81a" stroke="${O}" stroke-width="2" stroke-linejoin="round"/>
+ <path d="M34 74 Q38 71 42 74 M46 77 Q50 74 54 77 M58 74 Q62 71 66 74" fill="none" stroke="#7a4a26" stroke-width="2" stroke-linecap="round"/>${sh(50,25,1.15,0)}`],
+tijger:['Tijger','#0f9bb0',`<circle cx="28" cy="31" r="10" fill="#f07f1a" ${st}/><circle cx="72" cy="31" r="10" fill="#f07f1a" ${st}/><circle cx="28" cy="31" r="4.6" fill="#ffe3c7"/><circle cx="72" cy="31" r="4.6" fill="#ffe3c7"/>
+ <circle cx="50" cy="55" r="30" fill="#f07f1a" ${st}/><path d="M50 26 V36 M42 27 L44 35 M58 27 L56 35 M21 49 L31 52 M21 59 L30 59 M79 49 L69 52 M79 59 L70 59" stroke="${O}" stroke-width="3" stroke-linecap="round"/>
+ <ellipse cx="44" cy="66" rx="8.5" ry="6.5" fill="#fff"/><ellipse cx="56" cy="66" rx="8.5" ry="6.5" fill="#fff"/>${eyes(39,61,49)}<path d="M46 60 L54 60 L50 64.5Z" fill="#ff8fa3" stroke="${O}" stroke-width="1.6" stroke-linejoin="round"/>
+ <path d="M50 64.5 V67 M46 69 Q50 72 54 69" fill="none" stroke="${O}" stroke-width="2" stroke-linecap="round"/>${rk(82,74,28,.9)}`],
+pinguin:['Pinguïn','#f6c544',`<ellipse cx="50" cy="56" rx="30" ry="30" fill="${O}"/><path d="M30 54 Q30 36 42 37 Q50 43 58 37 Q70 36 70 54 Q70 77 50 81 Q30 77 30 54Z" fill="#fff"/>
+ ${cap('#ff9a3d','#2b3bd8')}${eyes(41,59,53)}<ellipse cx="50" cy="62" rx="6.5" ry="3.8" fill="#f0a81a" stroke="${O}" stroke-width="1.6"/>${cheeks(35,65,63)}`],
+konijn:['Konijn','#e04f8a',`<ellipse cx="38" cy="24" rx="7.5" ry="19" transform="rotate(-8 38 24)" fill="#fff" ${st}/><ellipse cx="62" cy="24" rx="7.5" ry="19" transform="rotate(8 62 24)" fill="#fff" ${st}/>
+ <ellipse cx="38" cy="25" rx="3.5" ry="13" transform="rotate(-8 38 25)" fill="#ffc2d4"/><ellipse cx="62" cy="25" rx="3.5" ry="13" transform="rotate(8 62 25)" fill="#ffc2d4"/><circle cx="50" cy="59" r="27" fill="#fff" ${st}/>
+ ${band(24,76,43,'#2b3bd8','#ff9a3d')}${eyes(40,60,57)}<path d="M47 63 L53 63 L50 66Z" fill="#ff8fa3" stroke="${O}" stroke-width="1.4" stroke-linejoin="round"/><path d="M50 66 V68 M45 69 Q47.5 71 50 68 Q52.5 71 55 69" fill="none" stroke="${O}" stroke-width="1.8" stroke-linecap="round"/>
+ <rect x="47.2" y="69" width="5.6" height="5" rx="1" fill="#fff" stroke="${O}" stroke-width="1.4"/>${cheeks(32,68,66)}`],
+koala:['Koala','#6b7fd6',`<circle cx="24" cy="38" r="14" fill="#a9b3c4" ${st}/><circle cx="76" cy="38" r="14" fill="#a9b3c4" ${st}/><circle cx="24" cy="38" r="7.5" fill="#f1e6ee"/><circle cx="76" cy="38" r="7.5" fill="#f1e6ee"/>
+ <ellipse cx="50" cy="57" rx="27" ry="26" fill="#a9b3c4" ${st}/>${eyes(39,61,51)}<ellipse cx="50" cy="62" rx="7" ry="9" fill="${O}"/><ellipse cx="48" cy="58" rx="2" ry="3" fill="#fff" opacity=".5"/>${mouth(74,4)}${cheeks(31,69,63)}${sh(80,24,1,35)}`],
+leeuw:['Leeuw','#d63f3f',`${Array.from({length:12},(_,i)=>{const a=i*Math.PI/6;return `<circle cx="${(50+29*Math.cos(a)).toFixed(1)}" cy="${(55+29*Math.sin(a)).toFixed(1)}" r="10.5" fill="#c46b1c" ${st}/>`;}).join('')}<circle cx="50" cy="55" r="29" fill="#c46b1c"/>
+ <circle cx="33" cy="38" r="6" fill="#f6b847" ${st}/><circle cx="67" cy="38" r="6" fill="#f6b847" ${st}/><circle cx="50" cy="56" r="22" fill="#f6b847" ${st}/>
+ ${eyes(42,58,52,3.8)}<ellipse cx="50" cy="65" rx="9" ry="6.5" fill="#fff3d6"/><path d="M46.5 61 L53.5 61 L50 64.5Z" fill="${O}" stroke="${O}" stroke-width="1.4" stroke-linejoin="round"/><path d="M50 64.5 V66.5 M46 68 Q50 71 54 68" fill="none" stroke="${O}" stroke-width="1.8" stroke-linecap="round"/>${cheeks(36,64,62)}`],
+kikker:['Kikker','#ff9a3d',`<circle cx="34" cy="38" r="12" fill="#5cc46a" ${st}/><circle cx="66" cy="38" r="12" fill="#5cc46a" ${st}/><ellipse cx="50" cy="61" rx="33" ry="23" fill="#5cc46a" ${st}/>
+ <circle cx="34" cy="38" r="7.5" fill="#fff"/><circle cx="66" cy="38" r="7.5" fill="#fff"/>${eyes(34,66,39,4)}<path d="M28 63 Q50 80 72 63" fill="none" stroke="${O}" stroke-width="3" stroke-linecap="round"/>
+ <circle cx="45" cy="55" r="1.4" fill="${O}"/><circle cx="55" cy="55" r="1.4" fill="${O}"/>${cheeks(26,74,63)}${rk(16,76,-30,.85)}`],
+aap:['Aap','#9ccc65',`<circle cx="22" cy="53" r="10" fill="#8a5a3a" ${st}/><circle cx="78" cy="53" r="10" fill="#8a5a3a" ${st}/><circle cx="22" cy="53" r="5" fill="#f2c9a0"/><circle cx="78" cy="53" r="5" fill="#f2c9a0"/>
+ <circle cx="50" cy="54" r="28" fill="#8a5a3a" ${st}/><path d="M30 58 Q30 43 42 45 Q50 49 58 45 Q70 43 70 58 Q70 80 50 80 Q30 80 30 58Z" fill="#f2c9a0"/>
+ ${cap('#2b3bd8','#ff9a3d')}${eyes(41,59,55)}<circle cx="47.5" cy="64" r="1.5" fill="${O}"/><circle cx="52.5" cy="64" r="1.5" fill="${O}"/>${mouth(69,6)}`],
+hond:['Hond','#29a3e0',`<ellipse cx="25" cy="52" rx="9" ry="19" transform="rotate(18 25 52)" fill="#6b4423" ${st}/><ellipse cx="75" cy="52" rx="9" ry="19" transform="rotate(-18 75 52)" fill="#6b4423" ${st}/>
+ <circle cx="50" cy="52" r="26" fill="#e8c18f" ${st}/><ellipse cx="60" cy="47" rx="8" ry="9" fill="#b07a45"/>${band(25,75,36,'#ff9a3d','#fff')}
+ ${eyes(41,59,48)}<ellipse cx="50" cy="63" rx="12.5" ry="9.5" fill="#fff3e0"/><ellipse cx="50" cy="59" rx="5.4" ry="4" fill="${O}"/><path d="M45 66 Q50 69 55 66" fill="none" stroke="${O}" stroke-width="2" stroke-linecap="round"/><path d="M48 67.5 Q50 74 52 67.5Z" fill="#ff6f8e" stroke="${O}" stroke-width="1.4"/>`],
+kat:['Kat','#5a6485',`<path d="M24 44 L24 14 L44 30Z" fill="#f4a261" ${st}/><path d="M76 44 L76 14 L56 30Z" fill="#f4a261" ${st}/><path d="M29 36 L29 23 L38 30Z" fill="#ffd1dc"/><path d="M71 36 L71 23 L62 30Z" fill="#ffd1dc"/>
+ <circle cx="50" cy="55" r="29" fill="#f4a261" ${st}/><path d="M50 27 V35 M43 28 L45 35 M57 28 L55 35 M22 54 L30 55 M78 54 L70 55" stroke="#c46b1c" stroke-width="3" stroke-linecap="round"/>
+ ${eyes(39,61,52)}<path d="M47 60 L53 60 L50 63Z" fill="#ff8fa3" stroke="${O}" stroke-width="1.4" stroke-linejoin="round"/><path d="M50 63 V65 M45.5 66.5 Q48 69 50 65 Q52 69 54.5 66.5" fill="none" stroke="${O}" stroke-width="1.8" stroke-linecap="round"/>
+ <path d="M26 61 L38 63 M26 67 L38 66 M74 61 L62 63 M74 67 L62 66" stroke="${O}" stroke-width="1.3" stroke-linecap="round" opacity=".7"/>${sh(80,76,1.05,-150)}`],
+};
+const crown=(y=14)=>`<path d="M33 ${y+14} L31 ${y} L41 ${y+7} L50 ${y-4} L59 ${y+7} L69 ${y} L67 ${y+14}Z" fill="#ffd34d" ${st}/><circle cx="50" cy="${y+8}" r="2.6" fill="#e04f8a"/>`;
+const sparkle=(x,y,s)=>`<path d="M${x} ${y-s} Q${x} ${y} ${x+s} ${y} Q${x} ${y} ${x} ${y+s} Q${x} ${y} ${x-s} ${y} Q${x} ${y} ${x} ${y-s}Z" fill="#ffd34d"/>`;
+const U={
+gvos:['Gouden vos','#1d1d55',A.vos[2].replace(/#f07f1a/g,'#f6c544').replace(/#ffe3c7/g,'#fff6cc').replace(band(21,79,35,'#fff','#2b3bd8'),'')+crown(8)+sparkle(16,22,5)+sparkle(84,70,4)+sparkle(82,24,3),'50 shuttles'],
+kpanda:['Kampioen-panda','#1d1d55',A.panda[2]+`<path d="M44 82 L40 95 M56 82 L60 95" stroke="#e04f8a" stroke-width="4"/><circle cx="50" cy="88" r="7" fill="#ffd34d" ${st}/><path d="M47 88 L49.5 90.5 L53.5 85.5" fill="none" stroke="${O}" stroke-width="1.8" stroke-linecap="round"/>`+sparkle(15,30,4)+sparkle(86,60,4),'diploma niveau 2'],
+eenhoorn:['Eenhoorn','#ffb6d5',`${['#7b3fbf','#29a3e0','#5cc46a','#ffd34d','#ff9a3d','#e04f8a'].map((c,i)=>`<path d="M${42-i*2.4} ${26+i*1.2} Q${20-i*1.5} ${38+i} ${24+i*.8} ${72-i*1.5}" fill="none" stroke="${c}" stroke-width="7" stroke-linecap="round"/>`).join('')}
+ <path d="M32 44 L30 14 L44 32Z" fill="#fff" ${st}/><path d="M68 44 L70 14 L56 32Z" fill="#fff" ${st}/><circle cx="50" cy="56" r="28" fill="#fff" ${st}/>
+ <path d="M33 42 Q36 24 54 26 Q46 31 45 40 Q40 34 33 42Z" fill="#e04f8a" ${st}/><path d="M44 30 L50 4 L56 30Z" fill="#ffd34d" ${st}/><path d="M46 23 L54 20 M47.5 15 L52.5 13" stroke="${O}" stroke-width="1.4"/>
+ ${eyes(40,60,54)}<ellipse cx="50" cy="68" rx="11" ry="8" fill="#ffd6e7"/><circle cx="46.5" cy="68" r="1.4" fill="${O}"/><circle cx="53.5" cy="68" r="1.4" fill="${O}"/>${cheeks(31,69,63)}`,'100 shuttles'],
+};
+
+
+const L=Object.values(A).map(v=>({n:v[0],bg:v[1],g:v[2]}));
+L.push({n:U.gvos[0],bg:U.gvos[1],g:U.gvos[2],req:'Spaar 50 shuttles',ok:p=>(p.shuttles||0)>=50});
+L.push({n:U.kpanda[0],bg:U.kpanda[1],g:U.kpanda[2],req:'Haal het diploma van niveau 2',ok:p=>!!(p.passed||{})[2]});
+L.push({n:U.eenhoorn[0],bg:U.eenhoorn[1],g:U.eenhoorn[2],req:'Spaar 100 shuttles',ok:p=>(p.shuttles||0)>=100});
+L.push({n:'Lucky',bg:'#ff9a3d',g:null,req:'Haal alle niveaus',ok:p=>LEVELS.every(l=>(p.passed||{})[l.n])});
+return L;})();
+const AVN=AVS.map(a=>a.n), AVC=AVS.map(a=>a.bg);
+function avOpen(i,p){const a=AVS[i];return !!a&&(!a.ok||a.ok(p||{}));}
+function avLuckyG(){const m=(LUCKY.cheer||LUCKY.happy).match(/<svg[^>]*viewBox="([^"]+)"[^>]*>([\s\S]*)<\/svg>/);return m?`<svg x="17" y="9" width="66" height="80" viewBox="${m[1]}">${m[2]}</svg>`:'';}
+function avBtn(i,p,on,attr){const o=avOpen(i,p),a=AVS[i];return `<button type="button" ${attr}="${i}" class="avb ${on?'on':''} ${o?'':'avlock'}" aria-label="${a.n}${o?'':', op slot: '+a.req}" ${o?'':`aria-disabled="true" data-req="${a.req}"`}>${avatar(i)}${o?'':`<span class="avlk" aria-hidden="true">${I.lock}</span>`}</button>`;}
+function avIndex(nm){const p=S.profiles[nm];if(p&&p.av!=null)return p.av;let h=0;for(const ch of (nm||''))h=(h*31+ch.charCodeAt(0))>>>0;return h%12;}
 let avUid=0;
 function cropPhoto(file,ok,fail){
   const url=URL.createObjectURL(file); const img=new Image();
@@ -1086,7 +1153,7 @@ function setPhoto(file){
   img.src=url;
 }
 function avatarFor(nm){const p=S.profiles[nm];if(p&&p.photo){const id='avp'+(++avUid);return `<svg viewBox="0 0 24 24" role="img" aria-label="Foto van ${esc(nm)}"><defs><clipPath id="${id}"><circle cx="12" cy="12" r="12"/></clipPath></defs><image href="${p.photo}" x="0" y="0" width="24" height="24" preserveAspectRatio="xMidYMid slice" clip-path="url(#${id})"/></svg>`;}return avatar(avIndex(nm));}
-function avatar(i){return `<svg viewBox="0 0 24 24" role="img" aria-label="${AVN[i]}" style="color:${AVC[i]}"><circle cx="12" cy="12" r="12" fill="${AVC[i]}"/><g transform="translate(3.6 3.6) scale(.7)">${AVG[i]}</g></svg>`;}
+function avatar(i){const a=AVS[i]||AVS[0];const id='avc'+(++avUid);return `<svg viewBox="0 0 100 100" role="img" aria-label="${a.n}"><defs><clipPath id="${id}"><circle cx="50" cy="50" r="50"/></clipPath></defs><g clip-path="url(#${id})"><circle cx="50" cy="50" r="50" fill="${a.bg}"/>${a.g==null?avLuckyG():a.g}</g></svg>`;}
 function setPot(){document.body.classList.toggle('testmode',!!S.testmode);document.getElementById('potn').textContent=P().shuttles;const h=document.getElementById('hav');if(h)h.innerHTML=avatarFor(S.current);const hn=document.getElementById('hname');if(hn){hn.textContent=S.current||'';const b=document.getElementById('hpl');b.hidden=!S.current;b.setAttribute('aria-label','Speler: '+(S.current||'')+'. Tik om te wisselen');}}
 
 /* =========================================================
@@ -2639,7 +2706,7 @@ function homeView(){
   <div class="hero"><button class="heroav" id="heroav" aria-label="Kies je figuurtje">${avatarFor(S.current)}<span class="avedit" aria-hidden="true">${I.pencil}</span></button><div style="min-width:0;flex:1">
     <div class="namerow" id="namerow"><h1>Hoi ${esc(S.current)}!</h1><button class="editbtn" id="edit" aria-label="Naam aanpassen" title="Naam aanpassen">${I.pencil}</button></div>
     <form class="namerow" id="nameform" hidden><label for="nm" class="sr">Je naam</label><input type="text" id="nm" maxlength="20" value="${esc(S.current)}"><button class="okbtn" type="submit" aria-label="Naam opslaan">${ic('check',20)}</button></form>
-    <div class="avpick" id="avpick" hidden aria-label="Kies je figuurtje">${AVC.map((_,i)=>`<button type="button" data-av="${i}" class="${!P().photo&&avIndex(S.current)===i?'on':''}" aria-label="${AVN[i]}">${avatar(i)}</button>`).join('')}
+    <div class="avpick" id="avpick" hidden aria-label="Kies je figuurtje">${AVS.map((_,i)=>avBtn(i,P(),!P().photo&&avIndex(S.current)===i,'data-av')).join('')}
       <div class="avphoto"><label class="btn alt small" for="avlib">${I.image} Foto kiezen</label><input type="file" id="avlib" accept="image/*" class="sr"><label class="btn alt small" for="avcam">${I.camera} Selfie maken</label><input type="file" id="avcam" accept="image/*" capture="user" class="sr">${P().photo?`<button type="button" class="linkbtn" id="avdel">Foto weghalen</button>`:''}</div><p class="note" id="avmsg" role="status"></p></div>
     <p class="muted small" id="nmsg">Klaar om te leren?</p></div></div>
   <div class="bento">
@@ -2669,7 +2736,7 @@ function homeView(){
   const nr=document.getElementById('namerow'), nf=document.getElementById('nameform'), nm=document.getElementById('nm');
   const openEdit=()=>{nr.hidden=true;nf.hidden=false;document.getElementById('avpick').hidden=false;nm.focus();nm.select();};
   document.getElementById('edit').onclick=openEdit; document.getElementById('heroav').onclick=openEdit;
-  app.querySelectorAll('[data-av]').forEach(b=>b.onclick=()=>{const q=P();q.av=+b.dataset.av;delete q.photo;save();setPot();render();});
+  app.querySelectorAll('[data-av]').forEach(b=>b.onclick=()=>{ if(b.dataset.req){toast(`${I.lock} ${b.dataset.req} om dit plaatje te krijgen.`,true);return;} const q=P();q.av=+b.dataset.av;delete q.photo;save();setPot();render();});
   ['avlib','avcam'].forEach(id=>{const inp=document.getElementById(id); if(inp) inp.onchange=()=>{const f=inp.files&&inp.files[0]; if(f) setPhoto(f);};});
   const ad=document.getElementById('avdel'); if(ad) ad.onclick=()=>{delete P().photo;save();setPot();render();};
   nf.onsubmit=e=>{e.preventDefault(); const v=nm.value.trim(), old=S.current;
@@ -3051,6 +3118,8 @@ function resultView(){
   on('tonext',()=>go({view:'level',n:c.n+1,tab:'les'}));
   on('dipl',()=>{hush();cur={view:'diploma',n:c.n,back:c};render();});
   on('review',()=>{hush();cur=Object.assign({},c,{view:'review',ri:0,back:c});render();});
+  { const pp=P(); pp.unl=pp.unl||[]; const nw=AVS.map((x,i)=>i).filter(i=>AVS[i].ok&&avOpen(i,pp)&&!pp.unl.includes(i));
+    if(nw.length){ nw.forEach(i=>pp.unl.push(i)); save(); setTimeout(()=>{toast(`<span class="tav">${avatar(nw[0])}</span> <span>Nieuw plaatje verdiend: <b>${AVS[nw[0]].n}</b>! Kies het bij je naam.</span>`,true); kaching(.7);},900);} }
 }
 function reviewView(){
   const c=cur, m=c.missed[c.ri], last=c.ri===c.missed.length-1;
@@ -3265,7 +3334,7 @@ function splashView(){
       <div class="sp-in"><button type="button" class="spav" id="spav" aria-label="Kies een plaatje of foto" aria-expanded="false"></button><input type="text" id="spn" maxlength="20" value="${S.current&&S.current!=='Speler'?esc(S.current):''}" placeholder="Je voornaam" autocomplete="off"></div>
       <div class="sppick" id="sppick" hidden role="dialog" aria-label="Kies je plaatje">
         <div class="spp-h"><b>Kies je plaatje</b><button type="button" class="spp-x" id="sppx" aria-label="Sluiten">${I.cross}</button></div>
-        <div class="spp-g">${AVC.map((_,i)=>`<button type="button" data-spav="${i}" aria-label="${AVN[i]}">${avatar(i)}</button>`).join('')}</div>
+        <div class="spp-g">${AVS.map((_,i)=>avBtn(i,S.current&&S.current!=='Speler'?S.profiles[S.current]:null,false,'data-spav')).join('')}</div>
         <div class="spp-f"><label class="spp-b" for="splib">${I.image} Foto kiezen</label><input type="file" id="splib" accept="image/*" class="sr"><label class="spp-b" for="spcam">${I.camera} Selfie</label><input type="file" id="spcam" accept="image/*" capture="user" class="sr"></div>
         <p class="spp-m" id="sppm" role="status"></p>
       </div></form>
@@ -3285,7 +3354,10 @@ function splashView(){
   drawAv(); spn.addEventListener('input',()=>{if(!pick)drawAv();});
   const openPk=o=>{pk.hidden=!o;spav.setAttribute('aria-expanded',o?'true':'false');if(o){pm.textContent='';const f=pk.querySelector('button[data-spav]');if(f)f.focus();}};
   spav.onclick=()=>openPk(pk.hidden); document.getElementById('sppx').onclick=()=>openPk(false);
-  pk.querySelectorAll('[data-spav]').forEach(b=>b.onclick=()=>{pick={av:+b.dataset.spav};drawAv();openPk(false);});
+  const spProf=()=>{const nm=spn.value.trim();return nm&&S.profiles[nm]?S.profiles[nm]:null;};
+  const lockPk=()=>pk.querySelectorAll('[data-spav]').forEach(b=>{const i=+b.dataset.spav,o=avOpen(i,spProf());b.classList.toggle('avlock',!o);if(o){delete b.dataset.req;b.removeAttribute('aria-disabled');}else{b.dataset.req=AVS[i].req;b.setAttribute('aria-disabled','true');}});
+  spn.addEventListener('input',lockPk); lockPk();
+  pk.querySelectorAll('[data-spav]').forEach(b=>b.onclick=()=>{ if(b.dataset.req){pm.textContent=`🔒 ${AVS[+b.dataset.spav].n}: ${b.dataset.req} om dit plaatje te krijgen.`;return;} pick={av:+b.dataset.spav};drawAv();openPk(false);});
   ['splib','spcam'].forEach(id=>{const inp=document.getElementById(id); inp.onchange=()=>{const f=inp.files&&inp.files[0]; if(!f) return; pm.textContent='Foto wordt klaargezet…';
     cropPhoto(f,d=>{pick={photo:d};drawAv();openPk(false);},()=>{pm.textContent='Deze foto lukt niet. Probeer een andere foto.';});};});
   const ss=document.getElementById('spsnd'); ss.onclick=()=>{S.auto=!S.auto;save();ss.classList.toggle('on',S.auto);ss.setAttribute('aria-checked',S.auto?'true':'false'); if(S.auto) kaching(.5);};
