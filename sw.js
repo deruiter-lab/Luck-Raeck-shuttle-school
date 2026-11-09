@@ -1,5 +1,5 @@
 /* Shuttle-school: werkt ook zonder internet na het eerste bezoek */
-const CACHE='shuttle-school-20261109170738';
+const CACHE='shuttle-school-20261109172105';
 const AUDIO_CACHE='shuttle-audio-a1';
 const CORE=['./','./index.html','./manifest.webmanifest','./icon-192.png','./icon-512.png','./apple-touch-icon.png'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(CACHE).then(c=>c.addAll(CORE)).then(()=>self.skipWaiting()));});

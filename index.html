@@ -1053,14 +1053,23 @@ function spoken(text){
     .replace(/(\d+) s\b/g,'$1 seconden').replace(/ · /g,', ').replace(EN_RE,m=>{const r=EN_SAY[m.toLowerCase()];return /^[A-Z]/.test(m)?r.charAt(0).toUpperCase()+r.slice(1):r;});
 }
 /* ---------- vooraf ingesproken geluid (zelfde stem op elke telefoon) ---------- */
-const AUDIO_DIR='audio/a1/';
+/* twee ingesproken stemmen: een man (a1) en een vrouw (b1); ze wisselen elkaar af per scherm */
+const VOICES={m:'audio/a1/',v:'audio/b1/'}; const AUDIO_SETS={};
 let AUDIO=null; const player=(typeof Audio!=='undefined')?new Audio():null; let playId=0;
 function decodeEnt(t){return t.replace(/&nbsp;/g,' ').replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&#39;/g,"'");}
 function splitSents(html){return html.replace(/([.!?])\s+(?=[A-ZÀ-Ý0-9<"'(])/g,'$1\u0001').split('\u0001');}
 function sayKey(t){return spoken(decodeEnt(String(t))).replace(/\s+/g,' ').trim();}
 function sayHash(k){let h=0x811c9dc5;for(let i=0;i<k.length;i++){h^=k.charCodeAt(i);h=Math.imul(h,0x01000193)>>>0;}return ('0000000'+h.toString(16)).slice(-8);}
-function clipUrl(t){if(!AUDIO||!player) return null; const k=sayKey(t); if(!k) return null; const h=sayHash(k); return AUDIO.has(h)?AUDIO_DIR+h+'.mp3':null;}
-try{ if(typeof fetch!=='undefined'&&location.protocol!=='file:') fetch(AUDIO_DIR+'index.json').then(r=>r.ok?r.json():null).then(j=>{if(j&&j.h) AUDIO=new Set(j.h);}).catch(()=>{}); }catch(e){}
+function screenVoice(){ try{ const c=cur||{}; let n=0;
+  if(c.view==='lesson'||c.view==='review') n=(c.li||0)+(c.i||0);
+  else if(c.view==='quiz') n=(c.k||0)+(c.n||0);
+  else if(c.view==='splash') n=1;
+  return n%2?'v':'m'; }catch(e){return 'm';} }
+function clipUrl(t){ if(!player) return null; const k=sayKey(t); if(!k) return null; const h=sayHash(k);
+  const pref=screenVoice(), other=pref==='m'?'v':'m';
+  for(const w of [pref,other]){ const set=AUDIO_SETS[w]; if(set&&set.has(h)) return VOICES[w]+h+'.mp3'; }
+  return null; }
+try{ if(typeof fetch!=='undefined'&&location.protocol!=='file:') Object.keys(VOICES).forEach(w=>fetch(VOICES[w]+'index.json').then(r=>r.ok?r.json():null).then(j=>{if(j&&j.h){AUDIO_SETS[w]=new Set(j.h); AUDIO=true;}}).catch(()=>{})); }catch(e){}
 /* speel een rij fragmenten achter elkaar; geeft false terug als er één ontbreekt */
 function playClips(items,btn,force){
   const urls=items.map(it=>clipUrl(it.t)); if(!urls.length) return false;
