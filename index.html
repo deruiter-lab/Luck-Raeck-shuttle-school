@@ -2511,11 +2511,33 @@ function bakDue(){return P().bak.filter(b=>b.due<=Date.now());}
 let cur={view:'home'}; let timerH=null; let trainerOk=false;
 const app=document.getElementById('app');
 function stopTimer(){if(timerH){clearInterval(timerH);timerH=null;}}
-function go(v,dir){hush();stopTimer();cur=v;app.dataset.dir=dir||'fwd';render();app.scrollTop=0; app.classList.remove('enter'); void app.offsetWidth; app.classList.add('enter');}
-document.getElementById('home-btn').onclick=()=>go({view:'home'});
-document.getElementById('set-btn').onclick=()=>go({view:'settings',tab:'algemeen'});
+/* navigatie: eigen geschiedenis, zodat de terugknop van de telefoon/browser binnen de app blijft */
+let NAV=[], skipPop=0, guard=null, HIST=true;
+const SKIPV=['quiz','result','review','splash'];
+const navKey=o=>o?[o.view,o.n,o.li,o.i,o.review?1:0].join('|'):'';
+function prevIdx(){for(let k=NAV.length-1;k>=0;k--) if(!SKIPV.includes(NAV[k].view)) return k; return -1;}
+function go(v,dir,fromPop){hush();stopTimer();
+  if(!fromPop&&cur&&cur.view&&(cur.view!=='splash'||cur.from)){
+    let k=-1; if(dir==='back'){const key=navKey(v); for(let j=NAV.length-1;j>=0;j--) if(navKey(NAV[j])===key){k=j;break;}}
+    if(k>=0){const drop=NAV.length-k; NAV.length=k; if(HIST){try{skipPop+=1;history.go(-drop);}catch(e){skipPop-=1;}}}
+    else {NAV.push(cur); if(NAV.length>60) NAV.shift(); if(HIST){try{history.pushState({ss:1},'');}catch(e){HIST=false;}}}
+  }
+  cur=v;app.dataset.dir=dir||'fwd';render();app.scrollTop=0; app.classList.remove('enter'); void app.offsetWidth; app.classList.add('enter');}
+function goBack(){let k=-1; for(let j=NAV.length-1;j>=0;j--) if(!SKIPV.includes(NAV[j].view)&&NAV[j].view!==cur.view){k=j;break;} nav(k>=0?NAV[k]:{view:'home'},'back');}
+function nav(v,dir){ if(guard){guard(()=>go(v,dir));return;} go(v,dir); }
+window.addEventListener('popstate',()=>{
+  if(skipPop){skipPop--;return;}
+  if(!cur||(cur.view==='splash'&&!cur.from)) return;
+  const k=prevIdx(), t=k>=0?NAV[k]:{view:'home'};
+  const doIt=()=>{NAV.length=Math.max(k,0); go(t,'back',true);};
+  if(guard){try{history.pushState({ss:1},'');}catch(e){} guard(()=>{skipPop++;try{history.back();}catch(e){skipPop--;} doIt();});return;}
+  if(k<0&&cur.view==='home') return;
+  doIt();
+});
+document.getElementById('home-btn').onclick=()=>nav({view:'home'},'back');
+document.getElementById('set-btn').onclick=()=>{ if(cur.view==='settings'){cur.tab='algemeen';render();return;} nav({view:'settings',tab:'algemeen'}); };
 function migrateRate(){ if(!S.r1){ if(S.rate===0.9) S.rate=1; S.r1=1; try{save();}catch(e){} } }
-function render(){ migrateRate();
+function render(){ migrateRate(); guard=null;
   setPot(); document.body.classList.toggle('bigtext',!!S.big); tabBar();
   const v=cur.view;
   document.body.classList.toggle('onsplash',v==='splash');
@@ -2537,7 +2559,7 @@ function tabBar(){
   const on=v==='home'||(v==='level'&&cur.tab!=='spel')?'home':v==='level'?'spel':v;
   const T=[['home','Thuis',I.home],['spel','Spelen',I.racketd],['mijn','Mijn shuttles',I.shuttle],['settings','Instellingen',I.gear]];
   tb.innerHTML=T.map(t=>`<button type="button" data-t="${t[0]}" class="${on===t[0]?'on':''}" ${on===t[0]?'aria-current="page"':''}><span class="ti">${t[2]}</span><span class="tl">${t[1]}</span></button>`).join('');
-  tb.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{const t=b.dataset.t; if(t===on) return;
+  tb.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{const t=b.dataset.t; if(t===on&&!(t==='home'&&v!=='home')) return;
     if(t==='home') go({view:'home'},'back');
     else if(t==='spel'){const p=P();const l=LEVELS.find(x=>levelOpen(x.n)&&!p.passed[x.n])||LEVELS[LEVELS.length-1];go({view:'level',n:l.n,tab:'spel'});}
     else if(t==='mijn') go({view:'mijn'});
@@ -2593,7 +2615,7 @@ function homeView(){
   const nb=document.getElementById('next'); if(nb) nb.onclick=()=>{ if(ns) doStep(ns); else go({view:'level',n:5,tab:'spel'}); };
   const bb=document.getElementById('bak'); if(bb) bb.onclick=()=>startQuiz({n:1,title:'Foutenbak',kind:'bak',src:()=>bakDue().slice(0,8).map(b=>b.r)});
   const bg=document.getElementById('bngame'); if(bg) bg.onclick=()=>go({view:'level',n:curL.n,tab:'spel'});
-  const bp=document.getElementById('bnpot'); if(bp) bp.onclick=()=>{const pt=document.getElementById('pot');pt.classList.remove('bump');void pt.offsetWidth;pt.classList.add('bump');kaching(.6);};
+  const bp=document.getElementById('bnpot'); if(bp) bp.onclick=()=>{kaching(.6);go({view:'mijn'});};
   app.querySelectorAll('.rt-st').forEach(b=>b.onclick=()=>{const n=+b.dataset.n; if(levelOpen(n)) go({view:'level',n,tab:'les'}); else {const m=`Niveau ${n} is nog op slot. Haal eerst niveau ${n-1} foutloos.`; toast(m,true); if(S.auto) speak(m);}});
   const nr=document.getElementById('namerow'), nf=document.getElementById('nameform'), nm=document.getElementById('nm');
   const openEdit=()=>{nr.hidden=true;nf.hidden=false;document.getElementById('avpick').hidden=false;nm.focus();nm.select();};
@@ -2614,7 +2636,7 @@ function voiceWarn(){
 function levelView(n){
   const l=LEVELS[n-1]; const p=P(); const eo=examOpen(l), pass=!!p.passed[n]; const tab=cur.tab||'les'; const of=opfrisNeeded(n);
   app.innerHTML=`
-  <div class="topline"><button class="back" id="bk">${I.back} Route</button><span class="label">Niveau ${n} · ${l.age}</span></div>
+  <div class="topline"><button class="back" id="bk">${I.back} Thuis</button><span class="label">Niveau ${n} · ${l.age}</span></div>
   <div class="lvhero"><div class="lvh-t"><span class="bn-k">Niveau ${n}</span><h1>${l.name}</h1>
     ${pass?`<span class="bn-s2">✓ Foutloos gehaald!</span>`:`<span class="bn-bar"><i style="width:${Math.round(lessonsDone(l)/l.lessons.length*100)}%"></i></span><span class="bn-s2">${lessonsDone(l)} van ${l.lessons.length} lessen</span>`}
     ${pass?`<div class="lvh-b">${n<5?`<button class="btn go small" id="gonext">Naar niveau ${n+1} ${I.next}</button>`:''}<button class="btn small lvh-dip" id="dipl">${ic('medal',18)} Diploma</button></div>`:''}</div>
@@ -2638,8 +2660,8 @@ function levelView(n){
 function routeView(l,n,eo,pass){
   const p=P(), items=l.lessons.map((x,i)=>({i,x,open:lessonOpen(l,i),done:!!p.lessons[x.id]})); items.push({exam:true,open:eo,done:pass});
   const nowI=items.findIndex(it=>it.open&&!it.done);
-  const cols=4, RH=(window.innerHeight&&window.innerHeight<720)?76:84, rows=Math.ceil(items.length/cols), H=rows*RH+6;
-  const pos=items.map((_,k)=>{const r=Math.floor(k/cols),c=k%cols,cc=r%2?cols-1-c:c;return [(cc+.5)/cols*100,30+r*RH];});
+  const cols=4, RH=(window.innerHeight&&window.innerHeight<720)?76:84, rows=Math.ceil(items.length/cols), H=rows*RH+18;
+  const pos=items.map((_,k)=>{const r=Math.floor(k/cols),c=k%cols,cc=r%2?cols-1-c:c;return [(cc+.5)/cols*100,42+r*RH];});
   let segs='';
   for(let k=0;k<pos.length-1;k++){const [x1,y1]=pos[k],[x2,y2]=pos[k+1];
     const d=y1===y2?`M${x1} ${y1} L${x2} ${y2}`:(()=>{const side=x1>50?1:-1;return `M${x1} ${y1} C${x1+side*16} ${y1} ${x2+side*16} ${y2} ${x2} ${y2}`;})();
@@ -2686,7 +2708,7 @@ function lessonView(){
     <div class="art" id="art">${art(sl.art)}</div>
     <div class="qrow"><button class="speak" id="sp" aria-label="Lees voor">${I.speaker}</button><p class="say" id="say">${sentSpans(sl.say)}</p></div>
   </div>
-  ${last&&!testOpen?`<p class="note">De toets van deze les gaat open als je de lessen ervoor hebt gedaan.</p>`:''}
+  ${last&&!testOpen?(li===0&&opfrisNeeded(n)?`<p class="note">Doe eerst even de opfris-quiz van niveau ${n}. Daarna gaat de toets van deze les open. <button class="linkbtn" id="opf2">Nu opfrissen</button></p>`:`<p class="note">Maak eerst les ${(()=>{let j=0;while(j<li&&P().lessons[lv.lessons[j].id])j++;return j+1;})()} af. Daarna gaat de toets van deze les open.</p>`):''}
   <div class="navrow">
     ${i>0?`<button class="btn alt" id="pv">${I.back} Terug</button>`:'<span></span>'}
     <button class="btn ${last?'go':''}" id="nx" ${last&&!testOpen?'disabled':''}>${last?'Naar de toets':'Verder'} ${I.next}</button>
@@ -2696,6 +2718,7 @@ function lessonView(){
   if(S.auto) speakSpans(sayEl,sp);
   document.getElementById('bk').onclick=()=>go({view:'level',n,tab:'les'},'back');
   if(i>0) document.getElementById('pv').onclick=()=>go({view:'lesson',n,li,i:i-1},'back');
+  const o2=document.getElementById('opf2'); if(o2) o2.onclick=()=>startQuiz({n,title:`Opfrissen niveau ${n}`,kind:'opfris',src:()=>opfrisFor(n)});
   document.getElementById('nx').onclick=()=>{ if(last) startQuiz({n,title:le.title,kind:'lesson',li,src:()=>le.quiz}); else go({view:'lesson',n,li,i:i+1}); };
 }
 function slideReview(){
@@ -2771,16 +2794,19 @@ function quizView(){
   const readQ=()=>speakSpans(document.getElementById('qtext'),sp,optTail);
   sp.onclick=()=>{ if(ans!=null) speak(q.tap?q.result[1]:q.why,sp); else readQ(); };
   const leave=()=>go(c.kind==='bak'?{view:'home'}:{view:'level',n:c.n,tab:c.kind==='game'?'spel':'les'});
-  document.getElementById('bk').onclick=()=>{
-    if(c.k===0&&c.answered==null){leave();return;}
+  const ask=onStop=>{
+    if(app.querySelector('.confirm')) return;
     hush(); stopTimer();
     const ov=document.createElement('div'); ov.className='confirm'; ov.setAttribute('role','dialog'); ov.setAttribute('aria-modal','true');
     ov.innerHTML=`<div class="confirm-box"><h2>Wil je echt stoppen?</h2><p class="say">Wat je in deze ${c.kind==='game'?'ronde':'toets'} hebt gedaan, gaat dan verloren. Je shuttles houd je.</p><div class="navrow"><button class="btn alt" id="cfstop">Stoppen</button><button class="btn go" id="cfgo">Doorgaan</button></div></div>`;
     app.appendChild(ov);
     document.getElementById('cfgo').onclick=()=>{ov.remove(); if(q.timer&&c.answered==null) startTimer(q.timer);};
-    document.getElementById('cfstop').onclick=leave;
+    document.getElementById('cfstop').onclick=onStop;
     document.getElementById('cfgo').focus();
   };
+  const busy=!(c.k===0&&c.answered==null);
+  guard=busy?ask:null;
+  document.getElementById('bk').onclick=()=>{ if(!busy){leave();return;} ask(leave); };
   app.querySelectorAll('.opt').forEach(b=>b.onclick=()=>answer(+b.dataset.i,b));
   if(H){const hp=document.getElementById('hp'), hsp=document.getElementById('hsp');
     document.getElementById('hb').onclick=()=>{hp.hidden=false; if(S.auto) speak(H.text,hsp);};
@@ -3102,7 +3128,7 @@ function settingsView(){
   <div class="topline"><button class="back" id="bk">${I.back} Terug</button><span class="label">Instellingen</span></div>
   <div class="tabs" role="tablist">${[['algemeen','Algemeen'],['spelers','Spelers'],['ouders','Ouders'],['trainer','Trainer']].map(([k,t])=>`<button role="tab" class="tab ${tab===k?'on':''}" data-tab="${k}" aria-selected="${tab===k}">${t}</button>`).join('')}</div>
   <div class="card stack">${body}</div>`;
-  document.getElementById('bk').onclick=()=>go({view:'home'},'back');
+  document.getElementById('bk').onclick=()=>goBack();
   app.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{cur.tab=b.dataset.tab;render();});
   app.querySelectorAll('[data-p]').forEach(b=>b.onclick=()=>{S.current=b.dataset.p;save();render();});
   const pf=document.getElementById('pf'); if(pf) pf.onsubmit=e=>{e.preventDefault();const nm=document.getElementById('pn').value.trim();if(!nm)return;S.profiles[nm]=S.profiles[nm]||newProfile();S.current=nm;save();render();};
@@ -3118,7 +3144,7 @@ function settingsView(){
   const av=document.getElementById('allv'); if(av) av.onchange=e=>{S.allv=e.target.checked;save();render();};
   const sps=document.getElementById('sps'); if(sps) sps.onchange=e=>{S.nosplash=!e.target.checked;save();};
   const snd=document.getElementById('snd'); if(snd) snd.onchange=e=>{S.nosound=!e.target.checked;save();if(!S.nosound)kaching();};
-  const spv=document.getElementById('spv'); if(spv) spv.onclick=()=>go({view:'splash'});
+  const spv=document.getElementById('spv'); if(spv) spv.onclick=()=>go({view:'splash',from:'settings'});
   const bg=document.getElementById('bg'); if(bg) bg.onchange=e=>{S.big=e.target.checked;save();render();};
   const tm=document.getElementById('tm'); if(tm) tm.onchange=e=>{S.testmode=e.target.checked;save();render();};
   const LV=n=>LEVELS[n-1];
@@ -3194,7 +3220,7 @@ function splashView(){
     </div>
   </div>`;
   fitLockup(); if(document.fonts){document.fonts.load('700 100px Fredoka').then(fitLockup).catch(()=>{}); document.fonts.ready.then(fitLockup); document.fonts.onloadingdone=()=>fitLockup();}
-  const startNow=()=>{hush(); choosePlayer(document.getElementById('spn').value); if(!openFromHash()) go({view:'home'});};
+  const startNow=()=>{hush(); choosePlayer(document.getElementById('spn').value); if(cur.from==='settings'){go({view:'settings',tab:'algemeen'},'back');return;} if(!openFromHash()) go({view:'home'});};
   document.getElementById('start').onclick=startNow;
   document.getElementById('spform').onsubmit=e=>{e.preventDefault(); startNow();};
   document.getElementById('nosplash').onchange=e=>{S.nosplash=e.target.checked;save();};
