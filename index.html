@@ -1052,8 +1052,44 @@ function spoken(text){
   return text.replace(/<[^>]+>/g,'').replace(/(\d+)\s*[–-]\s*(\d+)/g,'$1 $2').replace(/1,15 m\b/g,'1 meter 15').replace(/1,55 m\b/g,'1 meter 55').replace(/1,524 m\b/g,'1 meter 52')
     .replace(/(\d+) s\b/g,'$1 seconden').replace(/ · /g,', ').replace(EN_RE,m=>{const r=EN_SAY[m.toLowerCase()];return /^[A-Z]/.test(m)?r.charAt(0).toUpperCase()+r.slice(1):r;});
 }
+/* ---------- vooraf ingesproken geluid (zelfde stem op elke telefoon) ---------- */
+const AUDIO_DIR='audio/a1/';
+let AUDIO=null; const player=(typeof Audio!=='undefined')?new Audio():null; let playId=0;
+function decodeEnt(t){return t.replace(/&nbsp;/g,' ').replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&#39;/g,"'");}
+function splitSents(html){return html.replace(/([.!?])\s+(?=[A-ZÀ-Ý0-9<"'(])/g,'$1\u0001').split('\u0001');}
+function sayKey(t){return spoken(decodeEnt(String(t))).replace(/\s+/g,' ').trim();}
+function sayHash(k){let h=0x811c9dc5;for(let i=0;i<k.length;i++){h^=k.charCodeAt(i);h=Math.imul(h,0x01000193)>>>0;}return ('0000000'+h.toString(16)).slice(-8);}
+function clipUrl(t){if(!AUDIO||!player) return null; const k=sayKey(t); if(!k) return null; const h=sayHash(k); return AUDIO.has(h)?AUDIO_DIR+h+'.mp3':null;}
+try{ if(typeof fetch!=='undefined'&&location.protocol!=='file:') fetch(AUDIO_DIR+'index.json').then(r=>r.ok?r.json():null).then(j=>{if(j&&j.h) AUDIO=new Set(j.h);}).catch(()=>{}); }catch(e){}
+/* speel een rij fragmenten achter elkaar; geeft false terug als er één ontbreekt */
+function playClips(items,btn,force){
+  const urls=items.map(it=>clipUrl(it.t)); if(!urls.length) return false;
+  const have=urls.filter(Boolean).length; if(!have) return false;
+  if(!force&&have<urls.length&&!synth) return false;
+  hush(); const id=++playId; let i=0;
+  if(btn){speakingBtn=btn;btn.classList.add('on');}
+  const clear=()=>items.forEach(it=>it.el&&it.el.classList.remove('reading'));
+  const done=()=>{clear(); if(btn) btn.classList.remove('on');};
+  const next=()=>{ if(id!==playId) return; clear(); if(i>=items.length){done();return;}
+    const it=items[i], url=urls[i]; i++; if(it.el) it.el.classList.add('reading');
+    if(url){ player.src=url; player.playbackRate=S.rate||1; try{player.preservesPitch=true;}catch(e){}
+      player.onended=()=>{ if(id===playId) next(); }; player.onerror=()=>{ if(id===playId) next(); };
+      const pr=player.play(); if(pr&&pr.catch) pr.catch(()=>{ if(id===playId) done(); }); }
+    else if(synth){ const v=pickVoice(); const u=new SpeechSynthesisUtterance(spoken(it.t)); u.lang=v?v.lang:'nl-NL'; if(v) u.voice=v; u.rate=S.rate; u.pitch=1;
+      u.onend=()=>{ if(id===playId) next(); }; u.onerror=()=>{ if(id===playId) next(); }; try{synth.cancel();synth.speak(u);}catch(e){next();} }
+    else next(); };
+  next(); return true;
+}
 function speak(text,btn,forced){
+  if(!forced&&text&&AUDIO){ if(clipUrl(text)){playClips([{t:text}],btn);return;}
+    const ps=splitSents(String(text)); if(ps.length>1){ const rest=ps.slice(1).join(' ');
+      if(clipUrl(ps[0])&&clipUrl(rest)){playClips([{t:ps[0]},{t:rest}],btn);return;}
+      if(playClips(ps.map(t=>({t})),btn)) return; } }
+  speakSynth(text,btn,forced);
+}
+function speakSynth(text,btn,forced){
   if(!synth||!text) return;
+  playId++; if(player){try{player.pause();}catch(e){}}
   try{synth.cancel();}catch(e){}
   if(speakingBtn) speakingBtn.classList.remove('on');
   const u=new SpeechSynthesisUtterance(spoken(text));
@@ -1063,13 +1099,17 @@ function speak(text,btn,forced){
 }
 /* voorlezen per zin, met de zin die gelezen wordt opgelicht */
 function sentSpans(html){
-  const parts=html.replace(/([.!?])\s+(?=[A-ZÀ-Ý0-9<"'(])/g,'$1\u0001').split('\u0001');
+  const parts=splitSents(html);
   return parts.map(p=>`<span class="snt">${p}</span>`).join(' ');
 }
 let seqId=0;
 function speakSpans(root,btn,tail){
-  if(!synth||!root) return;
-  const spans=[...root.querySelectorAll('.snt')]; if(!spans.length){speak(root.textContent+(tail?'. '+tail:''),btn);return;}
+  if(!root) return;
+  const spans=[...root.querySelectorAll('.snt')]; if(!spans.length){speak(root.textContent+(tail?'. '+(Array.isArray(tail)?tail.join(' '):tail):''),btn);return;}
+  const its=spans.map(sp=>({t:sp.textContent,el:sp})); (Array.isArray(tail)?tail:tail?[tail]:[]).forEach(t=>its.push({t,el:null}));
+  if(playClips(its,btn)) return;
+  if(!synth) return;
+  playId++; if(player){try{player.pause();}catch(e){}}
   try{synth.cancel();}catch(e){}
   if(speakingBtn) speakingBtn.classList.remove('on');
   const id=++seqId; const v=pickVoice();
@@ -1078,7 +1118,7 @@ function speakSpans(root,btn,tail){
   /* de hele tekst in één keer: dan loopt de intonatie natuurlijk door */
   let full='', starts=[];
   spans.forEach(sp=>{starts.push(full.length); full+=spoken(sp.textContent).trim()+' ';});
-  if(tail) full+=spoken(tail);
+  if(tail) full+=spoken(Array.isArray(tail)?tail.join(' '):tail);
   const u=new SpeechSynthesisUtterance(full.trim()); u.lang=v?v.lang:'nl-NL'; if(v) u.voice=v; u.rate=S.rate; u.pitch=1;
   let cur=-1;
   const mark=i=>{ if(i===cur) return; cur=i; clear(); if(spans[i]) spans[i].classList.add('reading'); };
@@ -1088,7 +1128,7 @@ function speakSpans(root,btn,tail){
   u.onerror=()=>{ clear(); if(btn) btn.classList.remove('on'); };
   try{synth.speak(u);}catch(e){}
 }
-function hush(){ seqId++; document.querySelectorAll('.snt.reading').forEach(x=>x.classList.remove('reading')); if(synth) try{synth.cancel();}catch(e){} }
+function hush(){ playId++; if(player){try{player.pause();}catch(e){}} if(speakingBtn) speakingBtn.classList.remove('on'); seqId++; document.querySelectorAll('.snt.reading').forEach(x=>x.classList.remove('reading')); if(synth) try{synth.cancel();}catch(e){} }
 
 /* =========================================================
    BAAN (meters; net op y=0; eigen helft onderaan, y>0)
@@ -2707,7 +2747,7 @@ function quizView(){
   </div>`;
   const tsk=document.getElementById('tskip'); if(tsk) tsk.onclick=()=>{hush(); try{stopTimer();}catch(e){} if(c.k===c.qs.length-1) finish(); else {c.k++;c.answered=null;render();}};
   const sp=document.getElementById('sp');
-  const optTail=q.opts&&(q.t==='mc'||q.t==='score'||q.t==='dub')?q.opts.join('? ')+'?':'';
+  const optTail=q.opts&&(q.t==='mc'||q.t==='score'||q.t==='dub')?q.opts.map(o=>o+'?'):'';
   const readQ=()=>speakSpans(document.getElementById('qtext'),sp,optTail);
   sp.onclick=()=>{ if(ans!=null) speak(q.tap?q.result[1]:q.why,sp); else readQ(); };
   const leave=()=>go(c.kind==='bak'?{view:'home'}:{view:'level',n:c.n,tab:c.kind==='game'?'spel':'les'});
@@ -2928,7 +2968,7 @@ function reviewView(){
     ${c.ri>0?`<button class="btn alt" id="pv">${I.back} Vorige</button>`:'<span></span>'}
     <button class="btn ${last?'go':''}" id="nx">${last?'Klaar':'Volgende'} ${I.next}</button>
   </div>`;
-  const sp=document.getElementById('sp'); const t=m.q+'. '+(m.a?'Goed antwoord: '+m.a+'. ':'')+m.why; sp.onclick=()=>speak(t,sp);
+  const sp=document.getElementById('sp'); const t=m.q+'. '+(m.a?'Goed antwoord: '+m.a+'. ':'')+m.why; sp.onclick=()=>{const its=splitSents(m.q).map(x=>({t:decodeEnt(x.replace(/<[^>]+>/g,''))})); if(m.a){its.push({t:'Goed antwoord:'});its.push({t:m.a+'.'});} its.push({t:m.why}); if(!playClips(its,sp)) speakSynth(t,sp);};
   const back=()=>{hush();cur=c.back;render();};
   document.getElementById('bk').onclick=back;
   if(c.ri>0) document.getElementById('pv').onclick=()=>{c.ri--;hush();render();};
